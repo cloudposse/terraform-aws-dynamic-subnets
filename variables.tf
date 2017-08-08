@@ -19,13 +19,13 @@ variable "vpc_id" {
 }
 
 variable "availability_zones" {
-  type        = "list"
+  type = "list"
 }
 
 variable "igw_id" {
-  default     = ""
+  default = ""
 }
 
 variable "vpc_default_route_table" {
-  default     = ""
+  default = ""
 }

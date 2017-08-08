@@ -8,7 +8,7 @@ resource "aws_subnet" "private" {
 }
 
 resource "aws_route_table" "private" {
-  count = "${length(var.availability_zones)}"
+  count  = "${length(var.availability_zones)}"
   vpc_id = "${data.aws_vpc.default.id}"
 
   route {
@@ -16,7 +16,7 @@ resource "aws_route_table" "private" {
     nat_gateway_id = "${element(aws_nat_gateway.default.*.id, count.index)}"
   }
 
-  tags             = "${module.tf_label.tags}"
+  tags = "${module.tf_label.tags}"
 }
 
 resource "aws_route_table_association" "private" {
