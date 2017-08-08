@@ -1,6 +1,6 @@
 # tf_subnets
 
-## Module usage
+## Module Usage
 
 ### Argument Reference
 
