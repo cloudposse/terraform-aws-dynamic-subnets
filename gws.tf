@@ -16,9 +16,3 @@ resource "aws_nat_gateway" "default" {
     create_before_destroy = true
   }
 }
-
-resource "aws_internet_gateway" "default" {
-  count  = "${1 - signum(length(var.igw_id))}"
-  vpc_id = "${data.aws_vpc.default.id}"
-  tags   = "${module.tf_label.tags}"
-}
