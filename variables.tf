@@ -26,6 +26,6 @@ variable "igw_id" {
   default = ""
 }
 
-variable "vpc_default_route_table" {
+variable "vpc_default_route_table_id" {
   default = ""
 }

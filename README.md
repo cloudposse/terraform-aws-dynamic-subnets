@@ -16,7 +16,7 @@ you plan to use new (separate) VPC.
 * `namespace`: (Required) Namespace associated with these resources
 * `vpc_id`: (Required) AWS Virtual Private Cloud ID.
 * `igw_id`: (Required) AWS Internet Gateway for public subnets. Only one igw can be attached to a VPC.
-* `vpc_default_route_table`: A default route table for public subnets. Provides access to Internet. If not set here - will be created.
+* `vpc_default_route_table_id`: A default route table for public subnets. Provides access to Internet. If not set here - will be created.
 
 ```
 module "tf_subnets" {
@@ -29,6 +29,6 @@ module "tf_subnets" {
   region                  = "${var.region}"
   vpc_id                  = "${var.vpc_id}"
   igw_id                  = "${var.igw_id}"
-  vpc_default_route_table = "${var.vpc_default_route_table}"
+  vpc_default_route_table_id = "${var.vpc_default_route_table_id}"
 }
 ```
