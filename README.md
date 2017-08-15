@@ -22,13 +22,13 @@ you plan to use new (separate) VPC.
 module "subnets" {
   source = "git::https://github.com/cloudposse/tf_subnets.git?ref=master"
 
-  availability_zones      = "${var.availability_zones}"
-  namespace               = "${var.namespace}"
-  name                    = "${var.name}"
-  stage                   = "${var.stage}"
-  region                  = "${var.region}"
-  vpc_id                  = "${var.vpc_id}"
-  igw_id                  = "${var.igw_id}"
+  availability_zones         = "${var.availability_zones}"
+  namespace                  = "${var.namespace}"
+  name                       = "${var.name}"
+  stage                      = "${var.stage}"
+  region                     = "${var.region}"
+  vpc_id                     = "${var.vpc_id}"
+  igw_id                     = "${var.igw_id}"
   vpc_default_route_table_id = "${var.vpc_default_route_table_id}"
 }
 ```
