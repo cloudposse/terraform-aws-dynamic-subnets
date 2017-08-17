@@ -29,3 +29,7 @@ variable "igw_id" {
 variable "vpc_default_route_table_id" {
   default = ""
 }
+
+variable "nat_gateway_eip_enabled" {
+  default = true
+}

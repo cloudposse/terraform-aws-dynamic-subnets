@@ -6,7 +6,7 @@ module "private_label" {
 }
 
 resource "aws_subnet" "private" {
-  count = "${length(var.availability_zones)}"
+  count             = "${length(var.availability_zones)}"
 
   vpc_id            = "${data.aws_vpc.default.id}"
   availability_zone = "${element(var.availability_zones, count.index)}"
@@ -15,7 +15,7 @@ resource "aws_subnet" "private" {
 }
 
 resource "aws_route_table" "private" {
-  count  = "${length(var.availability_zones)}"
+  count  = "${var.nat_gateway_eip_enabled == true ? 0 : length(var.availability_zones)}"
   vpc_id = "${data.aws_vpc.default.id}"
 
   route {
@@ -23,11 +23,11 @@ resource "aws_route_table" "private" {
     nat_gateway_id = "${element(aws_nat_gateway.default.*.id, count.index)}"
   }
 
-  tags = "${module.private_label.tags}"
+  tags   = "${module.private_label.tags}"
 }
 
 resource "aws_route_table_association" "private" {
-  count = "${length(var.availability_zones)}"
+  count          = "${var.nat_gateway_eip_enabled == true ? 0 : length(var.availability_zones)}"
 
   subnet_id      = "${element(aws_subnet.private.*.id, count.index)}"
   route_table_id = "${element(aws_route_table.private.*.id, count.index)}"
