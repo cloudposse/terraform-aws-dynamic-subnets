@@ -31,5 +31,5 @@ variable "vpc_default_route_table_id" {
 }
 
 variable "nat_gateway_eip_enabled" {
-  default = 1
+  default = true
 }

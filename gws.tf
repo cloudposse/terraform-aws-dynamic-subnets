@@ -1,5 +1,5 @@
 resource "aws_eip" "default" {
-  count = "${var.nat_gateway_eip_enabled == 1 ? 0 : length(var.availability_zones)}"
+  count = "${var.nat_gateway_eip_enabled == true ? 0 : length(var.availability_zones)}"
   vpc   = true
 
   lifecycle {
@@ -8,7 +8,7 @@ resource "aws_eip" "default" {
 }
 
 resource "aws_nat_gateway" "default" {
-  count         = "${var.nat_gateway_eip_enabled == 1 ? 0 : length(var.availability_zones)}"
+  count         = "${var.nat_gateway_eip_enabled == true ? 0 : length(var.availability_zones)}"
   allocation_id = "${element(aws_eip.default.*.id, count.index)}"
   subnet_id     = "${element(aws_subnet.private.*.id, count.index)}"
 
