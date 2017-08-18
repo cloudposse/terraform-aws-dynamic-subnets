@@ -15,7 +15,8 @@ resource "aws_subnet" "private" {
     cidrsubnet(
     signum(length(var.cidr_block)) == 1 ?
     var.cidr_block : data.aws_vpc.default.cidr_block,
-    data.aws_availability_zones.available.count * 2, count.index)
+    ceil(log(length(data.aws_availability_zones.available.names), 2)),
+    count.index)
   }"
 
   tags = "${module.private_label.tags}"
