@@ -10,7 +10,13 @@ resource "aws_subnet" "public" {
 
   vpc_id            = "${data.aws_vpc.default.id}"
   availability_zone = "${element(var.availability_zones, count.index)}"
-  cidr_block        = "${cidrsubnet(data.aws_vpc.default.cidr_block, length(var.availability_zones), count.index)}"
+
+  cidr_block = "${
+    cidrsubnet(
+    signum(length(var.cidr_block)) == 1 ?
+    var.cidr_block : data.aws_vpc.default.cidr_block,
+    data.aws_availability_zones.available.count, count.index)
+  }"
 
   tags = "${module.public_label.tags}"
 }
@@ -23,17 +29,18 @@ resource "aws_route_table" "public" {
     cidr_block = "0.0.0.0/0"
     gateway_id = "${var.igw_id}"
   }
+
   tags = "${module.public_label.tags}"
 }
 
 resource "aws_route_table_association" "public" {
-  count = "${signum(length(var.vpc_default_route_table_id)) == 1 ? 0 : length(var.availability_zones)}"
+  count          = "${signum(length(var.vpc_default_route_table_id)) == 1 ? 0 : length(var.availability_zones)}"
   subnet_id      = "${element(aws_subnet.public.*.id, count.index)}"
   route_table_id = "${aws_route_table.public.id}"
 }
 
 resource "aws_route_table_association" "public_default" {
-  count = "${signum(length(var.vpc_default_route_table_id)) == 1 ? length(var.availability_zones) : 0}"
+  count          = "${signum(length(var.vpc_default_route_table_id)) == 1 ? length(var.availability_zones) : 0}"
   subnet_id      = "${element(aws_subnet.public.*.id, count.index)}"
   route_table_id = "${var.vpc_default_route_table_id}"
 }

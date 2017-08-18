@@ -18,6 +18,10 @@ variable "vpc_id" {
   default = ""
 }
 
+variable "cidr_block" {
+  default = ""
+}
+
 variable "availability_zones" {
   type = "list"
 }
