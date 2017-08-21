@@ -10,8 +10,16 @@ resource "aws_subnet" "private" {
 
   vpc_id            = "${data.aws_vpc.default.id}"
   availability_zone = "${element(var.availability_zones, count.index)}"
-  cidr_block        = "${cidrsubnet(data.aws_vpc.default.cidr_block, length(var.availability_zones), length(var.availability_zones)  + count.index)}"
-  tags              = "${module.private_label.tags}"
+
+  cidr_block = "${
+    cidrsubnet(
+    signum(length(var.cidr_block)) == 1 ?
+    var.cidr_block : data.aws_vpc.default.cidr_block,
+    ceil(log(length(data.aws_availability_zones.available.names) * 2, 2)),
+    count.index)
+  }"
+
+  tags = "${module.private_label.tags}"
 }
 
 resource "aws_route_table" "private" {
