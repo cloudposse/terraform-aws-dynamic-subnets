@@ -1,5 +1,5 @@
 terraform {
-  required_version = "~> 0.10.1"
+  required_version = "~> 0.10.2"
 }
 
 provider "aws" {
@@ -12,3 +12,13 @@ data "aws_vpc" "default" {
 }
 
 data "aws_availability_zones" "available" {}
+
+# Get the Internet Gateway attached to the VPC
+# https://www.terraform.io/docs/providers/aws/d/internet_gateway.html
+# https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeInternetGateways.html
+data "aws_internet_gateway" "default" {
+  filter {
+    name   = "attachment.vpc-id"
+    values = ["${var.vpc_id}"]
+  }
+}

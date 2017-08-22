@@ -26,10 +26,6 @@ variable "availability_zones" {
   type = "list"
 }
 
-variable "igw_id" {
-  default = ""
-}
-
 variable "vpc_default_route_table_id" {
   default = ""
 }
