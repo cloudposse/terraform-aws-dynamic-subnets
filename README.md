@@ -19,7 +19,7 @@ you plan to use new (separate) VPC.
 
 ```
 module "subnets" {
-  source = "git::https://github.com/cloudposse/tf_subnets.git?ref=master"
+  source = "git::https://github.com/cloudposse/tf_subnets.git?ref=tags/0.1.6"
 
   availability_zones         = "${var.availability_zones}"
   namespace                  = "${var.namespace}"
