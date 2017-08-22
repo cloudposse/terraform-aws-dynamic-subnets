@@ -6,12 +6,12 @@ module "public_label" {
 }
 
 resource "aws_subnet" "public" {
-  count = "${length(var.availability_zones)}"
+  count             = "${length(var.availability_zones)}"
 
   vpc_id            = "${data.aws_vpc.default.id}"
   availability_zone = "${element(var.availability_zones, count.index)}"
 
-  cidr_block = "${
+  cidr_block        = "${
     cidrsubnet(
     signum(length(var.cidr_block)) == 1 ?
     var.cidr_block : data.aws_vpc.default.cidr_block,
@@ -19,7 +19,7 @@ resource "aws_subnet" "public" {
     length(data.aws_availability_zones.available.names) + count.index)
   }"
 
-  tags = "${module.public_label.tags}"
+  tags              = "${module.public_label.tags}"
 }
 
 resource "aws_route_table" "public" {
@@ -28,10 +28,10 @@ resource "aws_route_table" "public" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = "${var.igw_id}"
+    gateway_id = "${data.aws_internet_gateway.default.id}"
   }
 
-  tags = "${module.public_label.tags}"
+  tags   = "${module.public_label.tags}"
 }
 
 resource "aws_route_table_association" "public" {
