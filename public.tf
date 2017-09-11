@@ -5,25 +5,12 @@ module "public_label" {
   name      = "${var.name}-public"
 }
 
-resource "null_resource" "public_cidr_block" {
-  triggers = {
-    subnet = "${
-      cidrsubnet(
-      signum(length(var.cidr_block)) == 1 ?
-      var.cidr_block : data.aws_vpc.default.cidr_block,
-      ceil(log(length(data.aws_availability_zones.available.names) * 2, 2)),
-      length(data.aws_availability_zones.available.names) + count.index)
-    }"
-  }
-}
-
 resource "aws_subnet" "public" {
   count             = "${length(var.availability_zones)}"
   vpc_id            = "${data.aws_vpc.default.id}"
   availability_zone = "${element(var.availability_zones, count.index)}"
-  cidr_block        = "${null_resource.public_cidr_block.triggers.subnet}"
+  cidr_block        = "${cidrsubnet(var.cidr_block, ceil(log(length(data.aws_availability_zones.available.names) * 2, 2)), length(data.aws_availability_zones.available.names) + count.index)}"
   tags              = "${module.public_label.tags}"
-  depends_on        = ["null_resource.public_cidr_block"]
 }
 
 resource "aws_route_table" "public" {

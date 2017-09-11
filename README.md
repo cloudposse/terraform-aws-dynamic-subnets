@@ -16,7 +16,9 @@ you plan to use new (separate) VPC.
 * `namespace`: (Required) Namespace associated with these resources
 * `vpc_id`: (Required) AWS Virtual Private Cloud ID.
 * `vpc_default_route_table_id`: A default route table for public subnets. Provides access to Internet. If not set here - will be created.
+* `create_network_acl`: The new set of ACLs that will be associated with these resources
 
+Simple example
 ```
 module "subnets" {
   source = "git::https://github.com/cloudposse/tf_subnets.git?ref=master"
@@ -29,6 +31,30 @@ module "subnets" {
   vpc_id                     = "${var.vpc_id}"
   cidr_block                 = "${var.cidr_block}"
   vpc_default_route_table_id = "${var.vpc_default_route_table_id}"
+  create_network_acl         = true
+  depends_on                 = ["${module.vpc.internet_gateway_id}"]
+}
+```
+
+Advanced example
+```
+data "aws_vpc" "default" {
+  id = "${var.vpc_id}"
+}
+
+module "subnets" {
+  source = "git::https://github.com/cloudposse/tf_subnets.git?ref=master"
+
+  availability_zones         = "${var.availability_zones}"
+  namespace                  = "${var.namespace}"
+  name                       = "${var.name}"
+  stage                      = "${var.stage}"
+  region                     = "${var.region}"
+  vpc_id                     = "${data.aws_vpc.default.id}"
+  cidr_block                 = "${data.aws_vpc.default.cidr_block}"
+  vpc_default_route_table_id = "${var.vpc_default_route_table_id}"
+  create_network_acl         = true
+  depends_on                 = ["${module.vpc.internet_gateway_id}"]
 }
 ```
 
@@ -44,6 +70,9 @@ module "subnets" {
 | cidr_block                   | ``             | The base CIDR block which will be divided into subnet CIDR blocks (e.g. `10.0.0.0/16`)                                               | Yes      |
 | vpc_default_route_table_id   | ``             | The default route table for public subnets. Provides access to the Internet. If not set here, will be created. (e.g. `rtb-f4f0ce12`) | No       |
 | availability_zones           | []             | The list of Availability Zones where subnets will be created (e.g. `["us-eas-1a", "us-eas-1b"]`)                                     | Yes      |
+| create_network_acl           | false          | Will create new set of ACLs that will be associated with these resources                                                             | No       |
+| depends_on                   | []             | List of dependencies                                                                                                                 | No       |
+
 
 
 ## TL;DR

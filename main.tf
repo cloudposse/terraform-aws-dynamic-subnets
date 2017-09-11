@@ -13,10 +13,17 @@ data "aws_vpc" "default" {
 
 data "aws_availability_zones" "available" {}
 
+resource "null_resource" "default" {
+  triggers = {
+    default = "${join(" ", var.depends_on)}"
+  }
+}
+
 # Get the Internet Gateway attached to the VPC
 # https://www.terraform.io/docs/providers/aws/d/internet_gateway.html
 # https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeInternetGateways.html
 data "aws_internet_gateway" "default" {
+  depends_on = ["null_resource.default"]
   filter {
     name   = "attachment.vpc-id"
     values = ["${var.vpc_id}"]
