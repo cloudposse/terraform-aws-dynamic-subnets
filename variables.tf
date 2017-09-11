@@ -38,3 +38,17 @@ variable "depends_on" {
   type = "list"
   default = []
 }
+
+variable "delimiter" {
+  default = "-"
+}
+
+variable "attributes" {
+  type    = "list"
+  default = []
+}
+
+variable "tags" {
+  type    = "map"
+  default = {}
+}
