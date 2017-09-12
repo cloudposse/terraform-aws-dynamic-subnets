@@ -20,11 +20,11 @@ module "subnets" {
   stage                      = "${var.stage}"
   region                     = "${var.region}"
   vpc_id                     = "${var.vpc_id}"
+  igw_id                     = "${var.igw_id}"
   cidr_block                 = "${var.cidr_block}"
   vpc_default_route_table_id = "${var.vpc_default_route_table_id}"
   public_network_acl_id      = "${var.public_network_acl_id}"
   private_network_acl_id     = "${var.private_network_acl_id}"
-  depends_on                 = ["${module.vpc.internet_gateway_id}"]
 }
 ```
 
@@ -39,11 +39,12 @@ module "subnets" {
 | region                       | ``             | AWS Region where module should operate (e.g. `us-east-1`)                                                                            | Yes      |
 | vpc_id                       | ``             | The VPC ID where subnets will be created (e.g. `vpc-aceb2723`)                                                                       | Yes      |
 | cidr_block                   | ``             | The base CIDR block which will be divided into subnet CIDR blocks (e.g. `10.0.0.0/16`)                                               | Yes      |
+| igw_id                       | ``             | The Internet Gateway ID public route table will point to (e.g. `igw-9c26a123`)                                                       | Yes      |
 | vpc_default_route_table_id   | ``             | The default route table for public subnets. Provides access to the Internet. If not set here, will be created. (e.g. `rtb-f4f0ce12`) | No       |
 | availability_zones           | []             | The list of Availability Zones where subnets will be created (e.g. `["us-eas-1a", "us-eas-1b"]`)                                     | Yes      |
 | public_network_acl_id        | ``             | Network ACL ID that will be added to public subnets.  If empty, a new ACL will be created                                            | No       |
 | private_network_acl_id       | ``             | Network ACL ID that will be added to private subnets.  If empty, a new ACL will be created                                           | No       |
-| depends_on                   | []             | List of dependencies                                                                                                                 | No       |
+
 
 
 

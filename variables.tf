@@ -18,10 +18,6 @@ variable "vpc_default_route_table_id" {
   default = ""
 }
 
-variable "create_network_acl" {
-  default = false
-}
-
 variable "depends_on" {
   type    = "list"
   default = []
@@ -48,3 +44,5 @@ variable "public_network_acl_id" {
 variable "private_network_acl_id" {
   default = ""
 }
+
+variable "igw_id" {}
