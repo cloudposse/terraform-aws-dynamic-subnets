@@ -1,26 +1,14 @@
-variable "region" {
-  default = ""
-}
+variable "region" {}
 
-variable "namespace" {
-  default = ""
-}
+variable "namespace" {}
 
-variable "stage" {
-  default = ""
-}
+variable "stage" {}
 
-variable "name" {
-  default = ""
-}
+variable "name" {}
 
-variable "vpc_id" {
-  default = ""
-}
+variable "vpc_id" {}
 
-variable "cidr_block" {
-  default = ""
-}
+variable "cidr_block" {}
 
 variable "availability_zones" {
   type = "list"
@@ -35,7 +23,7 @@ variable "create_network_acl" {
 }
 
 variable "depends_on" {
-  type = "list"
+  type    = "list"
   default = []
 }
 
@@ -51,4 +39,12 @@ variable "attributes" {
 variable "tags" {
   type    = "map"
   default = {}
+}
+
+variable "public_network_acl_id" {
+  default = ""
+}
+
+variable "private_network_acl_id" {
+  default = ""
 }
