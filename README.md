@@ -9,15 +9,6 @@ Internet Gateway.
 You should use [tf_vpc](https://github.com/cloudposse/tf_vpc) module if
 you plan to use new (separate) VPC.
 
-* `availability_zones`: (Required) List of AZ.
-* `name`: (Required) Name of these resources
-* `region`: (Required) AWS region. Used to find remote state.
-* `stage`: (Required) Stage associated with these resources
-* `namespace`: (Required) Namespace associated with these resources
-* `vpc_id`: (Required) AWS Virtual Private Cloud ID.
-* `vpc_default_route_table_id`: A default route table for public subnets. Provides access to Internet. If not set here - will be created.
-* `create_network_acl`: The new set of ACLs that will be associated with these resources
-
 Simple example
 ```
 module "subnets" {
