@@ -1,26 +1,14 @@
-variable "region" {
-  default = ""
-}
+variable "region" {}
 
-variable "namespace" {
-  default = ""
-}
+variable "namespace" {}
 
-variable "stage" {
-  default = ""
-}
+variable "stage" {}
 
-variable "name" {
-  default = ""
-}
+variable "name" {}
 
-variable "vpc_id" {
-  default = ""
-}
+variable "vpc_id" {}
 
-variable "cidr_block" {
-  default = ""
-}
+variable "cidr_block" {}
 
 variable "availability_zones" {
   type = "list"
@@ -29,3 +17,27 @@ variable "availability_zones" {
 variable "vpc_default_route_table_id" {
   default = ""
 }
+
+variable "delimiter" {
+  default = "-"
+}
+
+variable "attributes" {
+  type    = "list"
+  default = []
+}
+
+variable "tags" {
+  type    = "map"
+  default = {}
+}
+
+variable "public_network_acl_id" {
+  default = ""
+}
+
+variable "private_network_acl_id" {
+  default = ""
+}
+
+variable "igw_id" {}
