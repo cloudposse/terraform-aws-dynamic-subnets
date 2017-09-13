@@ -35,6 +35,7 @@ module "subnets" {
 | namespace                    | ``             | Namespace (e.g. `cp` or `cloudposse`)                                                                                                | Yes      |
 | stage                        | ``             | Stage (e.g. `prod`, `dev`, `staging`)                                                                                                | Yes      |
 | name                         | ``             | Name  (e.g. `bastion` or `db`)                                                                                                       | Yes      |
+| tags                         | ``             | Additional tags (e.g. `Key, Value`)                                                                                                  | No       |
 | region                       | ``             | AWS Region where module should operate (e.g. `us-east-1`)                                                                            | Yes      |
 | vpc_id                       | ``             | The VPC ID where subnets will be created (e.g. `vpc-aceb2723`)                                                                       | Yes      |
 | cidr_block                   | ``             | The base CIDR block which will be divided into subnet CIDR blocks (e.g. `10.0.0.0/16`)                                               | Yes      |
@@ -43,9 +44,6 @@ module "subnets" {
 | availability_zones           | []             | The list of Availability Zones where subnets will be created (e.g. `["us-eas-1a", "us-eas-1b"]`)                                     | Yes      |
 | public_network_acl_id        | ``             | Network ACL ID that will be added to public subnets.  If empty, a new ACL will be created                                            | No       |
 | private_network_acl_id       | ``             | Network ACL ID that will be added to private subnets.  If empty, a new ACL will be created                                           | No       |
-
-
-
 
 ## TL;DR
 
