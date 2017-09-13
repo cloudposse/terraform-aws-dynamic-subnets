@@ -9,7 +9,6 @@ Internet Gateway.
 You should use [tf_vpc](https://github.com/cloudposse/tf_vpc) module if
 you plan to use new (separate) VPC.
 
-Simple example
 ```
 module "subnets" {
   source = "git::https://github.com/cloudposse/tf_subnets.git?ref=master"

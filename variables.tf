@@ -18,11 +18,6 @@ variable "vpc_default_route_table_id" {
   default = ""
 }
 
-variable "depends_on" {
-  type    = "list"
-  default = []
-}
-
 variable "delimiter" {
   default = "-"
 }
