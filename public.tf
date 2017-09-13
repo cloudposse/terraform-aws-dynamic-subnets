@@ -1,8 +1,11 @@
 module "public_label" {
-  source    = "git::https://github.com/cloudposse/tf_label.git?ref=tags/0.1.0"
-  namespace = "${var.namespace}"
-  stage     = "${var.stage}"
-  name      = "${var.name}-public"
+  source     = "git::https://github.com/cloudposse/tf_label.git?ref=tags/0.2.0"
+  namespace  = "${var.namespace}"
+  stage      = "${var.stage}"
+  name       = "${var.name}"
+  delimiter  = "${var.delimiter}"
+  attributes = ["public"]
+  tags       = "${var.tags}"
 }
 
 resource "aws_subnet" "public" {
@@ -35,4 +38,30 @@ resource "aws_route_table_association" "public_default" {
   count          = "${signum(length(var.vpc_default_route_table_id)) == 1 ? length(var.availability_zones) : 0}"
   subnet_id      = "${element(aws_subnet.public.*.id, count.index)}"
   route_table_id = "${var.vpc_default_route_table_id}"
+}
+
+resource "aws_network_acl" "public" {
+  count      = "${signum(length(var.public_network_acl_id)) == 0 ? 1 : 0}"
+  vpc_id     = "${var.vpc_id}"
+  subnet_ids = ["${aws_subnet.public.*.id}"]
+
+  egress {
+    rule_no    = 100
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 0
+    to_port    = 0
+    protocol   = "-1"
+  }
+
+  ingress {
+    rule_no    = 100
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 0
+    to_port    = 0
+    protocol   = "-1"
+  }
+
+  tags = "${module.public_label.tags}"
 }
