@@ -1,3 +1,10 @@
+module "public_subnet_label" {
+  source     = "git::https://github.com/cloudposse/tf_label.git?ref=tags/0.2.0"
+  namespace  = "${var.namespace}"
+  stage      = "${var.stage}"
+  name       = "public"
+}
+
 module "public_label" {
   source     = "git::https://github.com/cloudposse/tf_label.git?ref=tags/0.2.0"
   namespace  = "${var.namespace}"
@@ -13,7 +20,11 @@ resource "aws_subnet" "public" {
   vpc_id            = "${data.aws_vpc.default.id}"
   availability_zone = "${element(var.availability_zones, count.index)}"
   cidr_block        = "${cidrsubnet(signum(length(var.cidr_block)) == 1 ? var.cidr_block : data.aws_vpc.default.cidr_block, ceil(log(length(data.aws_availability_zones.available.names) * 2, 2)), length(data.aws_availability_zones.available.names) + count.index)}"
-  tags              = "${module.public_label.tags}"
+  tags              = {
+    "Name"          = "${module.public_subnet_label.id}-${element(var.availability_zones, count.index)}"
+    "Stage"         = "${module.public_subnet_label.stage}"
+    "Namespace"     = "${module.public_subnet_label.namespace}"
+  }
 }
 
 resource "aws_route_table" "public" {
