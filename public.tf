@@ -21,7 +21,7 @@ resource "aws_subnet" "public" {
   availability_zone = "${element(var.availability_zones, count.index)}"
   cidr_block        = "${cidrsubnet(signum(length(var.cidr_block)) == 1 ? var.cidr_block : data.aws_vpc.default.cidr_block, ceil(log(length(data.aws_availability_zones.available.names) * 2, 2)), length(data.aws_availability_zones.available.names) + count.index)}"
   tags              = {
-    "Name"          = "${module.public_subnet_label.id}-${element(var.availability_zones, count.index)}"
+    "Name"          = "${module.public_subnet_label.id}${var.delimiter}${element(var.availability_zones, count.index)}"
     "Stage"         = "${module.public_subnet_label.stage}"
     "Namespace"     = "${module.public_subnet_label.namespace}"
   }
