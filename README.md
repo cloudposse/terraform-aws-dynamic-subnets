@@ -1,6 +1,6 @@
 # terraform-aws-dynamic-subnets
 
-Terraform module for public and private subnets provisioning in existing VPC
+Terraform module for public and private [`subnets`](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_Subnets.html) provisioning in existing AWS [`VPC`](https://aws.amazon.com/vpc)
 
 
 ## Module Usage
@@ -8,7 +8,7 @@ Terraform module for public and private subnets provisioning in existing VPC
 ### Argument Reference
 
 Note: this module is intended for use with existing VPC and existing Internet Gateway.
-You should use [tf_vpc](https://github.com/cloudposse/terraform-aws-vpc) module if you plan to use new (separate) VPC.
+You should use [terraform-aws-vpc](https://github.com/cloudposse/terraform-aws-vpc) module if you plan to use a new (separate) VPC.
 
 ```hcl
 module "subnets" {
