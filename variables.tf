@@ -39,5 +39,3 @@ variable "public_network_acl_id" {
 variable "private_network_acl_id" {
   default = ""
 }
-
-variable "igw_id" {}
