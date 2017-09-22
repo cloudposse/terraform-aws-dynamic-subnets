@@ -1,17 +1,18 @@
-# tf_subnets
+# terraform-aws-dynamic-subnets
+
+Terraform module for public and private subnets provisioning in existing VPC
+
 
 ## Module Usage
 
 ### Argument Reference
 
-Note: this module is intended for use with existing VPC and existing
-Internet Gateway.
-You should use [tf_vpc](https://github.com/cloudposse/tf_vpc) module if
-you plan to use new (separate) VPC.
+Note: this module is intended for use with existing VPC and existing Internet Gateway.
+You should use [tf_vpc](https://github.com/cloudposse/terraform-aws-vpc) module if you plan to use new (separate) VPC.
 
-```
+```hcl
 module "subnets" {
-  source = "git::https://github.com/cloudposse/tf_subnets.git?ref=master"
+  source = "git::https://github.com/cloudposse/erraform-aws-dynamic-subnets.git?ref=master"
 
   availability_zones         = "${var.availability_zones}"
   namespace                  = "${var.namespace}"
@@ -56,7 +57,7 @@ interpolation.
 
 ### Calculation logic
 
-```
+```hcl
 ${
   cidrsubnet(
   signum(length(var.cidr_block)) == 1 ?
@@ -124,3 +125,8 @@ ${
     6. Assign public subnets according to AZ number but with shift.
        Using shift number according to amount of AZs in a region (see step 2)
        (we're using `length(data.aws_availability_zones.available.names) + count.index` for that)
+
+
+## License
+
+Apache 2 License. See [`LICENSE`](LICENSE) for full details.
