@@ -1,5 +1,5 @@
 module "private_label" {
-  source     = "git::https://github.com/cloudposse/tf_label.git?ref=tags/0.2.0"
+  source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.2.1"
   namespace  = "${var.namespace}"
   stage      = "${var.stage}"
   name       = "${var.name}"
@@ -9,10 +9,10 @@ module "private_label" {
 }
 
 module "private_subnet_label" {
-  source     = "git::https://github.com/cloudposse/tf_label.git?ref=tags/0.2.0"
-  namespace  = "${var.namespace}"
-  stage      = "${var.stage}"
-  name       = "private"
+  source    = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.2.1"
+  namespace = "${var.namespace}"
+  stage     = "${var.stage}"
+  name      = "private"
 }
 
 resource "aws_subnet" "private" {
@@ -20,10 +20,11 @@ resource "aws_subnet" "private" {
   vpc_id            = "${data.aws_vpc.default.id}"
   availability_zone = "${element(var.availability_zones, count.index)}"
   cidr_block        = "${cidrsubnet(signum(length(var.cidr_block)) == 1 ? var.cidr_block : data.aws_vpc.default.cidr_block, ceil(log(length(data.aws_availability_zones.available.names) * 2, 2)), count.index)}"
-  tags              = {
-    "Name"          = "${module.private_subnet_label.id}${var.delimiter}${replace(element(var.availability_zones, count.index),"-",var.delimiter)}"
-    "Stage"         = "${module.private_subnet_label.stage}"
-    "Namespace"     = "${module.private_subnet_label.namespace}"
+
+  tags = {
+    "Name"      = "${module.private_subnet_label.id}${var.delimiter}${replace(element(var.availability_zones, count.index),"-",var.delimiter)}"
+    "Stage"     = "${module.private_subnet_label.stage}"
+    "Namespace" = "${module.private_subnet_label.namespace}"
   }
 }
 
