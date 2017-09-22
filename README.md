@@ -12,7 +12,7 @@ You should use [terraform-aws-vpc](https://github.com/cloudposse/terraform-aws-v
 
 ```hcl
 module "subnets" {
-  source = "git::https://github.com/cloudposse/erraform-aws-dynamic-subnets.git?ref=master"
+  source = "git::https://github.com/cloudposse/terraform-aws-dynamic-subnets.git?ref=master"
 
   availability_zones         = "${var.availability_zones}"
   namespace                  = "${var.namespace}"
