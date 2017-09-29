@@ -32,7 +32,7 @@ module "subnets" {
 ## Variables
 
 |  Name                        |  Default       |  Description                                                                                                                         | Required |
-|:----------------------------:|:--------------:|:------------------------------------------------------------------------------------------------------------------------------------:|:--------:|
+|:-----------------------------|:--------------:|:-------------------------------------------------------------------------------------------------------------------------------------|:--------:|
 | namespace                    | ``             | Namespace (e.g. `cp` or `cloudposse`)                                                                                                | Yes      |
 | stage                        | ``             | Stage (e.g. `prod`, `dev`, `staging`)                                                                                                | Yes      |
 | name                         | ``             | Name  (e.g. `bastion` or `db`)                                                                                                       | Yes      |
@@ -48,10 +48,10 @@ module "subnets" {
 
 ## TL;DR
 
-`tf_subnets` creates a set of subnets based on `${var.cidr_block}` input
+`terraform-aws-dynamic-subnets` creates a set of subnets based on `${var.cidr_block}` input
 and amount of Availability Zones in a region.
 
-For subnet set calculation `tf_subnets` uses TF
+For subnet set calculation `terraform-aws-dynamic-subnets` uses TF
 [cidrsubnet](https://www.terraform.io/docs/configuration/interpolation.html#cidrsubnet-iprange-newbits-netnum-)
 interpolation.
 

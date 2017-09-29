@@ -3,6 +3,8 @@ module "public_subnet_label" {
   namespace = "${var.namespace}"
   stage     = "${var.stage}"
   name      = "public"
+  delimiter = "${var.delimiter}"
+  tags      = "${var.tags}"
 }
 
 module "public_label" {
@@ -11,7 +13,7 @@ module "public_label" {
   stage      = "${var.stage}"
   name       = "${var.name}"
   delimiter  = "${var.delimiter}"
-  attributes = ["public"]
+  attributes = ["${compact(concat(var.attributes, list("public")))}"]
   tags       = "${var.tags}"
 }
 
@@ -21,11 +23,15 @@ resource "aws_subnet" "public" {
   availability_zone = "${element(var.availability_zones, count.index)}"
   cidr_block        = "${cidrsubnet(signum(length(var.cidr_block)) == 1 ? var.cidr_block : data.aws_vpc.default.cidr_block, ceil(log(length(data.aws_availability_zones.available.names) * 2, 2)), length(data.aws_availability_zones.available.names) + count.index)}"
 
-  tags = {
-    "Name"      = "${module.public_subnet_label.id}${var.delimiter}${replace(element(var.availability_zones, count.index),"-",var.delimiter)}"
-    "Stage"     = "${module.public_subnet_label.stage}"
-    "Namespace" = "${module.public_subnet_label.namespace}"
-  }
+  tags = "${
+    merge(
+      map(
+        "Name", "${module.public_subnet_label.id}${var.delimiter}${replace(element(var.availability_zones, count.index),"-",var.delimiter)}",
+        "Namespace", "${module.public_subnet_label.namespace}",
+        "Stage", "${module.public_subnet_label.stage}"
+      ), var.tags
+    )
+  }"
 }
 
 resource "aws_route_table" "public" {
