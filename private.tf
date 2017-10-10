@@ -38,8 +38,8 @@ resource "aws_route_table" "private" {
   }
 
   route {
-    cidr_block = "${length(compact(values(var.additional_private_routes))) > 0 ? element(keys(var.additional_private_routes), count.index) : ""}"
-    gateway_id = "${length(compact(values(var.additional_private_routes))) > 0 ? lookup(var.additional_private_routes, element(keys(var.additional_private_routes), count.index)) : ""}"
+    cidr_block = "${length(compact(keys(var.additional_private_routes))) > 0 ? element(keys(var.additional_private_routes), count.index) : ""}"
+    gateway_id = "${length(compact(keys(var.additional_private_routes))) > 0 ? lookup(var.additional_private_routes, element(keys(var.additional_private_routes), count.index)) : ""}"
   }
 
   tags = "${module.private_label.tags}"
