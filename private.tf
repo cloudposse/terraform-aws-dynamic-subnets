@@ -33,7 +33,7 @@ resource "aws_route_table" "private" {
   vpc_id = "${data.aws_vpc.default.id}"
 
   route {
-    cidr_block     = "0.0.0.0/0"
+    cidr_block     = "${element(compact(concat(["0.0.0.0/0"], var.additional_private_routes)), count.index)}"
     nat_gateway_id = "${element(aws_nat_gateway.default.*.id, count.index)}"
   }
 

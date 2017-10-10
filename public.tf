@@ -33,7 +33,7 @@ resource "aws_route_table" "public" {
   vpc_id = "${data.aws_vpc.default.id}"
 
   route {
-    cidr_block = "0.0.0.0/0"
+    cidr_block = "${element(compact(concat(["0.0.0.0/0"], var.additional_public_routes)), count.index)}"
     gateway_id = "${var.igw_id}"
   }
 
