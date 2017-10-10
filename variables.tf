@@ -6,9 +6,13 @@ variable "stage" {}
 
 variable "name" {}
 
-variable "vpc_id" {}
+variable "vpc_id" {
+  default = ""
+}
 
-variable "cidr_block" {}
+variable "cidr_block" {
+  default = ""
+}
 
 variable "availability_zones" {
   type = "list"
@@ -40,7 +44,9 @@ variable "private_network_acl_id" {
   default = ""
 }
 
-variable "igw_id" {}
+variable "igw_id" {
+  default = ""
+}
 
 variable "additional_private_routes" {
   type = "map"
