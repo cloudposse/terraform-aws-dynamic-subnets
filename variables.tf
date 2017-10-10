@@ -42,10 +42,8 @@ variable "private_network_acl_id" {
 
 variable "igw_id" {}
 
-variable "additional_public_routes" {
-  default = [""]
-}
-
 variable "additional_private_routes" {
-  default = [""]
+  type = "map"
+
+  default = {}
 }
