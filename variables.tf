@@ -49,7 +49,6 @@ variable "igw_id" {
 }
 
 variable "additional_private_routes" {
-  type = "map"
-
+  type    = "map"
   default = {}
 }
