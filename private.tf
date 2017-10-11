@@ -46,9 +46,9 @@ resource "aws_route_table" "private" {
 
 resource "aws_route" "private" {
   count                  = "${length(compact(values(var.additional_private_routes)))}"
-  route_table_id         = "${element(aws_route_table.private.id, count.index)}"
-  destination_cidr_block = "${length(compact(values(var.additional_private_routes))) > 0 ? lookup(var.additional_private_routes, replace(element(concat(list("workaround"), keys(var.additional_private_routes)), count.index), "workaround", ""), "0.0.0.0/0") : ""}"
-  gateway_id             = "${length(compact(values(var.additional_private_routes))) > 0 ? replace(element(concat(list("workaround"), keys(var.additional_private_routes)), count.index), "workaround", "") : ""}"
+  route_table_id         = "${element(aws_route_table.private.*.id, count.index)}"
+  destination_cidr_block = "${length(compact(values(var.additional_private_routes))) > 0 ? lookup(var.additional_private_routes, element(coalescelist(keys(var.additional_private_routes), list("workaround")), count.index), "0.0.0.0/0") : ""}"
+  gateway_id             = "${length(compact(values(var.additional_private_routes))) > 0 ? element(coalescelist(keys(var.additional_private_routes), list("workaround")), count.index) : ""}"
 }
 
 resource "aws_route_table_association" "private" {
