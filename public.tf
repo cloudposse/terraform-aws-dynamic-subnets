@@ -37,6 +37,11 @@ resource "aws_route_table" "public" {
     gateway_id = "${var.igw_id}"
   }
 
+  route {
+    cidr_block = "${length(compact(values(var.additional_public_routes))) > 0 ? lookup(var.additional_public_routes, replace(element(compact(concat(keys(var.additional_public_routes), list("workaround"))), count.index)), "workaround", "") : ""}"
+    gateway_id = "${length(compact(values(var.additional_public_routes))) > 0 ? replace(element(compact(concat(keys(var.additional_public_routes), list("workaround"))), count.index)), "workaround", "") : ""}"
+  }
+
   tags = "${module.public_label.tags}"
 }
 
