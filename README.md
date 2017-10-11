@@ -47,13 +47,13 @@ module "subnets" {
 | `private_network_acl_id`     |   ``    | Network ACL ID that will be added to private subnets.  If empty, a new ACL will be created                                           |    No    |
 | `additional_private_routes`  |   {}    | Map of Additional routes for private subnet (e.g. `{igw-0038f979 = "10.0.0.2/24"}`)                                                  |    No    |
 | `additional_public_routes`   |   {}    | Map of Additional routes for public subnet (e.g. `{igw-0038f970 = "10.0.0.4/24"}`                                                    |    No    |
-  
+
 ## TL;DR
 
-`tf_subnets` creates a set of subnets based on `${var.cidr_block}` input
+`terraform-aws-dynamic-subnets` creates a set of subnets based on `${var.cidr_block}` input
 and amount of Availability Zones in a region.
 
-For subnet set calculation `tf_subnets` uses TF
+For subnet set calculation `terraform-aws-dynamic-subnets` uses TF
 [cidrsubnet](https://www.terraform.io/docs/configuration/interpolation.html#cidrsubnet-iprange-newbits-netnum-)
 interpolation.
 
