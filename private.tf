@@ -37,12 +37,18 @@ resource "aws_route_table" "private" {
     nat_gateway_id = "${element(aws_nat_gateway.default.*.id, count.index)}"
   }
 
-  route {
-    cidr_block = "${length(compact(values(var.additional_private_routes))) > 0 ? lookup(var.additional_private_routes, replace(element(compact(concat(keys(var.additional_private_routes), list("workaround"))), count.index)), "workaround", "") : ""}"
-    gateway_id = "${length(compact(values(var.additional_private_routes))) > 0 ? replace(element(compact(concat(keys(var.additional_private_routes), list("workaround"))), count.index)), "workaround", "") : ""}"
-  }
-
   tags = "${module.private_label.tags}"
+
+  lifecycle {
+    ignore_changes = ["route"]
+  }
+}
+
+resource "aws_route" "private" {
+  count                  = "${length(compact(values(var.additional_private_routes)))}"
+  route_table_id         = "${element(aws_route_table.private.id, count.index)}"
+  destination_cidr_block = "${length(compact(values(var.additional_private_routes))) > 0 ? lookup(var.additional_private_routes, replace(element(concat(list("workaround"), keys(var.additional_private_routes)), count.index), "workaround", ""), "0.0.0.0/0") : ""}"
+  gateway_id             = "${length(compact(values(var.additional_private_routes))) > 0 ? replace(element(concat(list("workaround"), keys(var.additional_private_routes)), count.index), "workaround", "") : ""}"
 }
 
 resource "aws_route_table_association" "private" {

@@ -37,12 +37,18 @@ resource "aws_route_table" "public" {
     gateway_id = "${var.igw_id}"
   }
 
-  route {
-    cidr_block = "${length(compact(values(var.additional_public_routes))) > 0 ? lookup(var.additional_public_routes, replace(element(compact(concat(keys(var.additional_public_routes), list("workaround"))), count.index)), "workaround", "") : ""}"
-    gateway_id = "${length(compact(values(var.additional_public_routes))) > 0 ? replace(element(compact(concat(keys(var.additional_public_routes), list("workaround"))), count.index)), "workaround", "") : ""}"
+  lifecycle {
+    ignore_changes = ["route"]
   }
 
   tags = "${module.public_label.tags}"
+}
+
+resource "aws_route" "public" {
+  count                  = "${length(compact(values(var.additional_public_routes)))}"
+  route_table_id         = "${aws_route_table.public.id}"
+  destination_cidr_block = "${length(compact(values(var.additional_public_routes))) > 0 ? lookup(var.additional_public_routes, replace(element(concat(list("workaround"), keys(var.additional_public_routes)), count.index), "workaround", ""), "0.0.0.0/0") : ""}"
+  gateway_id             = "${length(compact(values(var.additional_public_routes))) > 0 ? replace(element(concat(list("workaround"), keys(var.additional_public_routes)), count.index), "workaround", "") : ""}"
 }
 
 resource "aws_route_table_association" "public" {
