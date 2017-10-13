@@ -45,8 +45,8 @@ module "subnets" {
 | `availability_zones`         |   []    | The list of Availability Zones where subnets will be created (e.g. `["us-eas-1a", "us-eas-1b"]`)                                     |   Yes    |
 | `public_network_acl_id`      |   ``    | Network ACL ID that will be added to public subnets.  If empty, a new ACL will be created                                            |    No    |
 | `private_network_acl_id`     |   ``    | Network ACL ID that will be added to private subnets.  If empty, a new ACL will be created                                           |    No    |
-| `additional_private_routes`  |   {}    | Map of Additional routes for private subnet (e.g. `{igw-0038f979 = "10.0.0.2/24"}`)                                                  |    No    |
-| `additional_public_routes`   |   {}    | Map of Additional routes for public subnet (e.g. `{igw-0038f970 = "10.0.0.4/24"}`                                                    |    No    |
+| `additional_private_routes`  |   {}    | Map of Additional routes for private subnet (e.g. `{"10.0.0.2/24" = igw-0038f979}`)                                                  |    No    |
+| `additional_public_routes`   |   {}    | Map of Additional routes for public subnet (e.g. `{"10.0.0.4/24" = igw-0038f970 }`                                                   |    No    |
 
 ## TL;DR
 
