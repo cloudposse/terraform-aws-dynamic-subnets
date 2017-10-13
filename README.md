@@ -31,27 +31,29 @@ module "subnets" {
 
 ## Variables
 
-|  Name                        |  Default       |  Description                                                                                                                         | Required |
-|:----------------------------:|:--------------:|:------------------------------------------------------------------------------------------------------------------------------------:|:--------:|
-| namespace                    | ``             | Namespace (e.g. `cp` or `cloudposse`)                                                                                                | Yes      |
-| stage                        | ``             | Stage (e.g. `prod`, `dev`, `staging`)                                                                                                | Yes      |
-| name                         | ``             | Name  (e.g. `bastion` or `db`)                                                                                                       | Yes      |
-| tags                         | ``             | Additional tags (e.g. `Key, Value`)                                                                                                  | No       |
-| region                       | ``             | AWS Region where module should operate (e.g. `us-east-1`)                                                                            | Yes      |
-| vpc_id                       | ``             | The VPC ID where subnets will be created (e.g. `vpc-aceb2723`)                                                                       | Yes      |
-| cidr_block                   | ``             | The base CIDR block which will be divided into subnet CIDR blocks (e.g. `10.0.0.0/16`)                                               | Yes      |
-| igw_id                       | ``             | The Internet Gateway ID public route table will point to (e.g. `igw-9c26a123`)                                                       | Yes      |
-| vpc_default_route_table_id   | ``             | The default route table for public subnets. Provides access to the Internet. If not set here, will be created. (e.g. `rtb-f4f0ce12`) | No       |
-| availability_zones           | []             | The list of Availability Zones where subnets will be created (e.g. `["us-eas-1a", "us-eas-1b"]`)                                     | Yes      |
-| public_network_acl_id        | ``             | Network ACL ID that will be added to public subnets.  If empty, a new ACL will be created                                            | No       |
-| private_network_acl_id       | ``             | Network ACL ID that will be added to private subnets.  If empty, a new ACL will be created                                           | No       |
+| Name                         | Default | Description                                                                                                                          | Required |
+|:-----------------------------|:-------:|:-------------------------------------------------------------------------------------------------------------------------------------|:--------:|
+| `namespace`                  |   ``    | Namespace (e.g. `cp` or `cloudposse`)                                                                                                |   Yes    |
+| `stage`                      |   ``    | Stage (e.g. `prod`, `dev`, `staging`)                                                                                                |   Yes    |
+| `name`                       |   ``    | Name  (e.g. `bastion` or `db`)                                                                                                       |   Yes    |
+| `tags`                       |   ``    | Additional tags (e.g. `Key, Value`)                                                                                                  |    No    |
+| `region`                     |   ``    | AWS Region where module should operate (e.g. `us-east-1`)                                                                            |   Yes    |
+| `vpc_id`                     |   ``    | The VPC ID where subnets will be created (e.g. `vpc-aceb2723`)                                                                       |   Yes    |
+| `cidr_block`                 |   ``    | The base CIDR block which will be divided into subnet CIDR blocks (e.g. `10.0.0.0/16`)                                               |   Yes    |
+| `igw_id`                     |   ``    | The Internet Gateway ID public route table will point to (e.g. `igw-9c26a123`)                                                       |   Yes    |
+| `vpc_default_route_table_id` |   ``    | The default route table for public subnets. Provides access to the Internet. If not set here, will be created. (e.g. `rtb-f4f0ce12`) |    No    |
+| `availability_zones`         |   []    | The list of Availability Zones where subnets will be created (e.g. `["us-eas-1a", "us-eas-1b"]`)                                     |   Yes    |
+| `public_network_acl_id`      |   ``    | Network ACL ID that will be added to public subnets.  If empty, a new ACL will be created                                            |    No    |
+| `private_network_acl_id`     |   ``    | Network ACL ID that will be added to private subnets.  If empty, a new ACL will be created                                           |    No    |
+| `additional_private_routes`  |   {}    | Map of Additional routes for private subnet (e.g. `{"10.0.0.2/24" = igw-0038f979}`)                                                  |    No    |
+| `additional_public_routes`   |   {}    | Map of Additional routes for public subnet (e.g. `{"10.0.0.4/24" = igw-0038f970 }`                                                   |    No    |
 
 ## TL;DR
 
-`tf_subnets` creates a set of subnets based on `${var.cidr_block}` input
+`terraform-aws-dynamic-subnets` creates a set of subnets based on `${var.cidr_block}` input
 and amount of Availability Zones in a region.
 
-For subnet set calculation `tf_subnets` uses TF
+For subnet set calculation `terraform-aws-dynamic-subnets` uses TF
 [cidrsubnet](https://www.terraform.io/docs/configuration/interpolation.html#cidrsubnet-iprange-newbits-netnum-)
 interpolation.
 

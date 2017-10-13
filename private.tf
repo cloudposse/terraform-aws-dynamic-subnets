@@ -38,6 +38,17 @@ resource "aws_route_table" "private" {
   }
 
   tags = "${module.private_label.tags}"
+
+  lifecycle {
+    ignore_changes = ["route"]
+  }
+}
+
+resource "aws_route" "private" {
+  count                  = "${length(compact(values(var.additional_private_routes)))}"
+  route_table_id         = "${element(aws_route_table.private.*.id, count.index)}"
+  destination_cidr_block = "${element(coalescelist(keys(var.additional_private_routes), list("workaround")), count.index)}"
+  gateway_id             = "${lookup(var.additional_private_routes, element(coalescelist(keys(var.additional_private_routes), list("workaround")), count.index), "workaround")}"
 }
 
 resource "aws_route_table_association" "private" {
