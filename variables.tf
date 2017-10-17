@@ -43,6 +43,6 @@ variable "private_network_acl_id" {
 variable "igw_id" {}
 
 variable "nat_gateway_enabled" {
-  description = "Indicate whether or not NAT gateways should be created"
+  description = "Flag to enable/disable NAT gateways"
   default     = "true"
 }
