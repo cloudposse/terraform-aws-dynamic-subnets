@@ -1,4 +1,4 @@
-# terraform-aws-dynamic-subnets
+# terraform-aws-dynamic-subnets [![Build Status](https://travis-ci.org/cloudposse/terraform-aws-jenkins.svg)](https://travis-ci.org/cloudposse/terraform-aws-jenkins)
 
 Terraform module for public and private [`subnets`](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_Subnets.html) provisioning in existing AWS [`VPC`](https://aws.amazon.com/vpc)
 
