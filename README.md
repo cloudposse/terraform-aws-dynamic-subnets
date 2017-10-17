@@ -2,7 +2,6 @@
 
 Terraform module for public and private [`subnets`](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_Subnets.html) provisioning in existing AWS [`VPC`](https://aws.amazon.com/vpc)
 
-
 ## Module Usage
 
 ### Argument Reference
