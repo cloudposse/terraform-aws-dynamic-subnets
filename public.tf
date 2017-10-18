@@ -77,5 +77,3 @@ resource "aws_network_acl" "public" {
 
   tags = "${module.public_label.tags}"
 }
-
-
