@@ -45,6 +45,7 @@ module "subnets" {
 | availability_zones           | []             | The list of Availability Zones where subnets will be created (e.g. `["us-eas-1a", "us-eas-1b"]`)                                     | Yes      |
 | public_network_acl_id        | ``             | Network ACL ID that will be added to public subnets.  If empty, a new ACL will be created                                            | No       |
 | private_network_acl_id       | ``             | Network ACL ID that will be added to private subnets.  If empty, a new ACL will be created                                           | No       |
+| nat_gateway_enabled          | `true`         | Flag to enable/disable NAT gateways                                                                                                  | No       |
 
 ## TL;DR
 

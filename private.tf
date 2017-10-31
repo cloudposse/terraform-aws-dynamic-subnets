@@ -1,5 +1,5 @@
 module "private_label" {
-  source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.2.1"
+  source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.2.2"
   namespace  = "${var.namespace}"
   stage      = "${var.stage}"
   name       = "${var.name}"
@@ -9,7 +9,7 @@ module "private_label" {
 }
 
 module "private_subnet_label" {
-  source    = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.2.1"
+  source    = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.2.2"
   namespace = "${var.namespace}"
   stage     = "${var.stage}"
   name      = "private"
@@ -31,11 +31,6 @@ resource "aws_subnet" "private" {
 resource "aws_route_table" "private" {
   count  = "${length(var.availability_zones)}"
   vpc_id = "${data.aws_vpc.default.id}"
-
-  route {
-    cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = "${element(aws_nat_gateway.default.*.id, count.index)}"
-  }
 
   tags = "${module.private_label.tags}"
 }
