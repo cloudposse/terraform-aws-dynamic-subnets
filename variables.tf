@@ -48,11 +48,11 @@ variable "nat_gateway_enabled" {
 }
 
 variable "additional_routes_public" {
-  type = "list"
+  type    = "list"
   default = []
 }
 
 variable "additional_routes_private" {
-  type = "list"
+  type    = "list"
   default = []
 }

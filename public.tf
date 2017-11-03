@@ -36,17 +36,17 @@ resource "aws_route_table" "public" {
 }
 
 resource "aws_route" "default_public" {
-  count = "${length(var.availability_zones)}"
-  route_table_id = "${element(aws_route_table.public.*.id, count.index)}"
+  count                  = "${length(var.availability_zones)}"
+  route_table_id         = "${element(aws_route_table.public.*.id, count.index)}"
   destination_cidr_block = "0.0.0.0/0"
-  gateway_id = "${var.igw_id}"
+  gateway_id             = "${var.igw_id}"
 }
 
 resource "aws_route" "additional_public" {
-  count = "${length(var.availability_zones) * length(var.additional_routes_public)}"
-  route_table_id = "${element(aws_route_table.public.*.id, count.index  % length(var.availability_zones))}"
+  count                  = "${length(var.availability_zones) * length(var.additional_routes_public)}"
+  route_table_id         = "${element(aws_route_table.public.*.id, count.index  % length(var.availability_zones))}"
   destination_cidr_block = "${lookup(var.additional_routes_public[count.index  / length(var.availability_zones)], "cidr_block")}"
-  gateway_id = "${lookup(var.additional_routes_public[count.index / length(var.availability_zones)], "gateway_id")}"
+  gateway_id             = "${lookup(var.additional_routes_public[count.index / length(var.availability_zones)], "gateway_id")}"
 }
 
 resource "aws_route_table_association" "public" {
