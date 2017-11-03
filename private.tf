@@ -35,6 +35,13 @@ resource "aws_route_table" "private" {
   tags = "${module.private_label.tags}"
 }
 
+resource "aws_route" "additional_private" {
+  count = "${length(var.availability_zones) * length(var.additional_routes_private)}"
+  route_table_id = "${element(aws_route_table.private.*.id, count.index % length(var.availability_zones))}"
+  destination_cidr_block = "${lookup(var.additional_routes_private[count.index  /  length(var.availability_zones)], "cidr_block")}"
+  gateway_id = "${lookup(var.additional_routes_private[count.index / length(var.availability_zones)], "gateway_id")}"
+}
+
 resource "aws_route_table_association" "private" {
   count = "${length(var.availability_zones)}"
 

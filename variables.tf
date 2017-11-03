@@ -46,3 +46,13 @@ variable "nat_gateway_enabled" {
   description = "Flag to enable/disable NAT gateways"
   default     = "true"
 }
+
+variable "additional_routes_public" {
+  type = "list"
+  default = []
+}
+
+variable "additional_routes_private" {
+  type = "list"
+  default = []
+}

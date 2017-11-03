@@ -29,27 +29,30 @@ resource "aws_subnet" "public" {
 }
 
 resource "aws_route_table" "public" {
-  count  = "${signum(length(var.vpc_default_route_table_id)) == 1 ? 0 : 1}"
+  count  = "${length(var.availability_zones)}"
   vpc_id = "${data.aws_vpc.default.id}"
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = "${var.igw_id}"
-  }
 
   tags = "${module.public_label.tags}"
 }
 
-resource "aws_route_table_association" "public" {
-  count          = "${signum(length(var.vpc_default_route_table_id)) == 1 ? 0 : length(var.availability_zones)}"
-  subnet_id      = "${element(aws_subnet.public.*.id, count.index)}"
-  route_table_id = "${aws_route_table.public.id}"
+resource "aws_route" "default_public" {
+  count = "${length(var.availability_zones)}"
+  route_table_id = "${element(aws_route_table.public.*.id, count.index)}"
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id = "${var.igw_id}"
 }
 
-resource "aws_route_table_association" "public_default" {
-  count          = "${signum(length(var.vpc_default_route_table_id)) == 1 ? length(var.availability_zones) : 0}"
+resource "aws_route" "additional_public" {
+  count = "${length(var.availability_zones) * length(var.additional_routes_public)}"
+  route_table_id = "${element(aws_route_table.public.*.id, count.index  % length(var.availability_zones))}"
+  destination_cidr_block = "${lookup(var.additional_routes_public[count.index  / length(var.availability_zones)], "cidr_block")}"
+  gateway_id = "${lookup(var.additional_routes_public[count.index / length(var.availability_zones)], "gateway_id")}"
+}
+
+resource "aws_route_table_association" "public" {
+  count          = "${length(var.availability_zones)}"
   subnet_id      = "${element(aws_subnet.public.*.id, count.index)}"
-  route_table_id = "${var.vpc_default_route_table_id}"
+  route_table_id = "${element(aws_route_table.public.*.id, count.index)}"
 }
 
 resource "aws_network_acl" "public" {
