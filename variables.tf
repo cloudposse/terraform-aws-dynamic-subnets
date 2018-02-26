@@ -14,8 +14,8 @@ variable "availability_zones" {
   type = "list"
 }
 
-variable "match_given_az" {
-  default = "false"
+variable "max_subnet_count" {
+  default = ""
 }
 
 variable "vpc_default_route_table_id" {

@@ -15,10 +15,6 @@ module "private_subnet_label" {
   name      = "private"
 }
 
-locals {
-  subnet_count = "${var.match_given_az == "true" ? length(var.availability_zones) : length(data.aws_availability_zones.available.names)}"
-}
-
 resource "aws_subnet" "private" {
   count             = "${length(var.availability_zones)}"
   vpc_id            = "${data.aws_vpc.default.id}"

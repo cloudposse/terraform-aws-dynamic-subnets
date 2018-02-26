@@ -8,3 +8,7 @@ data "aws_vpc" "default" {
 }
 
 data "aws_availability_zones" "available" {}
+
+locals {
+  subnet_count = "${var.max_subnet_count == "" ? length(data.aws_availability_zones.available.names) : length(var.availability_zones)}"
+}
