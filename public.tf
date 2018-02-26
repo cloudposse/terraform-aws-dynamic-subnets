@@ -16,14 +16,14 @@ module "public_label" {
 }
 
 locals {
-  subnet_count = "${var.match_given_az == "true" ? length(var.availability_zones) : length(data.aws_availability_zones.available.names)}"
+  public_subnet_count = "${var.max_subnet_count == "" ? length(data.aws_availability_zones.available.names) : length(var.availability_zones)}"
 }
 
 resource "aws_subnet" "public" {
   count             = "${length(var.availability_zones)}"
   vpc_id            = "${data.aws_vpc.default.id}"
   availability_zone = "${element(var.availability_zones, count.index)}"
-  cidr_block        = "${cidrsubnet(signum(length(var.cidr_block)) == 1 ? var.cidr_block : data.aws_vpc.default.cidr_block, ceil(log(length(var.subnet_count) * 2, 2)), length(var.subnet_count) + count.index)}"
+  cidr_block        = "${cidrsubnet(signum(length(var.cidr_block)) == 1 ? var.cidr_block : data.aws_vpc.default.cidr_block, ceil(log(length(var.public_subnet_count) * 2, 2)), length(var.public_subnet_count) + count.index)}"
 
   tags = {
     "Name"      = "${module.public_subnet_label.id}${var.delimiter}${replace(element(var.availability_zones, count.index),"-",var.delimiter)}"
