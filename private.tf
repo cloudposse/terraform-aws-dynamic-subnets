@@ -16,7 +16,7 @@ module "private_subnet_label" {
 }
 
 locals {
-  private_subnet_count = "${var.max_subnet_count == 0 ? length(data.aws_availability_zones.available.names) : var.max_subnet_count)}"
+  private_subnet_count = "${var.max_subnet_count == 0 ? length(data.aws_availability_zones.available.names) : var.max_subnet_count}"
 }
 
 resource "aws_subnet" "private" {
