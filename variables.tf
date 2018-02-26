@@ -15,7 +15,7 @@ variable "availability_zones" {
 }
 
 variable "max_subnet_count" {
-  default = ""
+  default = 0
 }
 
 variable "vpc_default_route_table_id" {
