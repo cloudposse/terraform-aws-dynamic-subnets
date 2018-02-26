@@ -23,13 +23,17 @@ resource "aws_subnet" "private" {
   count             = "${length(var.availability_zones)}"
   vpc_id            = "${data.aws_vpc.default.id}"
   availability_zone = "${element(var.availability_zones, count.index)}"
-  cidr_block        = "${cidrsubnet(signum(length(var.cidr_block)) == 1 ? var.cidr_block : data.aws_vpc.default.cidr_block, ceil(log(private_subnet_count * 2, 2)), count.index)}"
+  cidr_block        = "${cidrsubnet(signum(length(var.cidr_block)) == 1 ? var.cidr_block : data.aws_vpc.default.cidr_block, ceil(log(local.private_subnet_count * 2, 2)), count.index)}"
 
   tags = {
     "Name"      = "${module.private_subnet_label.id}${var.delimiter}${replace(element(var.availability_zones, count.index),"-",var.delimiter)}"
     "Stage"     = "${module.private_subnet_label.stage}"
     "Namespace" = "${module.private_subnet_label.namespace}"
   }
+}
+
+output blahpriv {
+   value="${ceil(log(local.private_subnet_count * 2, 2))}"
 }
 
 resource "aws_route_table" "private" {
