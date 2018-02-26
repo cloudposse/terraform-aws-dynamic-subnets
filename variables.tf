@@ -14,6 +14,10 @@ variable "availability_zones" {
   type = "list"
 }
 
+variable "match_given_az" {
+  default = "false"
+}
+
 variable "vpc_default_route_table_id" {
   default = ""
 }
