@@ -2,7 +2,7 @@ module "public_subnet_label" {
   source    = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.2.2"
   namespace = "${var.namespace}"
   stage     = "${var.stage}"
-  name      = "public"
+  name      = "${var.name}-public"
 }
 
 module "public_label" {
