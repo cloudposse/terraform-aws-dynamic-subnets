@@ -15,7 +15,7 @@ locals {
 resource "aws_eip" "default" {
   count = "${local.nat_gateways_count}"
   vpc   = true
-  tags = "${module.private_label.tags}"
+  tags  = "${module.private_label.tags}"
 
   lifecycle {
     create_before_destroy = true
@@ -26,7 +26,7 @@ resource "aws_nat_gateway" "default" {
   count         = "${local.nat_gateways_count}"
   allocation_id = "${element(aws_eip.default.*.id, count.index)}"
   subnet_id     = "${element(aws_subnet.public.*.id, count.index)}"
-  tags = "${module.private_label.tags}"
+  tags          = "${module.private_label.tags}"
 
   lifecycle {
     create_before_destroy = true

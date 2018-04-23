@@ -8,4 +8,3 @@ data "aws_vpc" "default" {
 }
 
 data "aws_availability_zones" "available" {}
-
