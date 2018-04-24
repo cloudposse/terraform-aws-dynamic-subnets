@@ -33,7 +33,7 @@ resource "aws_subnet" "private" {
 }
 
 output blahpriv {
-   value="${ceil(log(local.private_subnet_count * 2, 2))}"
+  value = "${ceil(log(local.private_subnet_count * 2, 2))}"
 }
 
 resource "aws_route_table" "private" {
