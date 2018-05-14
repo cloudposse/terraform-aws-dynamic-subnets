@@ -36,6 +36,11 @@ variable "region" {
   description = "AWS Region (e.g. `us-east-1`)"
 }
 
+variable "max_subnet_count" {
+  default     = 0
+  description = "Sets the maximum amount of subnets to deploy.  0 will deploy a subnet for every availablility zone within the region"
+}
+
 variable "vpc_id" {
   type        = "string"
   description = "VPC ID where subnets will be created (e.g. `vpc-aceb2723`)"
