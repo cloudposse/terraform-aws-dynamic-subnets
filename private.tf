@@ -38,6 +38,12 @@ resource "aws_route_table" "private" {
   vpc_id = "${data.aws_vpc.default.id}"
 
   tags = "${module.private_label.tags}"
+
+  lifecycle = {
+    ignore_changes = [
+      "route"
+    ]
+  }
 }
 
 resource "aws_route_table_association" "private" {
