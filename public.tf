@@ -46,7 +46,7 @@ resource "aws_route_table" "public" {
 
   lifecycle = {
     ignore_changes = [
-      "route"
+      "route",
     ]
   }
 }
