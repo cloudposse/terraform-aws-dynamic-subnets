@@ -171,7 +171,6 @@ Check out these related projects.
 - [terraform-aws-vpc-peering](https://github.com/cloudposse/terraform-aws-vpc-peering) - Terraform module to create a peering connection between two VPCs
 - [terraform-aws-kops-vpc-peering](https://github.com/cloudposse/terraform-aws-kops-vpc-peering) - Terraform module to create a peering connection between a backing services VPC and a VPC created by Kops
 - [terraform-aws-named-subnets](https://github.com/cloudposse/terraform-aws-named-subnets) - Terraform module for named subnets provisioning.
-- [terraform-aws-kops-metadata](https://github.com/cloudposse/terraform-aws-kops-metadata) - Terraform module for named subnets provisioning.
 
 
 
