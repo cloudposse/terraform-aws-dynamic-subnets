@@ -1,5 +1,5 @@
-## What
-<!---what changed-->
+## what
+<!-- what changed -->
 
-## Why
-<!---why it changed (e.g. business justification)-->
+## why
+<!-- why it changed (e.g. business justification) -->
