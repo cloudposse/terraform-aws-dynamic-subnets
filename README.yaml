@@ -11,6 +11,7 @@ name: terraform-aws-dynamic-subnets
 tags:
   - aws
   - terraform
+  - terraform-modules
   - networking
   - subnet
   - vpc
