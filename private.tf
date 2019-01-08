@@ -29,6 +29,11 @@ resource "aws_subnet" "private" {
 
   tags = "${merge(module.private_subnet_label.tags, map("Name",format("%s%s%s", module.private_subnet_label.id, var.delimiter, replace(element(var.availability_zones, count.index),"-",var.delimiter))))}"
 }
+data "aws_subnet" "private_subnets" {
+  count    = "${length(var.availability_zones)}"
+  id       = "${element(aws_subnet.private.*.id, count.index)}"
+}
+
 
 resource "aws_route_table" "private" {
   count  = "${length(var.availability_zones)}"

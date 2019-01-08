@@ -13,3 +13,7 @@ output "public_route_table_ids" {
 output "private_route_table_ids" {
   value = ["${aws_route_table.private.*.id}"]
 }
+
+output "private_subnet_cidr_blocks" {
+  value = ["${data.aws_subnet.private_subnets.*.cidr_block}"]
+}
