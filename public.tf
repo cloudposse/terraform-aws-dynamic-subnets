@@ -5,7 +5,10 @@ module "public_label" {
   name       = "${var.name}"
   delimiter  = "${var.delimiter}"
   attributes = ["public"]
-  tags       = "${var.tags}"
+  tags       = "${merge(
+    var.tags,
+    map("Network", "Public")
+  )}"
 }
 
 module "public_subnet_label" {
@@ -14,7 +17,10 @@ module "public_subnet_label" {
   stage      = "${var.stage}"
   name       = "${var.name}"
   attributes = ["public"]
-  tags       = "${var.tags}"
+  tags       = "${merge(
+    var.tags,
+    map("Network", "Public")
+  )}"
 }
 
 locals {

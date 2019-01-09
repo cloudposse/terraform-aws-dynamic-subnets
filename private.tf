@@ -5,7 +5,10 @@ module "private_label" {
   name       = "${var.name}"
   delimiter  = "${var.delimiter}"
   attributes = ["private"]
-  tags       = "${var.tags}"
+  tags       = "${merge(
+    var.tags,
+    map("Network", "Private")
+  )}"
 }
 
 module "private_subnet_label" {
@@ -14,7 +17,10 @@ module "private_subnet_label" {
   stage      = "${var.stage}"
   name       = "subnet"
   attributes = ["private"]
-  tags       = "${var.tags}"
+  tags       = "${merge(
+    var.tags,
+    map("Network", "Private")
+  )}"
 }
 
 locals {
@@ -29,11 +35,6 @@ resource "aws_subnet" "private" {
 
   tags = "${merge(module.private_subnet_label.tags, map("Name",format("%s%s%s", module.private_subnet_label.id, var.delimiter, replace(element(var.availability_zones, count.index),"-",var.delimiter))))}"
 }
-data "aws_subnet" "private_subnets" {
-  count    = "${length(var.availability_zones)}"
-  id       = "${element(aws_subnet.private.*.id, count.index)}"
-}
-
 
 resource "aws_route_table" "private" {
   count  = "${length(var.availability_zones)}"
