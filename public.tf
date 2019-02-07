@@ -34,12 +34,14 @@ resource "aws_route_table" "public" {
   count  = "${signum(length(var.vpc_default_route_table_id)) == 1 ? 0 : 1}"
   vpc_id = "${data.aws_vpc.default.id}"
 
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = "${var.igw_id}"
-  }
-
   tags = "${module.public_label.tags}"
+}
+
+
+resource "aws_route" "public" {
+  route_table_id  = "${aws_route_table.public.id}"
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id = "${var.igw_id}"
 }
 
 resource "aws_route_table_association" "public" {
