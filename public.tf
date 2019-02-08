@@ -38,7 +38,8 @@ resource "aws_route_table" "public" {
 }
 
 resource "aws_route" "public" {
-  route_table_id         = "${aws_route_table.public.id}"
+  count                  = "${signum(length(var.vpc_default_route_table_id)) == 1 ? 0 : 1}"
+  route_table_id         = "${join("", aws_route_table.public.*.id)}"
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = "${var.igw_id}"
 }
