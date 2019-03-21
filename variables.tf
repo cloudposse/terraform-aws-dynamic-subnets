@@ -80,3 +80,9 @@ variable "nat_gateway_enabled" {
   description = "Flag to enable/disable NAT gateways for private subnets"
   default     = "true"
 }
+
+variable "auto_assign_public_ip" {
+  type        = "string"
+  default     = "true"
+  description = "Instances launched into the subnet should be assigned a public IP address."
+}
