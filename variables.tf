@@ -83,6 +83,6 @@ variable "nat_gateway_enabled" {
 
 variable "map_public_ip_on_launch" {
   type        = "string"
-  default     = "true"
+  default     = true
   description = "Instances launched into the subnet should be assigned a public IP address."
 }
