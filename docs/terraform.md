@@ -1,9 +1,9 @@
-
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
 | attributes | Additional attributes (e.g. `policy` or `role`) | list | `<list>` | no |
+| auto_assign_public_ip | Instances launched into the subnet should be assigned a public IP address. | string | `true` | no |
 | availability_zones | List of Availability Zones where subnets will be created | list | - | yes |
 | cidr_block | Base CIDR block which will be divided into subnet CIDR blocks (e.g. `10.0.0.0/16`) | string | - | yes |
 | delimiter | Delimiter to be used between `namespace`, `stage`, `name`, and `attributes` | string | `-` | no |
@@ -24,8 +24,8 @@
 
 | Name | Description |
 |------|-------------|
-| private_route_table_ids |  |
-| private_subnet_ids |  |
-| public_route_table_ids |  |
-| public_subnet_ids |  |
+| private_route_table_ids | - |
+| private_subnet_ids | - |
+| public_route_table_ids | - |
+| public_subnet_ids | - |
 
