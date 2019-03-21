@@ -72,13 +72,13 @@ variable "public_network_acl_id" {
 }
 
 variable "private_network_acl_id" {
-  default     = ""
   description = "Network ACL ID that will be added to private subnets. If empty, a new ACL will be created"
+  default     = ""
 }
 
 variable "nat_gateway_enabled" {
   description = "Flag to enable/disable NAT gateways for private subnets"
-  default     = "true"
+  default     = true
 }
 
 variable "map_public_ip_on_launch" {
