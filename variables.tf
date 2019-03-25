@@ -78,10 +78,10 @@ variable "private_network_acl_id" {
 
 variable "nat_gateway_enabled" {
   description = "Flag to enable/disable NAT gateways for private subnets"
-  default     = true
+  default     = "true"
 }
 
 variable "map_public_ip_on_launch" {
-  default     = true
+  default     = "true"
   description = "Instances launched into a public subnet should be assigned a public IP address"
 }
