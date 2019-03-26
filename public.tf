@@ -18,16 +18,17 @@ module "public_subnet_label" {
 }
 
 locals {
-  public_subnet_count = "${var.max_subnet_count == 0 ? length(data.aws_availability_zones.available.names) : var.max_subnet_count}"
+  public_subnet_count     = "${var.max_subnet_count == 0 ? length(data.aws_availability_zones.available.names) : var.max_subnet_count}"
+  map_public_ip_on_launch = "${var.map_public_ip_on_launch == "true" ? true : false}"
 }
 
 resource "aws_subnet" "public" {
-  count             = "${length(var.availability_zones)}"
-  vpc_id            = "${data.aws_vpc.default.id}"
-  availability_zone = "${element(var.availability_zones, count.index)}"
-  cidr_block        = "${cidrsubnet(signum(length(var.cidr_block)) == 1 ? var.cidr_block : data.aws_vpc.default.cidr_block, ceil(log(local.public_subnet_count * 2, 2)), local.public_subnet_count + count.index)}"
-
-  tags = "${merge(module.public_subnet_label.tags, map("Name",format("%s%s%s", module.public_subnet_label.id, var.delimiter, replace(element(var.availability_zones, count.index),"-",var.delimiter))))}"
+  count                   = "${length(var.availability_zones)}"
+  vpc_id                  = "${data.aws_vpc.default.id}"
+  availability_zone       = "${element(var.availability_zones, count.index)}"
+  cidr_block              = "${cidrsubnet(signum(length(var.cidr_block)) == 1 ? var.cidr_block : data.aws_vpc.default.cidr_block, ceil(log(local.public_subnet_count * 2, 2)), local.public_subnet_count + count.index)}"
+  map_public_ip_on_launch = "${local.map_public_ip_on_launch}"
+  tags                    = "${merge(module.public_subnet_label.tags, map("Name",format("%s%s%s", module.public_subnet_label.id, var.delimiter, replace(element(var.availability_zones, count.index),"-",var.delimiter))))}"
 }
 
 resource "aws_route_table" "public" {

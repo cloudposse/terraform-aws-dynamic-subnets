@@ -1,4 +1,3 @@
-
 ## Inputs
 
 | Name | Description | Type | Default | Required |
@@ -8,6 +7,7 @@
 | cidr_block | Base CIDR block which will be divided into subnet CIDR blocks (e.g. `10.0.0.0/16`) | string | - | yes |
 | delimiter | Delimiter to be used between `namespace`, `stage`, `name`, and `attributes` | string | `-` | no |
 | igw_id | Internet Gateway ID the public route table will point to (e.g. `igw-9c26a123`) | string | - | yes |
+| map_public_ip_on_launch | Instances launched into a public subnet should be assigned a public IP address | string | `true` | no |
 | max_subnet_count | Sets the maximum amount of subnets to deploy.  0 will deploy a subnet for every availablility zone within the region | string | `0` | no |
 | name | Name (e.g. `app`) | string | - | yes |
 | namespace | Namespace (e.g. `cp` or `cloudposse`) | string | - | yes |
@@ -24,8 +24,8 @@
 
 | Name | Description |
 |------|-------------|
-| private_route_table_ids |  |
-| private_subnet_ids |  |
-| public_route_table_ids |  |
-| public_subnet_ids |  |
+| private_route_table_ids | - |
+| private_subnet_ids | - |
+| public_route_table_ids | - |
+| public_subnet_ids | - |
 
