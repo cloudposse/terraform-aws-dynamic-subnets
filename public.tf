@@ -18,7 +18,7 @@ module "public_subnet_label" {
 }
 
 locals {
-  public_subnet_count = "${var.max_subnet_count == 0 ? length(data.aws_availability_zones.available.names) : var.max_subnet_count}"
+  public_subnet_count     = "${var.max_subnet_count == 0 ? length(data.aws_availability_zones.available.names) : var.max_subnet_count}"
   map_public_ip_on_launch = "${var.map_public_ip_on_launch == "true" ? true : false}"
 }
 
