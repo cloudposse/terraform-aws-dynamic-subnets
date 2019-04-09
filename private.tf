@@ -4,7 +4,7 @@ module "private_label" {
   stage      = "${var.stage}"
   name       = "${var.name}"
   delimiter  = "${var.delimiter}"
-  attributes = ["private"]
+  attributes = "${concat(var.attributes,list("private"))}"
   tags       = "${var.tags}"
 }
 
@@ -13,7 +13,7 @@ module "private_subnet_label" {
   namespace  = "${var.namespace}"
   stage      = "${var.stage}"
   name       = "${var.name}"
-  attributes = ["private"]
+  attributes = "${concat(var.attributes,list("private"))}"
   tags       = "${var.tags}"
 }
 
