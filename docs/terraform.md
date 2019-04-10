@@ -25,7 +25,9 @@
 | Name | Description |
 |------|-------------|
 | private_route_table_ids | - |
+| private_subnet_cidrs | - |
 | private_subnet_ids | - |
 | public_route_table_ids | - |
+| public_subnet_cidrs | - |
 | public_subnet_ids | - |
 
