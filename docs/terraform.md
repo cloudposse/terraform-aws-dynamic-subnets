@@ -24,8 +24,10 @@
 
 | Name | Description |
 |------|-------------|
-| private_route_table_ids | - |
-| private_subnet_ids | - |
-| public_route_table_ids | - |
-| public_subnet_ids | - |
+| private_route_table_ids | AWS IDs of the created private route tables |
+| private_subnet_cidrs | CIDR blocks of the created private subnets |
+| private_subnet_ids | AWS IDs of the created private subnets |
+| public_route_table_ids | AWS IDs of the created public route tables |
+| public_subnet_cidrs | CIDR blocks of the created public subnets |
+| public_subnet_ids | AWS IDs of the created public subnets |
 

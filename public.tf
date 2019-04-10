@@ -4,7 +4,7 @@ module "public_label" {
   stage      = "${var.stage}"
   name       = "${var.name}"
   delimiter  = "${var.delimiter}"
-  attributes = ["public"]
+  attributes = "${compact(concat(var.attributes,list("public")))}"
   tags       = "${var.tags}"
 }
 
@@ -13,7 +13,7 @@ module "public_subnet_label" {
   namespace  = "${var.namespace}"
   stage      = "${var.stage}"
   name       = "${var.name}"
-  attributes = ["public"]
+  attributes = "${compact(concat(var.attributes,list("public")))}"
   tags       = "${var.tags}"
 }
 
