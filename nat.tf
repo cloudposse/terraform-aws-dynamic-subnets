@@ -4,7 +4,7 @@ module "nat_label" {
   stage      = "${var.stage}"
   name       = "${var.name}"
   delimiter  = "${var.delimiter}"
-  attributes = "${concat(var.attributes,list("nat"))}"
+  attributes = "${compact(concat(var.attributes,list("nat")))}"
   tags       = "${var.tags}"
 }
 

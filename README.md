@@ -172,12 +172,12 @@ Available targets:
 
 | Name | Description |
 |------|-------------|
-| private_route_table_ids | - |
-| private_subnet_cidrs | - |
-| private_subnet_ids | - |
-| public_route_table_ids | - |
-| public_subnet_cidrs | - |
-| public_subnet_ids | - |
+| private_route_table_ids | AWS ID of the created private route table |
+| private_subnet_cidrs | CIDR of the created private subnet |
+| private_subnet_ids | AWS ID of the created private subnet |
+| public_route_table_ids | AWS ID of the created public route table |
+| public_subnet_cidrs | CIDR of the created public subnet |
+| public_subnet_ids | AWS ID of the created public subnet |
 
 
 
