@@ -5,7 +5,7 @@ module "public_label" {
   name       = "${var.name}"
   delimiter  = "${var.delimiter}"
   attributes = "${compact(concat(var.attributes,list("public")))}"
-  tags       = "${var.tags}"
+  tags       = "${merge(var.tags, map("type", "public"))}"
 }
 
 module "public_subnet_label" {
@@ -14,7 +14,7 @@ module "public_subnet_label" {
   stage      = "${var.stage}"
   name       = "${var.name}"
   attributes = "${compact(concat(var.attributes,list("public")))}"
-  tags       = "${var.tags}"
+  tags       = "${merge(var.tags, map("type", "public"))}"
 }
 
 locals {
