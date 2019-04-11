@@ -31,6 +31,11 @@ variable "tags" {
   description = "Additional tags (e.g. map(`Cluster`,`XYZ`)"
 }
 
+variable "subnet_type_tag_key" {
+  default     = "cpco.io/subnet/type"
+  description = "Key for subnet type tag to provide information about the type of subnets, e.g. `cpco.io/subnet/type=private` or `cpco.io/subnet/type=public`"
+}
+
 variable "region" {
   type        = "string"
   description = "AWS Region (e.g. `us-east-1`)"

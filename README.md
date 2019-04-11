@@ -164,6 +164,7 @@ Available targets:
 | public_network_acl_id | Network ACL ID that will be added to public subnets. If empty, a new ACL will be created | string | `` | no |
 | region | AWS Region (e.g. `us-east-1`) | string | - | yes |
 | stage | Stage (e.g. `prod`, `dev`, `staging`) | string | - | yes |
+| subnet_type_tag_key | Key for subnet type tag to provide information about the type of subnets, e.g. `cpco.io/subnet/type=private` or `cpco.io/subnet/type=public` | string | `cpco.io/subnet/type` | no |
 | tags | Additional tags (e.g. map(`Cluster`,`XYZ`) | map | `<map>` | no |
 | vpc_default_route_table_id | Default route table for public subnets. If not set, will be created. (e.g. `rtb-f4f0ce12`) | string | `` | no |
 | vpc_id | VPC ID where subnets will be created (e.g. `vpc-aceb2723`) | string | - | yes |
@@ -172,6 +173,8 @@ Available targets:
 
 | Name | Description |
 |------|-------------|
+| availability_zones | List of Availability Zones where subnets were created |
+| nat_gateway_ids | AWS IDs of the NAT gateways created |
 | private_route_table_ids | AWS IDs of the created private route tables |
 | private_subnet_cidrs | CIDR blocks of the created private subnets |
 | private_subnet_ids | AWS IDs of the created private subnets |
