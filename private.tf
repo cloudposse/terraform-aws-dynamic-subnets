@@ -5,7 +5,7 @@ module "private_label" {
   name       = "${var.name}"
   delimiter  = "${var.delimiter}"
   attributes = "${compact(concat(var.attributes,list("private")))}"
-  tags       = "${merge(var.tags, map("type", "private"))}"
+  tags       = "${merge(var.tags, map("cpco.io/subnet/type", "private"))}"
 }
 
 module "private_subnet_label" {
@@ -14,7 +14,7 @@ module "private_subnet_label" {
   stage      = "${var.stage}"
   name       = "${var.name}"
   attributes = "${compact(concat(var.attributes,list("private")))}"
-  tags       = "${merge(var.tags, map("type", "private"))}"
+  tags       = "${merge(var.tags, map("cpco.io/subnet/type", "private"))}"
 }
 
 locals {
