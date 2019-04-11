@@ -27,3 +27,13 @@ output "private_route_table_ids" {
   description = "AWS IDs of the created private route tables"
   value       = ["${aws_route_table.private.*.id}"]
 }
+
+output "nat_gateway_ids" {
+  description = "AWS IDs of the NAT gateways created"
+  value = ["${aws_nat_gateway.default.*.id}"]
+}
+
+output "availability_zones" {
+ description = "List of Availability Zones where subnets were created"
+  value = "${var.availability_zones}"
+}
