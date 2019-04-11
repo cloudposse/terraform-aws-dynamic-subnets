@@ -29,6 +29,11 @@ resource "aws_subnet" "public" {
   cidr_block              = "${cidrsubnet(signum(length(var.cidr_block)) == 1 ? var.cidr_block : data.aws_vpc.default.cidr_block, ceil(log(local.public_subnet_count * 2, 2)), local.public_subnet_count + count.index)}"
   map_public_ip_on_launch = "${local.map_public_ip_on_launch}"
   tags                    = "${merge(module.public_subnet_label.tags, map("Name",format("%s%s%s", module.public_subnet_label.id, var.delimiter, replace(element(var.availability_zones, count.index),"-",var.delimiter))))}"
+
+  lifecycle {
+    # Ignore tags added by kops or kubernetes
+    ignore_changes = ["tags.%", "tags.kubernetes", "tags.SubnetType"]
+  }
 }
 
 resource "aws_route_table" "public" {
