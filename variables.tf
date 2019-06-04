@@ -35,6 +35,11 @@ variable "subnet_type_tag_key" {
   default     = "cpco.io/subnet/type"
   description = "Key for subnet type tag to provide information about the type of subnets, e.g. `cpco.io/subnet/type=private` or `cpco.io/subnet/type=public`"
 }
+variable "subnet_type_tag_value_format" {
+  default     = "%s"
+  description = "This is using the format interpolation symbols to allow the value of the subnet_type_tag_key to be modified."
+  type        = "string"
+}
 
 variable "region" {
   type        = "string"
