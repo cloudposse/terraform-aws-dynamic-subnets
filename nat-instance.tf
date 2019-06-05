@@ -14,7 +14,6 @@ locals {
   cidr_block           = "${var.cidr_block != "" ? var.cidr_block : data.aws_vpc.default.cidr_block}"
 }
 
-# https://docs.aws.amazon.com/vpc/latest/userguide/VPC_NAT_Instance.html#NATSG
 resource "aws_security_group" "nat_instance" {
   count       = "${local.nat_instance_enabled ? 1 : 0}"
   name        = "${module.nat_instance_label.id}"
@@ -23,45 +22,23 @@ resource "aws_security_group" "nat_instance" {
   tags        = "${module.nat_instance_label.tags}"
 }
 
-resource "aws_security_group_rule" "egress_http" {
+resource "aws_security_group_rule" "nat_instance_egress" {
   count             = "${local.nat_instance_enabled ? 1 : 0}"
-  description       = "Allow HTTP egress traffic"
-  from_port         = 80
-  to_port           = 80
-  protocol          = "tcp"
+  description       = "Allow all egress traffic"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = "${join("", aws_security_group.nat_instance.*.id)}"
   type              = "egress"
 }
 
-resource "aws_security_group_rule" "egress_https" {
+resource "aws_security_group_rule" "nat_instance_ingress" {
   count             = "${local.nat_instance_enabled ? 1 : 0}"
-  description       = "Allow HTTPS egress traffic"
-  from_port         = 443
-  to_port           = 443
-  protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${join("", aws_security_group.nat_instance.*.id)}"
-  type              = "egress"
-}
-
-resource "aws_security_group_rule" "ingress_http" {
-  count             = "${local.nat_instance_enabled ? 1 : 0}"
-  description       = "Allow HTTP ingress traffic from the VPC CIDR block"
-  from_port         = 80
-  to_port           = 80
-  protocol          = "tcp"
-  cidr_blocks       = ["${local.cidr_block}"]
-  security_group_id = "${join("", aws_security_group.nat_instance.*.id)}"
-  type              = "ingress"
-}
-
-resource "aws_security_group_rule" "ingress_https" {
-  count             = "${local.nat_instance_enabled ? 1 : 0}"
-  description       = "Allow HTTPS ingress traffic from the VPC CIDR block"
-  from_port         = 443
-  to_port           = 443
-  protocol          = "tcp"
+  description       = "Allow ingress traffic from the VPC CIDR block"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
   cidr_blocks       = ["${local.cidr_block}"]
   security_group_id = "${join("", aws_security_group.nat_instance.*.id)}"
   type              = "ingress"
