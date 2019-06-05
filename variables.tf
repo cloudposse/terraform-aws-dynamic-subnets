@@ -92,7 +92,7 @@ variable "nat_instance_enabled" {
 }
 
 variable "nat_instance_type" {
-  description = "NAT instance type"
+  description = "NAT Instance type"
   default     = "t3.micro"
 }
 

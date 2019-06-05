@@ -13,7 +13,7 @@
 | namespace | Namespace (e.g. `cp` or `cloudposse`) | string | - | yes |
 | nat_gateway_enabled | Flag to enable/disable NAT Gateways to allow servers in the private subnets to access the Internet | string | `true` | no |
 | nat_instance_enabled | Flag to enable/disable NAT Instances to allow servers in the private subnets to access the Internet | string | `false` | no |
-| nat_instance_type | NAT instance type | string | `t3.micro` | no |
+| nat_instance_type | NAT Instance type | string | `t3.micro` | no |
 | private_network_acl_id | Network ACL ID that will be added to private subnets. If empty, a new ACL will be created | string | `` | no |
 | public_network_acl_id | Network ACL ID that will be added to public subnets. If empty, a new ACL will be created | string | `` | no |
 | region | AWS Region (e.g. `us-east-1`) | string | - | yes |
