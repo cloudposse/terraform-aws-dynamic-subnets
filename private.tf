@@ -17,17 +17,13 @@ module "private_subnet_label" {
   tags       = "${merge(var.tags, map(var.subnet_type_tag_key, format(var.subnet_type_tag_value_format,"private")))}"
 }
 
-locals {
-  private_subnet_count = "${var.max_subnet_count == 0 ? length(data.aws_availability_zones.available.names) : var.max_subnet_count}"
-}
-
 resource "aws_subnet" "private" {
-  count             = "${length(var.availability_zones)}"
+  count             = "${local.private_subnet_count}"
   vpc_id            = "${data.aws_vpc.default.id}"
-  availability_zone = "${element(var.availability_zones, count.index)}"
+  availability_zone = "${local.availability_zones_private[count.index % length(local.availability_zones_private)]}"
   cidr_block        = "${cidrsubnet(signum(length(var.cidr_block)) == 1 ? var.cidr_block : data.aws_vpc.default.cidr_block, ceil(log(local.private_subnet_count * 2, 2)), count.index)}"
 
-  tags = "${merge(module.private_subnet_label.tags, map("Name",format("%s%s%s", module.private_subnet_label.id, var.delimiter, replace(element(var.availability_zones, count.index),"-",var.delimiter))))}"
+  tags = "${merge(module.private_label.tags, map("Name",format("%s%s%s", module.private_label.id, var.delimiter, replace(local.availability_zones_private[count.index % length(local.availability_zones_private)],"-",var.delimiter))))}"
 
   lifecycle {
     # Ignore tags added by kops or kubernetes
@@ -36,14 +32,14 @@ resource "aws_subnet" "private" {
 }
 
 resource "aws_route_table" "private" {
-  count  = "${length(var.availability_zones)}"
+  count  = "${local.private_subnet_count}"
   vpc_id = "${data.aws_vpc.default.id}"
 
-  tags = "${merge(module.private_subnet_label.tags, map("Name",format("%s%s%s", module.private_subnet_label.id, var.delimiter, replace(element(var.availability_zones, count.index),"-",var.delimiter))))}"
+  tags = "${merge(module.private_label.tags, map("Name",format("%s%s%s", module.private_label.id, var.delimiter, replace(local.availability_zones_private[count.index % length(local.availability_zones_private)],"-",var.delimiter))))}"
 }
 
 resource "aws_route_table_association" "private" {
-  count = "${length(var.availability_zones)}"
+  count = "${local.private_subnet_count}"
 
   subnet_id      = "${element(aws_subnet.private.*.id, count.index)}"
   route_table_id = "${element(aws_route_table.private.*.id, count.index)}"
