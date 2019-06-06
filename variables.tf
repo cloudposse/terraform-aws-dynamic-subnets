@@ -43,7 +43,7 @@ variable "region" {
 
 variable "max_subnet_count" {
   default     = 0
-  description = "Sets the maximum amount of subnets to deploy.  0 will deploy a subnet for every availablility zone within the region"
+  description = "Sets the maximum amount of subnets to deploy.  0 will deploy a subnet for every provided availablility zone (in `availability_zones` variable) within the region"
 }
 
 variable "vpc_id" {
@@ -82,8 +82,18 @@ variable "private_network_acl_id" {
 }
 
 variable "nat_gateway_enabled" {
-  description = "Flag to enable/disable NAT gateways for private subnets"
+  description = "Flag to enable/disable NAT Gateways to allow servers in the private subnets to access the Internet"
   default     = "true"
+}
+
+variable "nat_instance_enabled" {
+  description = "Flag to enable/disable NAT Instances to allow servers in the private subnets to access the Internet"
+  default     = "false"
+}
+
+variable "nat_instance_type" {
+  description = "NAT Instance type"
+  default     = "t3.micro"
 }
 
 variable "map_public_ip_on_launch" {
