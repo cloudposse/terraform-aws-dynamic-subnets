@@ -12,7 +12,7 @@
 | map_public_ip_on_launch | Instances launched into a public subnet should be assigned a public IP address | string | `true` | no |
 | max_subnet_count | Sets the maximum amount of subnets to deploy.  0 will deploy a subnet for every provided availablility zone (in `availability_zones` variable) within the region | string | `0` | no |
 | name | Solution name, e.g. 'app' or 'jenkins' | string | `` | no |
-| namespace | Namespace, which could be your organization name, e.g. 'cp' or 'cloudposse' | string | `` | no |
+| namespace | Namespace, which could be your organization name or abbreviation, e.g. 'eg' or 'cp' | string | `` | no |
 | nat_gateway_enabled | Flag to enable/disable NAT Gateways to allow servers in the private subnets to access the Internet | string | `true` | no |
 | nat_instance_enabled | Flag to enable/disable NAT Instances to allow servers in the private subnets to access the Internet | string | `false` | no |
 | nat_instance_type | NAT Instance type | string | `t3.micro` | no |
@@ -22,7 +22,7 @@
 | stage | Stage, e.g. 'prod', 'staging', 'dev', or 'test' | string | `` | no |
 | subnet_type_tag_key | Key for subnet type tag to provide information about the type of subnets, e.g. `cpco.io/subnet/type=private` or `cpco.io/subnet/type=public` | string | `cpco.io/subnet/type` | no |
 | subnet_type_tag_value_format | This is using the format interpolation symbols to allow the value of the subnet_type_tag_key to be modified. | string | `%s` | no |
-| tags | [Required unless var.context used] Default tags. | map | `<map>` | no |
+| tags | Additional tags to apply to all resources that use this label module | map | `<map>` | no |
 | vpc_default_route_table_id | Default route table for public subnets. If not set, will be created. (e.g. `rtb-f4f0ce12`) | string | `` | no |
 | vpc_id | VPC ID where subnets will be created (e.g. `vpc-aceb2723`) | string | - | yes |
 
