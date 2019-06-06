@@ -19,6 +19,7 @@
 | region | AWS Region (e.g. `us-east-1`) | string | - | yes |
 | stage | Stage (e.g. `prod`, `dev`, `staging`) | string | - | yes |
 | subnet_type_tag_key | Key for subnet type tag to provide information about the type of subnets, e.g. `cpco.io/subnet/type=private` or `cpco.io/subnet/type=public` | string | `cpco.io/subnet/type` | no |
+| subnet_type_tag_value_format | This is using the format interpolation symbols to allow the value of the subnet_type_tag_key to be modified. | string | `%s` | no |
 | tags | Additional tags (e.g. map(`Cluster`,`XYZ`) | map | `<map>` | no |
 | vpc_default_route_table_id | Default route table for public subnets. If not set, will be created. (e.g. `rtb-f4f0ce12`) | string | `` | no |
 | vpc_id | VPC ID where subnets will be created (e.g. `vpc-aceb2723`) | string | - | yes |
