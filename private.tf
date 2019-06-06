@@ -1,22 +1,11 @@
+
+
 module "private_label" {
-  source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.3.3"
-  namespace  = "${var.namespace}"
-  stage      = "${var.stage}"
-  name       = "${var.name}"
-  delimiter  = "${var.delimiter}"
-  attributes = "${compact(concat(var.attributes,list("private")))}"
-  tags       = "${merge(var.tags, map(var.subnet_type_tag_key, "private"))}"
+  source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.11.1"
+  context    = "${module.label.context}"
+  attributes = "${compact(concat(module.label.attributes,list("private")))}"
+  tags       = "${merge(module.label.tags, map(var.subnet_type_tag_key, "private"))}"
 }
-
-module "private_subnet_label" {
-  source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.3.3"
-  namespace  = "${var.namespace}"
-  stage      = "${var.stage}"
-  name       = "${var.name}"
-  attributes = "${compact(concat(var.attributes,list("private")))}"
-  tags       = "${merge(var.tags, map(var.subnet_type_tag_key, "private"))}"
-}
-
 locals {
   private_subnet_count = "${var.max_subnet_count == 0 ? length(data.aws_availability_zones.available.names) : var.max_subnet_count}"
 }
@@ -27,7 +16,7 @@ resource "aws_subnet" "private" {
   availability_zone = "${element(var.availability_zones, count.index)}"
   cidr_block        = "${cidrsubnet(signum(length(var.cidr_block)) == 1 ? var.cidr_block : data.aws_vpc.default.cidr_block, ceil(log(local.private_subnet_count * 2, 2)), count.index)}"
 
-  tags = "${merge(module.private_subnet_label.tags, map("Name",format("%s%s%s", module.private_subnet_label.id, var.delimiter, replace(element(var.availability_zones, count.index),"-",var.delimiter))))}"
+  tags = "${merge(module.private_label.tags, map("Name",format("%s%s%s", module.private_label.id, var.delimiter, replace(element(var.availability_zones, count.index),"-",var.delimiter))))}"
 
   lifecycle {
     # Ignore tags added by kops or kubernetes
@@ -39,7 +28,7 @@ resource "aws_route_table" "private" {
   count  = "${length(var.availability_zones)}"
   vpc_id = "${data.aws_vpc.default.id}"
 
-  tags = "${merge(module.private_subnet_label.tags, map("Name",format("%s%s%s", module.private_subnet_label.id, var.delimiter, replace(element(var.availability_zones, count.index),"-",var.delimiter))))}"
+  tags = "${merge(module.private_label.tags, map("Name",format("%s%s%s", module.private_label.id, var.delimiter, replace(element(var.availability_zones, count.index),"-",var.delimiter))))}"
 }
 
 resource "aws_route_table_association" "private" {
