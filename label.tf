@@ -22,17 +22,17 @@ variable "additional_tag_map" {
 variable "label_order" {
   type        = "list"
   default     = []
-  description = "[Label Module] The naming order of the id output and Name tag"
+  description = "The naming order of the id output and Name tag"
 }
 
 variable "regex_replace_chars" {
   type        = "string"
   default     = "/[^a-zA-Z0-9-]/"
-  description = "[Label Module] Regex to replace chars with empty string in `namespace`, `environment`, `stage` and `name`. By default only hyphens, letters and digits are allowed, all other chars are removed"
+  description = "Regex to replace chars with empty string in `namespace`, `environment`, `stage` and `name`. By default only hyphens, letters and digits are allowed, all other chars are removed"
 }
 
 variable "tags" {
-  description = "[Label Module] Additional tags to apply to all resources that use this label module"
+  description = "Additional tags to apply to all resources that use this label module"
   type        = "map"
   default     = {}
 }
@@ -40,40 +40,40 @@ variable "tags" {
 variable "namespace" {
   type        = "string"
   default     = ""
-  description = "[Label Module] Namespace, which could be your organization name or abbreviation, e.g. 'eg' or 'cp'"
+  description = "Namespace, which could be your organization name or abbreviation, e.g. 'eg' or 'cp'"
 }
 
 variable "stage" {
   type        = "string"
   default     = ""
-  description = "[Label Module] Stage, e.g. 'prod', 'staging', 'dev', or 'test'"
+  description = "Stage, e.g. 'prod', 'staging', 'dev', or 'test'"
 }
 
 variable "name" {
   type        = "string"
   default     = ""
-  description = "[Label Module] Solution name, e.g. 'app' or 'jenkins'"
+  description = "Solution name, e.g. 'app' or 'jenkins'"
 }
 
 variable "environment" {
-  description = "[Label Module] The environment name if not using stage"
+  description = "The environment name if not using stage"
   default     = ""
 }
 
 variable "attributes" {
   type        = "list"
-  description = "[Label Module] Any extra attributes for naming these resources"
+  description = "Any extra attributes for naming these resources"
   default     = []
 }
 
 variable "delimiter" {
   type        = "string"
   default     = "-"
-  description = "[Label Module] Delimiter to be used between `namespace`, `stage`, `name` and `attributes`"
+  description = "Delimiter to be used between `namespace`, `stage`, `name` and `attributes`"
 }
 
 variable "context" {
   type        = "map"
-  description = "[Label Module] The context output from an external label module to pass to the label modules within this module"
+  description = "The context output from an external label module to pass to the label modules within this module"
   default     = {}
 }
