@@ -21,7 +21,7 @@ variable "max_subnet_count" {
 
 locals {
   max_subnets_map = {
-    "-1" = "${length(data.aws_availability_zones.available.names)}"
+    "-1" = "${length(local.availability_zones)}"
     "0"  = "0"
     "1"  = "${var.max_subnet_count}"
   }
@@ -36,7 +36,7 @@ variable "public_subnet_count" {
 
 locals {
   public_subnets_map = {
-    "-1" = "${length(data.aws_availability_zones.available.names)}"
+    "-1" = "${length(local.availability_zones)}"
     "0"  = "0"
     "1"  = "${var.public_subnet_count}"
   }
@@ -52,7 +52,7 @@ variable "private_subnet_count" {
 
 locals {
   private_subnets_map = {
-    "-1" = "${length(data.aws_availability_zones.available.names)}"
+    "-1" = "${length(local.availability_zones)}"
     "0"  = "0"
     "1"  = "${var.private_subnet_count}"
   }
