@@ -157,7 +157,7 @@ Available targets:
 |------|-------------|:----:|:-----:|:-----:|
 | additional_tag_map | Additional tags for appending to each tag map | map | `<map>` | no |
 | attributes | Any extra attributes for naming these resources | list | `<list>` | no |
-| availability_zones | List of Availability Zones where subnets will be created. When none provided, all availability zones will be used up to the number provided in the max_public_subnet_count and/or max_private_subnet_count | list | `<list>` | no |
+| availability_zones | List of Availability Zones where subnets will be created. When none provided, all availability zones will be used up to the number provided in the public_subnet_count and/or private_subnet_count, and then will be reused if the number of subnets requested is more than the number of availability zones | list | `<list>` | no |
 | cidr_block | Base CIDR block which will be divided into subnet CIDR blocks (e.g. `10.0.0.0/16`), or pass in the vpc_id to use the CIDR from the VPC | string | `` | no |
 | context | The context output from an external label module to pass to the label modules within this module | map | `<map>` | no |
 | delimiter | Delimiter to be used between `namespace`, `stage`, `name` and `attributes` | string | `-` | no |

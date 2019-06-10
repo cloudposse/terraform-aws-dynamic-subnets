@@ -79,7 +79,7 @@ variable "cidr_block" {
 
 variable "availability_zones" {
   type        = "list"
-  description = "List of Availability Zones where subnets will be created. When none provided, all availability zones will be used up to the number provided in the max_public_subnet_count and/or max_private_subnet_count"
+  description = "List of Availability Zones where subnets will be created. When none provided, all availability zones will be used up to the number provided in the public_subnet_count and/or private_subnet_count, and then will be reused if the number of subnets requested is more than the number of availability zones"
   default     = []
 }
 
