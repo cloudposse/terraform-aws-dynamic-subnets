@@ -30,13 +30,6 @@ resource "aws_route_table" "public" {
   tags = "${module.public_label.tags}"
 }
 
-resource "aws_route_table" "public" {
-  count  = "${signum(length(var.vpc_default_route_table_id)) == 1 ? 0 : 1}"
-  vpc_id = "${data.aws_vpc.default.id}"
-
-  tags = "${module.public_label.tags}"
-}
-
 resource "aws_route" "public" {
   count                  = "${signum(length(var.vpc_default_route_table_id)) == 1 ? 0 : 1}"
   route_table_id         = "${join("", aws_route_table.public.*.id)}"

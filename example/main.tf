@@ -1,5 +1,10 @@
 ## This example demonstrates it use as if it was being used 
 ## for some Spinnaker (spinnaker.io) deployment
+provider "aws" {
+  version = "~> 2.12"
+  region  = "us-west-2"
+}
+
 module "dynamic_subnets" {
   source                  = "./.."
   context                 = "${module.label.context}"
@@ -12,6 +17,14 @@ module "dynamic_subnets" {
   private_subnet_count    = "4"                                                                      // Four private zones for the 
   map_public_ip_on_launch = "true"
 
+  ## You can use nat_gateway_enabled or nat_instance_enabled
+  ## It creates one nat instance per public subnet.
+  ## So if you want to exclude the public subnet by setting the public_subnet_count to 0
+  ## You will neet to use the nat_gateway_enabled option.
+  nat_instance_enabled = "true"
+
+  nat_gateway_enabled = "false"
+
   ## Optionally customising a tag based on whether it is public or private
   ## will format like this: "immutable_metadata": {"purpose": \"public-subnet\"}"
   subnet_type_tag_key = "immutable_metadata"
@@ -19,6 +32,9 @@ module "dynamic_subnets" {
   subnet_type_tag_value_format = "{\"purpose\": \"%s-subnet\"}" // The %s gets replaced with 'public' on public subnets and 'private' on private subnets
 }
 
+## VPC module doesn't have the latest version of null_label 
+## module integrated with it at the time of this example being 
+## written so no context variable here.
 module "vpc" {
   source     = "git::https://github.com/cloudposse/terraform-aws-vpc.git?ref=tags/0.4.1"
   namespace  = "${module.label.namespace}"
@@ -37,7 +53,7 @@ module "label" {
   namespace   = "cp"
   environment = "prod"
   delimiter   = "-"
-  name        = "app"
+  name        = "spinnaker"
 
   tags = {
     "ManagedBy" = "Terraform"
@@ -46,7 +62,8 @@ module "label" {
 }
 
 variable "eks_cluster_name" {
-  default = "my-main-eks-cluster"
+  description = "The name of the EKS cluster that will be utilising this network(if any)"
+  default     = "my-main-eks-cluster"
 }
 
 variable "vpc_cidr" {
@@ -60,9 +77,4 @@ locals {
     "kubernetes.io/role/elb"                        = ""
     "kubernetes.io/role/internal-elb"               = ""
   }
-}
-
-provider "aws" {
-  version = "~> 2.13"
-  region  = "eu-west-2"
 }
