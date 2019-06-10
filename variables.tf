@@ -9,11 +9,6 @@ variable "subnet_type_tag_value_format" {
   type        = "string"
 }
 
-variable "region" {
-  type        = "string"
-  description = "AWS Region (e.g. `us-east-1`)"
-}
-
 variable "max_subnet_count" {
   default     = "-1"
   description = "The maximum number of subnets to deploy. 0 for none, -1 to match the number of az's in the region, or a specific number"
@@ -138,4 +133,11 @@ variable "nat_instance_type" {
 variable "map_public_ip_on_launch" {
   default     = "true"
   description = "Instances launched into a public subnet should be assigned a public IP address"
+}
+
+## This isn't used anywhere! Can't remove it without breaking people on 'master'
+## Set a default of empty, so it isn't required/needed.
+variable "region" {
+  type        = "string"
+  description = "The region to pass to the AWS provider nested in this module."
 }
