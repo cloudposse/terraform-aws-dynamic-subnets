@@ -1,36 +1,3 @@
-variable "namespace" {
-  type        = "string"
-  description = "Namespace (e.g. `cp` or `cloudposse`)"
-}
-
-variable "stage" {
-  type        = "string"
-  description = "Stage (e.g. `prod`, `dev`, `staging`)"
-}
-
-variable "name" {
-  type        = "string"
-  description = "Name (e.g. `app`)"
-}
-
-variable "delimiter" {
-  type        = "string"
-  default     = "-"
-  description = "Delimiter to be used between `namespace`, `stage`, `name`, and `attributes`"
-}
-
-variable "attributes" {
-  type        = "list"
-  default     = []
-  description = "Additional attributes (e.g. `policy` or `role`)"
-}
-
-variable "tags" {
-  type        = "map"
-  default     = {}
-  description = "Additional tags (e.g. map(`Cluster`,`XYZ`)"
-}
-
 variable "subnet_type_tag_key" {
   default     = "cpco.io/subnet/type"
   description = "Key for subnet type tag to provide information about the type of subnets, e.g. `cpco.io/subnet/type=private` or `cpco.io/subnet/type=public`"
