@@ -85,8 +85,6 @@ variable "map_public_ip_on_launch" {
   description = "Instances launched into a public subnet should be assigned a public IP address"
 }
 
-## This isn't used anywhere! Can't remove it without breaking people on 'master'
-## Set a default of empty, so it isn't required/needed.
 variable "region" {
   type        = "string"
   description = "The region to pass to the AWS provider nested in this module."
