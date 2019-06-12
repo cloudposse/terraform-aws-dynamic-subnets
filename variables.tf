@@ -10,50 +10,21 @@ variable "subnet_type_tag_value_format" {
 }
 
 variable "max_subnet_count" {
+  ## This variable is converted into a calcuated local value in availability_zones.tf
   default     = "-1"
   description = "The maximum number of subnets to deploy. 0 for none, -1 to match the number of az's in the region, or a specific number"
 }
 
-locals {
-  max_subnets_map = {
-    "-1" = "${length(local.availability_zones)}"
-    "0"  = "0"
-    "1"  = "${var.max_subnet_count}"
-  }
-
-  max_subnet_count = "${local.max_subnets_map[signum(var.max_subnet_count)]}"
-}
-
 variable "public_subnet_count" {
+  ## This variable is converted into a calcuated local value in public.tf
   default     = -1
   description = "Sets the amount of public subnets to deploy.  -1 will deploy a subnet for every availablility zone within the region, 0 will deploy no subnets. The AZ's supplied will be cycled through to create the subnets"
 }
 
-locals {
-  public_subnets_map = {
-    "-1" = "${length(local.availability_zones)}"
-    "0"  = "0"
-    "1"  = "${var.public_subnet_count}"
-  }
-
-  ## Keep the subnets within the max_subnets_count limit
-  public_subnet_count = "${min(local.public_subnets_map[signum(var.public_subnet_count)], local.max_subnet_count)}"
-}
-
 variable "private_subnet_count" {
+  ## This variable is converted into a calcuated local value in private.tf
   default     = -1
   description = "Sets the amount of private subnets to deploy.  -1 will deploy a subnet for every availablility zone within the region, 0 will deploy no subnets. The AZ's supplied will be cycled through to create the subnets"
-}
-
-locals {
-  private_subnets_map = {
-    "-1" = "${length(local.availability_zones)}"
-    "0"  = "0"
-    "1"  = "${var.private_subnet_count}"
-  }
-
-  ## Keep the subnets within the max_subnets_count limit
-  private_subnet_count = "${min(local.private_subnets_map[signum(var.private_subnet_count)], local.max_subnet_count)}"
 }
 
 variable "vpc_id" {
@@ -73,31 +44,10 @@ variable "cidr_block" {
 }
 
 variable "availability_zones" {
+  ## This variable is converted into a calcuated local value in availability_zones.tf
   type        = "list"
   description = "List of Availability Zones where subnets will be created. When none provided, all availability zones will be used up to the number provided in the public_subnet_count and/or private_subnet_count, and then will be reused if the number of subnets requested is more than the number of availability zones"
   default     = []
-}
-
-locals {
-  ## If the variable availability_zones is empty, use the list provided by data.aws_availability_zones.available.names
-  ## Otherwise use the zones listed in availability_zones
-  az_name_map = {
-    "0" = ["${data.aws_availability_zones.available.names}"]
-    "1" = ["${var.availability_zones}"]
-  }
-
-  availability_zones = "${local.az_name_map[signum(length(var.availability_zones))]}"
-
-  ## This selects one of the lists based on the signum() interpolation
-  az_map = {
-    "-1" = ["${data.aws_availability_zones.available.names}"]
-    "1"  = ["${local.availability_zones}"]
-    "0"  = []
-  }
-
-  ## Select the az from the list using a function like `local.availability_zones_public[count.index % length(local.availability_zones_public)]`
-  availability_zones_public  = "${local.az_map[signum(local.public_subnet_count)]}"
-  availability_zones_private = "${local.az_map[signum(local.private_subnet_count)]}"
 }
 
 variable "vpc_default_route_table_id" {

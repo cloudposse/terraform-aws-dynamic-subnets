@@ -1,3 +1,14 @@
+locals {
+  public_subnets_map = {
+    "-1" = "${length(local.availability_zones)}"
+    "0"  = "0"
+    "1"  = "${var.public_subnet_count}"
+  }
+
+  ## Keep the subnets within the max_subnets_count limit
+  public_subnet_count = "${min(local.public_subnets_map[signum(var.public_subnet_count)], local.max_subnet_count)}"
+}
+
 module "public_label" {
   source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.11.1"
   context    = "${module.label.context}"
