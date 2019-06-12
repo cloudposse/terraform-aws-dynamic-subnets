@@ -67,7 +67,7 @@ resource "aws_instance" "nat_instance" {
   instance_type          = "${var.nat_instance_type}"
   subnet_id              = "${element(aws_subnet.public.*.id, count.index)}"
   vpc_security_group_ids = ["${aws_security_group.nat_instance.id}"]
-  tags                   = "${merge(module.nat_instance_label.tags, map("Name",format("%s%s%s", module.nat_label.id, var.delimiter, replace(element(local.availability_zones_public, count.index),"-",var.delimiter))))}"
+  tags                   = "${merge(module.nat_instance_label.tags, map("Name",format("%s%s%s", module.nat_label.id, var.delimiter, replace(local.availability_zones_public[count.index % length(local.availability_zones_public)],"-",var.delimiter))))}"
 
   # Required by NAT
   # https://docs.aws.amazon.com/vpc/latest/userguide/VPC_NAT_Instance.html#EIP_Disable_SrcDestCheck
