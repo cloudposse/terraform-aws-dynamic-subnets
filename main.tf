@@ -5,15 +5,11 @@ provider "aws" {
   version = "~> 2.12.0"
 }
 
-# Terraform
-#--------------------------------------------------------------
-terraform {
-  required_version = "~> 0.11.0"
-}
-
 # Get object aws_vpc by vpc_id
 data "aws_vpc" "default" {
-  id = "${var.vpc_id}"
+  id = var.vpc_id
 }
 
-data "aws_availability_zones" "available" {}
+data "aws_availability_zones" "available" {
+}
+
