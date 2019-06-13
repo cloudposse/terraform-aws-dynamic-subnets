@@ -10,12 +10,11 @@ steps:
     stage: Prepare
     image: cloudposse/build-harness:${{BUILD_HARNESS_VERSION}}
     commands:
+      - set -ex
       - >-
-        set -ex
         export QUEUE_HEAD_ID="$( \
           codefresh get builds \
             --pipeline-name=test \
-            --branch=${{CF_BRANCH}} \
             --status running \
             --limit 1000 -o id | \
           tail -1 | tr -dc '[[:print:]]' \
