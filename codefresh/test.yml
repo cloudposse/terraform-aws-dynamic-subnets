@@ -14,7 +14,7 @@ steps:
       - >-
         export QUEUE_HEAD_ID="$( \
           codefresh get builds \
-            --pipeline-name=test \
+            --pipeline-name=${{CF_REPO_NAME}} \
             --status running \
             --limit 1000 -o id | \
           tail -1 | tr -dc '[[:print:]]' \
