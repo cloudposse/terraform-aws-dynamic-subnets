@@ -3,7 +3,7 @@
 
 [![Cloud Posse][logo]](https://cpco.io/homepage)
 
-# terraform-aws-dynamic-subnets [![Build Status](https://travis-ci.org/cloudposse/terraform-aws-dynamic-subnets.svg?branch=master)](https://travis-ci.org/cloudposse/terraform-aws-dynamic-subnets) [![Latest Release](https://img.shields.io/github/release/cloudposse/terraform-aws-dynamic-subnets.svg)](https://github.com/cloudposse/terraform-aws-dynamic-subnets/releases/latest) [![Slack Community](https://slack.cloudposse.com/badge.svg)](https://slack.cloudposse.com)
+# terraform-aws-dynamic-subnets [![Codefresh Build Status](https://g.codefresh.io/api/badges/pipeline/cloudposse/cloudposse%2Fterraform-aws-dynamic-subnets%2Ftest?type=cf-1)](https://g.codefresh.io/public/accounts/cloudposse/pipelines/cloudposse/terraform-aws-dynamic-subnets/test) [![Build Status](https://travis-ci.org/cloudposse/terraform-aws-dynamic-subnets.svg?branch=master)](https://travis-ci.org/cloudposse/terraform-aws-dynamic-subnets) [![Latest Release](https://img.shields.io/github/release/cloudposse/terraform-aws-dynamic-subnets.svg)](https://github.com/cloudposse/terraform-aws-dynamic-subnets/releases/latest) [![Slack Community](https://slack.cloudposse.com/badge.svg)](https://slack.cloudposse.com)
 
 
 Terraform module to provision public and private [`subnets`](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_Subnets.html) in an existing [`VPC`](https://aws.amazon.com/vpc)
