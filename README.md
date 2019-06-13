@@ -54,7 +54,7 @@ Instead pin to the release tag (e.g. `?ref=tags/x.y.z`) of one of our [latest re
 module "subnets" {
   source              = "git::https://github.com/cloudposse/terraform-aws-dynamic-subnets.git?ref=master"
   providers           = {
-    "aws" = "aws"
+    aws = "aws"
   }
   namespace           = "cp"
   stage               = "prod"

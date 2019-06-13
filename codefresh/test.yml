@@ -5,6 +5,27 @@ stages:
 - Test
 
 steps:
+  wait:
+    title: Wait
+    stage: Prepare
+    image: cloudposse/build-harness:${{BUILD_HARNESS_VERSION}}
+    commands:
+      - >-
+        set -ex
+        export QUEUE_HEAD_ID="$( \
+          codefresh get builds \
+            --pipeline-name=test \
+            --branch=${{CF_BRANCH}} \
+            --status running \
+            --limit 1000 -o id | \
+          tail -1 | tr -dc '[[:print:]]' \
+        )"
+      - '[ "${QUEUE_HEAD_ID}" == "${CF_BUILD_ID}" ]'
+    retry:
+      maxAttempts: 10
+      delay: 20
+      exponentialFactor: 1.1
+
   main_clone:
     title: "Clone repository"
     type: git-clone

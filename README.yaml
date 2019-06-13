@@ -72,7 +72,7 @@ usage: |-
   module "subnets" {
     source              = "git::https://github.com/cloudposse/terraform-aws-dynamic-subnets.git?ref=master"
     providers           = {
-      "aws" = "aws"
+      aws = "aws"
     }
     namespace           = "cp"
     stage               = "prod"
