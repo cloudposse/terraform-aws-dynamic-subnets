@@ -1,8 +1,10 @@
 module "vpc" {
-  source     = "git::https://github.com/cloudposse/terraform-aws-vpc.git?ref=tags/0.3.4"
-  providers  = {
+  source = "git::https://github.com/cloudposse/terraform-aws-vpc.git?ref=tags/0.3.4"
+
+  providers = {
     aws = "aws"
   }
+
   namespace  = "${local.namespace}"
   stage      = "${local.stage}"
   name       = "${local.name}"
@@ -10,10 +12,12 @@ module "vpc" {
 }
 
 module "subnets" {
-  source              = "../../"
-  providers  = {
+  source = "../../"
+
+  providers = {
     aws = "aws"
   }
+
   availability_zones  = "${local.availability_zones}"
   namespace           = "${local.namespace}"
   stage               = "${local.stage}"
