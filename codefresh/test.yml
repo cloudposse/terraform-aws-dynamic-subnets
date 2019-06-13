@@ -10,7 +10,7 @@ steps:
     stage: Prepare
     image: cloudposse/build-harness:${{BUILD_HARNESS_VERSION}}
     commands:
-      - set -ex
+      - set -e
       - >-
         export QUEUE_HEAD_ID="$( \
           codefresh get builds \
