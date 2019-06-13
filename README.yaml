@@ -71,6 +71,9 @@ usage: |-
   ```hcl
   module "subnets" {
     source              = "git::https://github.com/cloudposse/terraform-aws-dynamic-subnets.git?ref=master"
+    providers           = {
+      "aws" = "aws"
+    }
     namespace           = "cp"
     stage               = "prod"
     name                = "app"
@@ -81,6 +84,8 @@ usage: |-
     availability_zones  = ["us-east-1a", "us-east-1b"]
   }
   ```
+
+  Learn about [using providers](https://www.terraform.io/docs/configuration-0-11/modules.html#providers-within-modules) with terraform modules. 
 
 include:
   - "docs/design.md"

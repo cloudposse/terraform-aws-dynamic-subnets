@@ -9,11 +9,6 @@ variable "subnet_type_tag_value_format" {
   type        = "string"
 }
 
-variable "region" {
-  type        = "string"
-  description = "AWS Region (e.g. `us-east-1`)"
-}
-
 variable "max_subnet_count" {
   default     = 0
   description = "Sets the maximum amount of subnets to deploy.  0 will deploy a subnet for every provided availablility zone (in `availability_zones` variable) within the region"
