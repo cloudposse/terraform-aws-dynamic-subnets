@@ -36,8 +36,6 @@ steps:
     - make -C test/ clean init TEST_HARNESS_BRANCH=master
     - make -C test/src clean init
     - find test/src -name '*.tf' -delete
-#    - find . -type d -name '.terraform' | xargs rm -rf
-#    - find . -type f -name 'terraform.tfstate*' -exec rm -f {} \;
 
   test:
     type: "parallel"
