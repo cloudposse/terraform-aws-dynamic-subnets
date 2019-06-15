@@ -8,9 +8,9 @@ steps:
   wait:
     title: Wait
     stage: Prepare
-    image: cloudposse/build-harness:${{BUILD_HARNESS_VERSION}}
+    image: codefresh/cli:latest
     commands:
-      - codefresh get builds --pipeline-name=${CF_REPO_NAME} --status running --limit 1000 -o json | jq --arg id ${CF_BUILD_ID} -er '.[-1].id==$id'
+      - codefresh get builds --pipeline=${{CF_REPO_NAME}} --status running --limit 1000 -o json | jq --arg id ${{CF_BUILD_ID}} -ser 'flatten|.[-1].id==$id'
     retry:
       maxAttempts: 10
       delay: 20
