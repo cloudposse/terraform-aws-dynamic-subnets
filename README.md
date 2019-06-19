@@ -56,7 +56,7 @@ module "subnets" {
   providers           = {
     aws = "aws"
   }
-  namespace           = "cp"
+  namespace           = "eg"
   stage               = "prod"
   name                = "app"
   region              = "us-east-1"
@@ -67,7 +67,7 @@ module "subnets" {
 }
 ```
 
-Learn about [using providers](https://www.terraform.io/docs/configuration-0-11/modules.html#providers-within-modules) with terraform modules. 
+Learn about [using providers](https://www.terraform.io/docs/configuration-0-11/modules.html#providers-within-modules) with terraform modules.
 
 
 
