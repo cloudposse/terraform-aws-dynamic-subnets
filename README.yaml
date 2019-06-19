@@ -32,6 +32,9 @@ github_repo: cloudposse/terraform-aws-dynamic-subnets
 
 # Badges to display
 badges:
+  - name: "Codefresh Build Status"
+    image: "https://g.codefresh.io/api/badges/pipeline/cloudposse/cloudposse%2Fterraform-aws-dynamic-subnets%2Ftest?type=cf-1"
+    url: "https://g.codefresh.io/public/accounts/cloudposse/pipelines/cloudposse/terraform-aws-dynamic-subnets/test"
   - name: "Build Status"
     image: "https://travis-ci.org/cloudposse/terraform-aws-dynamic-subnets.svg?branch=master"
     url: "https://travis-ci.org/cloudposse/terraform-aws-dynamic-subnets"
@@ -68,6 +71,9 @@ usage: |-
   ```hcl
   module "subnets" {
     source              = "git::https://github.com/cloudposse/terraform-aws-dynamic-subnets.git?ref=master"
+    providers           = {
+      aws = "aws"
+    }
     namespace           = "cp"
     stage               = "prod"
     name                = "app"
@@ -78,6 +84,8 @@ usage: |-
     availability_zones  = ["us-east-1a", "us-east-1b"]
   }
   ```
+
+  Learn about [using providers](https://www.terraform.io/docs/configuration-0-11/modules.html#providers-within-modules) with terraform modules. 
 
 include:
   - "docs/design.md"
@@ -90,15 +98,18 @@ contributors:
     github: "osterman"
   - name: "Andriy Knysh"
     github: "aknysh"
+  - name: "Jamie Nelson"
+    github: "Jamie-BitFlight"
   - name: "Sergey Vasilyev"
     github: "s2504s"
   - name: "Vladimir"
     github: "SweetOps"
   - name: "Konstantin B"
     github: "comeanother"
-  - name: "dcowan-vestmark"
-    github: "dcowan-vestmark"
   - name: "Ivan Pinatti"
     github: "ivan-pinatti"
   - name: "Oscar Sullivan"
     github: "osulli"
+  - name: "dcowan-vestmark"
+    github: "dcowan-vestmark"
+
