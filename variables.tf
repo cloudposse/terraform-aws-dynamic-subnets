@@ -6,7 +6,7 @@ variable "subnet_type_tag_key" {
 variable "subnet_type_tag_value_format" {
   default     = "%s"
   description = "This is using the format interpolation symbols to allow the value of the subnet_type_tag_key to be modified."
-  type        = "string"
+  type        = string
 }
 
 variable "max_subnet_count" {
@@ -15,22 +15,22 @@ variable "max_subnet_count" {
 }
 
 variable "vpc_id" {
-  type        = "string"
+  type        = string
   description = "VPC ID where subnets will be created (e.g. `vpc-aceb2723`)"
 }
 
 variable "igw_id" {
-  type        = "string"
+  type        = string
   description = "Internet Gateway ID the public route table will point to (e.g. `igw-9c26a123`)"
 }
 
 variable "cidr_block" {
-  type        = "string"
+  type        = string
   description = "Base CIDR block which will be divided into subnet CIDR blocks (e.g. `10.0.0.0/16`)"
 }
 
 variable "availability_zones" {
-  type        = "list"
+  type        = list(string)
   description = "List of Availability Zones where subnets will be created"
 }
 
@@ -50,13 +50,15 @@ variable "private_network_acl_id" {
 }
 
 variable "nat_gateway_enabled" {
+  type        = bool
   description = "Flag to enable/disable NAT Gateways to allow servers in the private subnets to access the Internet"
-  default     = "true"
+  default     = true
 }
 
 variable "nat_instance_enabled" {
+  type        = bool
   description = "Flag to enable/disable NAT Instances to allow servers in the private subnets to access the Internet"
-  default     = "false"
+  default     = false
 }
 
 variable "nat_instance_type" {
@@ -65,6 +67,7 @@ variable "nat_instance_type" {
 }
 
 variable "map_public_ip_on_launch" {
-  default     = "true"
+  type        = bool
+  default     = true
   description = "Instances launched into a public subnet should be assigned a public IP address"
 }

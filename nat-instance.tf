@@ -1,48 +1,47 @@
 module "nat_instance_label" {
-  source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.11.1"
-  context    = "${module.label.context}"
-  attributes = "${distinct(compact(concat(module.label.attributes,list("nat", "instance"))))}"
+  source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.12.0"
+  context    = module.label.context
+  attributes = distinct(compact(concat(module.label.attributes, ["nat", "instance"])))
 }
 
 locals {
-  nat_instance_enabled = "${var.nat_instance_enabled == "true" ? true : false}"
-  nat_instance_count   = "${local.nat_instance_enabled ? length(var.availability_zones) : 0}"
-  cidr_block           = "${var.cidr_block != "" ? var.cidr_block : data.aws_vpc.default.cidr_block}"
+  nat_instance_count = var.nat_instance_enabled ? length(var.availability_zones) : 0
+  cidr_block         = var.cidr_block != "" ? var.cidr_block : data.aws_vpc.default.cidr_block
 }
 
 resource "aws_security_group" "nat_instance" {
-  count       = "${local.nat_instance_enabled ? 1 : 0}"
-  name        = "${module.nat_instance_label.id}"
+  count       = var.nat_instance_enabled ? 1 : 0
+  name        = module.nat_instance_label.id
   description = "Security Group for NAT Instance"
-  vpc_id      = "${var.vpc_id}"
-  tags        = "${module.nat_instance_label.tags}"
+  vpc_id      = var.vpc_id
+  tags        = module.nat_instance_label.tags
 }
 
 resource "aws_security_group_rule" "nat_instance_egress" {
-  count             = "${local.nat_instance_enabled ? 1 : 0}"
+  count             = var.nat_instance_enabled ? 1 : 0
   description       = "Allow all egress traffic"
   from_port         = 0
   to_port           = 0
   protocol          = "-1"
   cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${join("", aws_security_group.nat_instance.*.id)}"
+  security_group_id = join("", aws_security_group.nat_instance.*.id)
   type              = "egress"
 }
 
 resource "aws_security_group_rule" "nat_instance_ingress" {
-  count             = "${local.nat_instance_enabled ? 1 : 0}"
+  count             = var.nat_instance_enabled ? 1 : 0
   description       = "Allow ingress traffic from the VPC CIDR block"
   from_port         = 0
   to_port           = 0
   protocol          = "-1"
-  cidr_blocks       = ["${local.cidr_block}"]
-  security_group_id = "${join("", aws_security_group.nat_instance.*.id)}"
+  cidr_blocks       = [local.cidr_block]
+  security_group_id = join("", aws_security_group.nat_instance.*.id)
   type              = "ingress"
 }
 
 // aws --region us-west-2 ec2 describe-images --owners amazon --filters Name="name",Values="amzn-ami-vpc-nat*" Name="virtualization-type",Values="hvm"
 data "aws_ami" "nat_instance" {
-  count       = "${local.nat_instance_enabled ? 1 : 0}"
+  count       = var.nat_instance_enabled ? 1 : 0
   most_recent = true
 
   filter {
@@ -62,12 +61,26 @@ data "aws_ami" "nat_instance" {
 // https://docs.aws.amazon.com/vpc/latest/userguide/VPC_NAT_Instance.html
 // https://dzone.com/articles/nat-instance-vs-nat-gateway
 resource "aws_instance" "nat_instance" {
-  count                  = "${local.nat_instance_count}"
-  ami                    = "${join("", data.aws_ami.nat_instance.*.id)}"
-  instance_type          = "${var.nat_instance_type}"
-  subnet_id              = "${element(aws_subnet.public.*.id, count.index)}"
-  vpc_security_group_ids = ["${aws_security_group.nat_instance.id}"]
-  tags                   = "${merge(module.nat_instance_label.tags, map("Name",format("%s%s%s", module.nat_label.id, var.delimiter, replace(element(var.availability_zones, count.index),"-",var.delimiter))))}"
+  count                  = local.nat_instance_count
+  ami                    = join("", data.aws_ami.nat_instance.*.id)
+  instance_type          = var.nat_instance_type
+  subnet_id              = element(aws_subnet.public.*.id, count.index)
+  vpc_security_group_ids = [aws_security_group.nat_instance[0].id]
+  tags = merge(
+    module.nat_instance_label.tags,
+    {
+      "Name" = format(
+        "%s%s%s",
+        module.nat_label.id,
+        var.delimiter,
+        replace(
+          element(var.availability_zones, count.index),
+          "-",
+          var.delimiter
+        )
+      )
+    }
+  )
 
   # Required by NAT
   # https://docs.aws.amazon.com/vpc/latest/userguide/VPC_NAT_Instance.html#EIP_Disable_SrcDestCheck
@@ -81,9 +94,10 @@ resource "aws_instance" "nat_instance" {
 }
 
 resource "aws_route" "nat_instance" {
-  count                  = "${local.nat_instance_count}"
-  route_table_id         = "${element(aws_route_table.private.*.id, count.index)}"
-  instance_id            = "${element(aws_instance.nat_instance.*.id, count.index)}"
+  count                  = local.nat_instance_count
+  route_table_id         = element(aws_route_table.private.*.id, count.index)
+  instance_id            = element(aws_instance.nat_instance.*.id, count.index)
   destination_cidr_block = "0.0.0.0/0"
-  depends_on             = ["aws_route_table.private"]
+  depends_on             = [aws_route_table.private]
 }
+
