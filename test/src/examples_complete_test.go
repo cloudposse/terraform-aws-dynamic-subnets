@@ -7,7 +7,25 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// Test the Terraform module in examples/complete using Terratest.
+// Test the Terraform module in examples/complete using Terratest
+
+/*
+Apply complete! Resources: 23 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+private_subnet_cidrs = [
+    172.16.0.0/19,
+    172.16.32.0/19,
+    172.16.64.0/19,
+    172.16.96.0/19
+]
+public_subnet_cidrs = [
+    172.16.128.0/18,
+    172.16.192.0/18
+]
+*/
+
 func TestExamplesComplete(t *testing.T) {
 	t.Parallel()
 
@@ -28,7 +46,7 @@ func TestExamplesComplete(t *testing.T) {
 	// Run `terraform output` to get the value of an output variable
 	privateSubnetCidrs := terraform.OutputList(t, terraformOptions, "private_subnet_cidrs")
 
-	expectedPrivateSubnetCidrs := []string{"172.16.0.0/18", "172.16.64.0/18"}
+	expectedPrivateSubnetCidrs := []string{"172.16.0.0/19", "172.16.32.0/19", "172.16.64.0/19", "172.16.96.0/19"}
 	// Verify we're getting back the outputs we expect
 	assert.Equal(t, expectedPrivateSubnetCidrs, privateSubnetCidrs)
 

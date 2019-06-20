@@ -22,7 +22,6 @@ locals {
   availability_zones_private = "${local.az_map[signum(local.private_subnet_count)]}"
 }
 
-## This should be depreciated in the future.
 locals {
   max_subnets_map = {
     "-1" = "${length(local.availability_zones)}"

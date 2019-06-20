@@ -12,8 +12,8 @@ locals {
 module "public_label" {
   source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.11.1"
   context    = "${module.label.context}"
-  attributes = "${compact(concat(module.label.attributes,list("public")))}"
-  tags       = "${merge(module.label.tags, map(var.subnet_type_tag_key, format(var.subnet_type_tag_value_format,"public")))}"
+  attributes = "${compact(concat(module.label.attributes, list("public")))}"
+  tags       = "${merge(module.label.tags, map(var.subnet_type_tag_key, format(var.subnet_type_tag_value_format, "public")))}"
 }
 
 locals {
@@ -26,7 +26,7 @@ resource "aws_subnet" "public" {
   availability_zone       = "${local.availability_zones_public[count.index % length(local.availability_zones_public)]}"
   cidr_block              = "${cidrsubnet(signum(length(var.cidr_block)) == 1 ? var.cidr_block : data.aws_vpc.default.cidr_block, ceil(log(local.public_subnet_count * 2, 2)), local.public_subnet_count + count.index)}"
   map_public_ip_on_launch = "${local.map_public_ip_on_launch}"
-  tags                    = "${merge(module.public_label.tags, map("Name",format("%s%s%s", module.public_label.id, module.public_label.delimiter, replace(element(var.availability_zones, count.index),"-",module.public_label.delimiter))))}"
+  tags                    = "${merge(module.public_label.tags, map("Name", format("%s%s%s", module.public_label.id, module.public_label.delimiter, replace(element(var.availability_zones, count.index), "-", module.public_label.delimiter))))}"
 
   lifecycle {
     # Ignore tags added by kops or kubernetes
