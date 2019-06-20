@@ -7,7 +7,7 @@ For subnet set calculation, the module uses Terraform interpolation
 [cidrsubnet](https://www.terraform.io/docs/configuration/interpolation.html#cidrsubnet-iprange-newbits-netnum-).
 
 
-```hcl
+```
 ${
   cidrsubnet(
   signum(length(var.cidr_block)) == 1 ?
