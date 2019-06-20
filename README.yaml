@@ -30,11 +30,12 @@ license: "APACHE2"
 # Canonical GitHub repo
 github_repo: cloudposse/terraform-aws-dynamic-subnets
 
+
 # Badges to display
 badges:
   - name: "Codefresh Build Status"
-    image: "https://g.codefresh.io/api/badges/pipeline/cloudposse/cloudposse%2Fterraform-aws-dynamic-subnets%2Ftest?type=cf-1"
-    url: "https://g.codefresh.io/public/accounts/cloudposse/pipelines/cloudposse/terraform-aws-dynamic-subnets/test"
+    image: "https://g.codefresh.io/api/badges/pipeline/cloudposse/terraform-modules%2Fterraform-aws-dynamic-subnets?type=cf-1"
+    url: "https://g.codefresh.io/public/accounts/cloudposse/pipelines/5d02dad8572be040f879f8ed"
   - name: "Build Status"
     image: "https://travis-ci.org/cloudposse/terraform-aws-dynamic-subnets.svg?branch=master"
     url: "https://travis-ci.org/cloudposse/terraform-aws-dynamic-subnets"

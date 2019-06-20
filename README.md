@@ -3,7 +3,7 @@
 
 [![Cloud Posse][logo]](https://cpco.io/homepage)
 
-# terraform-aws-dynamic-subnets [![Codefresh Build Status](https://g.codefresh.io/api/badges/pipeline/cloudposse/cloudposse%2Fterraform-aws-dynamic-subnets%2Ftest?type=cf-1)](https://g.codefresh.io/public/accounts/cloudposse/pipelines/cloudposse/terraform-aws-dynamic-subnets/test) [![Build Status](https://travis-ci.org/cloudposse/terraform-aws-dynamic-subnets.svg?branch=master)](https://travis-ci.org/cloudposse/terraform-aws-dynamic-subnets) [![Latest Release](https://img.shields.io/github/release/cloudposse/terraform-aws-dynamic-subnets.svg)](https://github.com/cloudposse/terraform-aws-dynamic-subnets/releases/latest) [![Slack Community](https://slack.cloudposse.com/badge.svg)](https://slack.cloudposse.com)
+# terraform-aws-dynamic-subnets [![Codefresh Build Status](https://g.codefresh.io/api/badges/pipeline/cloudposse/terraform-modules%2Fterraform-aws-dynamic-subnets?type=cf-1)](https://g.codefresh.io/public/accounts/cloudposse/pipelines/5d02dad8572be040f879f8ed) [![Build Status](https://travis-ci.org/cloudposse/terraform-aws-dynamic-subnets.svg?branch=master)](https://travis-ci.org/cloudposse/terraform-aws-dynamic-subnets) [![Latest Release](https://img.shields.io/github/release/cloudposse/terraform-aws-dynamic-subnets.svg)](https://github.com/cloudposse/terraform-aws-dynamic-subnets/releases/latest) [![Slack Community](https://slack.cloudposse.com/badge.svg)](https://slack.cloudposse.com)
 
 
 Terraform module to provision public and private [`subnets`](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_Subnets.html) in an existing [`VPC`](https://aws.amazon.com/vpc)
@@ -170,7 +170,7 @@ Available targets:
 | igw_id | Internet Gateway ID the public route table will point to (e.g. `igw-9c26a123`) | string | - | yes |
 | label_order | The naming order of the id output and Name tag | list(string) | `<list>` | no |
 | map_public_ip_on_launch | Instances launched into a public subnet should be assigned a public IP address | bool | `true` | no |
-| max_subnet_count | Sets the maximum amount of subnets to deploy.  0 will deploy a subnet for every provided availablility zone (in `availability_zones` variable) within the region | string | `0` | no |
+| max_subnet_count | Sets the maximum amount of subnets to deploy. 0 will deploy a subnet for every provided availablility zone (in `availability_zones` variable) within the region | string | `0` | no |
 | name | Solution name, e.g. 'app' or 'jenkins' | string | `` | no |
 | namespace | Namespace, which could be your organization name or abbreviation, e.g. 'eg' or 'cp' | string | `` | no |
 | nat_gateway_enabled | Flag to enable/disable NAT Gateways to allow servers in the private subnets to access the Internet | bool | `true` | no |

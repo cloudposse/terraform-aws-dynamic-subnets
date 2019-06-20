@@ -12,7 +12,7 @@
 | igw_id | Internet Gateway ID the public route table will point to (e.g. `igw-9c26a123`) | string | - | yes |
 | label_order | The naming order of the id output and Name tag | list(string) | `<list>` | no |
 | map_public_ip_on_launch | Instances launched into a public subnet should be assigned a public IP address | bool | `true` | no |
-| max_subnet_count | Sets the maximum amount of subnets to deploy.  0 will deploy a subnet for every provided availablility zone (in `availability_zones` variable) within the region | string | `0` | no |
+| max_subnet_count | Sets the maximum amount of subnets to deploy. 0 will deploy a subnet for every provided availablility zone (in `availability_zones` variable) within the region | string | `0` | no |
 | name | Solution name, e.g. 'app' or 'jenkins' | string | `` | no |
 | namespace | Namespace, which could be your organization name or abbreviation, e.g. 'eg' or 'cp' | string | `` | no |
 | nat_gateway_enabled | Flag to enable/disable NAT Gateways to allow servers in the private subnets to access the Internet | bool | `true` | no |
