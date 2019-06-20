@@ -1,6 +1,6 @@
 module "label" {
   source              = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.13.0"
-  attributes          = var.attributes
+  attributes          = [var.attributes]
   namespace           = var.namespace
   environment         = var.environment
   stage               = var.stage
@@ -22,7 +22,7 @@ variable "additional_tag_map" {
 variable "label_order" {
   type        = list(string)
   default     = []
-  description = "The naming order of the id output and Name tag"
+  description = "The naming order of the ID output and Name tag"
 }
 
 variable "regex_replace_chars" {
