@@ -18,6 +18,7 @@ module "subnets" {
     aws = "aws"
   }
 
+  region              = var.region
   availability_zones  = var.availability_zones
   namespace           = var.namespace
   stage               = var.stage

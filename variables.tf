@@ -1,4 +1,5 @@
 variable "subnet_type_tag_key" {
+  type        = string
   default     = "cpco.io/subnet/type"
   description = "Key for subnet type tag to provide information about the type of subnets, e.g. `cpco.io/subnet/type=private` or `cpco.io/subnet/type=public`"
 }
@@ -35,16 +36,19 @@ variable "availability_zones" {
 }
 
 variable "vpc_default_route_table_id" {
+  type        = string
   default     = ""
   description = "Default route table for public subnets. If not set, will be created. (e.g. `rtb-f4f0ce12`)"
 }
 
 variable "public_network_acl_id" {
+  type        = string
   default     = ""
   description = "Network ACL ID that will be added to public subnets. If empty, a new ACL will be created"
 }
 
 variable "private_network_acl_id" {
+  type        = string
   description = "Network ACL ID that will be added to private subnets. If empty, a new ACL will be created"
   default     = ""
 }
@@ -62,6 +66,7 @@ variable "nat_instance_enabled" {
 }
 
 variable "nat_instance_type" {
+  type        = string
   description = "NAT Instance type"
   default     = "t3.micro"
 }
@@ -70,4 +75,9 @@ variable "map_public_ip_on_launch" {
   type        = bool
   default     = true
   description = "Instances launched into a public subnet should be assigned a public IP address"
+}
+
+variable "region" {
+  type        = string
+  description = "AWS Region"
 }

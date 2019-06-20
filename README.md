@@ -164,7 +164,7 @@ Available targets:
 | attributes | Any extra attributes for naming these resources | list(string) | `<list>` | no |
 | availability_zones | List of Availability Zones where subnets will be created | list(string) | - | yes |
 | cidr_block | Base CIDR block which will be divided into subnet CIDR blocks (e.g. `10.0.0.0/16`) | string | - | yes |
-| context | The context output from an external label module to pass to the label modules within this module | map(string) | `<map>` | no |
+| context | Default context to use for passing state between label invocations | object | `<map>` | no |
 | delimiter | Delimiter to be used between `namespace`, `stage`, `name` and `attributes` | string | `-` | no |
 | environment | The environment name if not using stage | string | `` | no |
 | igw_id | Internet Gateway ID the public route table will point to (e.g. `igw-9c26a123`) | string | - | yes |
@@ -179,6 +179,7 @@ Available targets:
 | private_network_acl_id | Network ACL ID that will be added to private subnets. If empty, a new ACL will be created | string | `` | no |
 | public_network_acl_id | Network ACL ID that will be added to public subnets. If empty, a new ACL will be created | string | `` | no |
 | regex_replace_chars | Regex to replace chars with empty string in `namespace`, `environment`, `stage` and `name`. By default only hyphens, letters and digits are allowed, all other chars are removed | string | `/[^a-zA-Z0-9-]/` | no |
+| region | AWS Region | string | - | yes |
 | stage | Stage, e.g. 'prod', 'staging', 'dev', or 'test' | string | `` | no |
 | subnet_type_tag_key | Key for subnet type tag to provide information about the type of subnets, e.g. `cpco.io/subnet/type=private` or `cpco.io/subnet/type=public` | string | `cpco.io/subnet/type` | no |
 | subnet_type_tag_value_format | This is using the format interpolation symbols to allow the value of the subnet_type_tag_key to be modified. | string | `%s` | no |

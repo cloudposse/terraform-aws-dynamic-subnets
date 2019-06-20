@@ -2,11 +2,10 @@ module "private_label" {
   source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.13.0"
   context    = module.label.context
   attributes = compact(concat(module.label.attributes, ["private"]))
+
   tags = merge(
     module.label.tags,
-    {
-      var.subnet_type_tag_key = format(var.subnet_type_tag_value_format, "private")
-    }
+    map(var.subnet_type_tag_key, format(var.subnet_type_tag_value_format, "private"))
   )
 }
 
