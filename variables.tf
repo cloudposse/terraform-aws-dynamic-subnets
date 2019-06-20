@@ -84,8 +84,3 @@ variable "map_public_ip_on_launch" {
   default     = "true"
   description = "Instances launched into a public subnet should be assigned a public IP address"
 }
-
-variable "region" {
-  type        = "string"
-  description = "The region to pass to the AWS provider nested in this module."
-}
