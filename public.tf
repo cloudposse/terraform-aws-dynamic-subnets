@@ -1,3 +1,14 @@
+locals {
+  public_subnets_map = {
+    "-1" = "${length(local.availability_zones)}"
+    "0"  = "0"
+    "1"  = "${var.public_subnet_count}"
+  }
+
+  ## Keep the subnets within the max_subnets_count limit
+  public_subnet_count = "${min(local.public_subnets_map[signum(var.public_subnet_count)], local.max_subnet_count)}"
+}
+
 module "public_label" {
   source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.11.1"
   context    = "${module.label.context}"
@@ -6,17 +17,16 @@ module "public_label" {
 }
 
 locals {
-  public_subnet_count     = "${var.max_subnet_count == 0 ? length(data.aws_availability_zones.available.names) : var.max_subnet_count}"
   map_public_ip_on_launch = "${var.map_public_ip_on_launch == "true" ? true : false}"
 }
 
 resource "aws_subnet" "public" {
-  count                   = "${length(var.availability_zones)}"
+  count                   = "${local.public_subnet_count}"
   vpc_id                  = "${data.aws_vpc.default.id}"
-  availability_zone       = "${element(var.availability_zones, count.index)}"
+  availability_zone       = "${local.availability_zones_public[count.index % length(local.availability_zones_public)]}"
   cidr_block              = "${cidrsubnet(signum(length(var.cidr_block)) == 1 ? var.cidr_block : data.aws_vpc.default.cidr_block, ceil(log(local.public_subnet_count * 2, 2)), local.public_subnet_count + count.index)}"
   map_public_ip_on_launch = "${local.map_public_ip_on_launch}"
-  tags                    = "${merge(module.public_label.tags, map("Name",format("%s%s%s", module.public_label.id, var.delimiter, replace(element(var.availability_zones, count.index),"-",var.delimiter))))}"
+  tags                    = "${merge(module.public_label.tags, map("Name",format("%s%s%s", module.public_label.id, module.public_label.delimiter, replace(element(var.availability_zones, count.index),"-",module.public_label.delimiter))))}"
 
   lifecycle {
     # Ignore tags added by kops or kubernetes
@@ -39,13 +49,13 @@ resource "aws_route" "public" {
 }
 
 resource "aws_route_table_association" "public" {
-  count          = "${signum(length(var.vpc_default_route_table_id)) == 1 ? 0 : length(var.availability_zones)}"
+  count          = "${signum(length(var.vpc_default_route_table_id)) == 1 ? 0 : local.public_subnet_count}"
   subnet_id      = "${element(aws_subnet.public.*.id, count.index)}"
   route_table_id = "${aws_route_table.public.id}"
 }
 
 resource "aws_route_table_association" "public_default" {
-  count          = "${signum(length(var.vpc_default_route_table_id)) == 1 ? length(var.availability_zones) : 0}"
+  count          = "${signum(length(var.vpc_default_route_table_id)) == 1 ? local.public_subnet_count : 0}"
   subnet_id      = "${element(aws_subnet.public.*.id, count.index)}"
   route_table_id = "${var.vpc_default_route_table_id}"
 }
