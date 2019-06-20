@@ -1,5 +1,5 @@
 module "nat_instance_label" {
-  source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.12.0"
+  source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.13.0"
   context    = module.label.context
   attributes = distinct(compact(concat(module.label.attributes, ["nat", "instance"])))
 }
@@ -66,6 +66,7 @@ resource "aws_instance" "nat_instance" {
   instance_type          = var.nat_instance_type
   subnet_id              = element(aws_subnet.public.*.id, count.index)
   vpc_security_group_ids = [aws_security_group.nat_instance[0].id]
+
   tags = merge(
     module.nat_instance_label.tags,
     {

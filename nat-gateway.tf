@@ -1,5 +1,5 @@
 module "nat_label" {
-  source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.12.0"
+  source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.13.0"
   context    = module.label.context
   attributes = distinct(compact(concat(module.label.attributes, ["nat"])))
 }
@@ -36,6 +36,7 @@ resource "aws_nat_gateway" "default" {
   count         = local.nat_gateways_count
   allocation_id = element(aws_eip.default.*.id, count.index)
   subnet_id     = element(aws_subnet.public.*.id, count.index)
+
   tags = merge(
     module.nat_label.tags,
     {
