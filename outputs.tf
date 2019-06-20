@@ -42,4 +42,3 @@ output "availability_zones" {
   description = "List of Availability Zones where subnets were created"
   value       = var.availability_zones
 }
-

@@ -3,7 +3,7 @@ variable "max_availability_zones" {}
 variable "region" {}
 
 variable "availability_zones" {
-  type = "list"
+  type = list(string)
 }
 
 variable "namespace" {}
