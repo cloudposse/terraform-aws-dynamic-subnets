@@ -1,5 +1,5 @@
 module "private_label" {
-  source     = "git::https://github.com/rverma-nikiai/terraform-null-label.git?ref=master"
+  source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=master"
   context    = module.label.context
   attributes = compact(concat(module.label.attributes, ["private"]))
 
