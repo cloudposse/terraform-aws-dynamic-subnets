@@ -3,7 +3,7 @@
 
 [![Cloud Posse][logo]](https://cpco.io/homepage)
 
-# terraform-aws-dynamic-subnets [![Codefresh Build Status](https://g.codefresh.io/api/badges/pipeline/cloudposse/cloudposse%2Fterraform-aws-dynamic-subnets%2Ftest?type=cf-1)](https://g.codefresh.io/public/accounts/cloudposse/pipelines/cloudposse/terraform-aws-dynamic-subnets/test) [![Build Status](https://travis-ci.org/cloudposse/terraform-aws-dynamic-subnets.svg?branch=master)](https://travis-ci.org/cloudposse/terraform-aws-dynamic-subnets) [![Latest Release](https://img.shields.io/github/release/cloudposse/terraform-aws-dynamic-subnets.svg)](https://github.com/cloudposse/terraform-aws-dynamic-subnets/releases/latest) [![Slack Community](https://slack.cloudposse.com/badge.svg)](https://slack.cloudposse.com)
+# terraform-aws-dynamic-subnets [![Codefresh Build Status](https://g.codefresh.io/api/badges/pipeline/cloudposse/terraform-modules%2Fterraform-aws-dynamic-subnets?type=cf-1)](https://g.codefresh.io/public/accounts/cloudposse/pipelines/5d02dad8572be040f879f8ed) [![Build Status](https://travis-ci.org/cloudposse/terraform-aws-dynamic-subnets.svg?branch=master)](https://travis-ci.org/cloudposse/terraform-aws-dynamic-subnets) [![Latest Release](https://img.shields.io/github/release/cloudposse/terraform-aws-dynamic-subnets.svg)](https://github.com/cloudposse/terraform-aws-dynamic-subnets/releases/latest) [![Slack Community](https://slack.cloudposse.com/badge.svg)](https://slack.cloudposse.com)
 
 
 Terraform module to provision public and private [`subnets`](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_Subnets.html) in an existing [`VPC`](https://aws.amazon.com/vpc)
@@ -56,7 +56,7 @@ module "subnets" {
   providers           = {
     aws = "aws"
   }
-  namespace           = "cp"
+  namespace           = "eg"
   stage               = "prod"
   name                = "app"
   region              = "us-east-1"
@@ -67,7 +67,7 @@ module "subnets" {
 }
 ```
 
-Learn about [using providers](https://www.terraform.io/docs/configuration-0-11/modules.html#providers-within-modules) with terraform modules. 
+Learn about [using providers](https://www.terraform.io/docs/configuration-0-11/modules.html#providers-within-modules) with terraform modules.
 
 
 
@@ -83,7 +83,7 @@ For subnet set calculation, the module uses Terraform interpolation
 [cidrsubnet](https://www.terraform.io/docs/configuration/interpolation.html#cidrsubnet-iprange-newbits-netnum-).
 
 
-```hcl
+```
 ${
   cidrsubnet(
   signum(length(var.cidr_block)) == 1 ?
@@ -160,21 +160,21 @@ Available targets:
 
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
-| additional_tag_map | Additional tags for appending to each tag map | map | `<map>` | no |
-| attributes | Any extra attributes for naming these resources | list | `<list>` | no |
-| availability_zones | List of Availability Zones where subnets will be created | list | - | yes |
+| additional_tag_map | Additional tags for appending to each tag map | map(string) | `<map>` | no |
+| attributes | Any extra attributes for naming these resources | list(string) | `<list>` | no |
+| availability_zones | List of Availability Zones where subnets will be created | list(string) | - | yes |
 | cidr_block | Base CIDR block which will be divided into subnet CIDR blocks (e.g. `10.0.0.0/16`) | string | - | yes |
-| context | The context output from an external label module to pass to the label modules within this module | map | `<map>` | no |
+| context | Default context to use for passing state between label invocations | object | `<map>` | no |
 | delimiter | Delimiter to be used between `namespace`, `stage`, `name` and `attributes` | string | `-` | no |
 | environment | The environment name if not using stage | string | `` | no |
 | igw_id | Internet Gateway ID the public route table will point to (e.g. `igw-9c26a123`) | string | - | yes |
-| label_order | The naming order of the id output and Name tag | list | `<list>` | no |
-| map_public_ip_on_launch | Instances launched into a public subnet should be assigned a public IP address | string | `true` | no |
-| max_subnet_count | Sets the maximum amount of subnets to deploy.  0 will deploy a subnet for every provided availablility zone (in `availability_zones` variable) within the region | string | `0` | no |
+| label_order | The naming order of the ID output and Name tag | list(string) | `<list>` | no |
+| map_public_ip_on_launch | Instances launched into a public subnet should be assigned a public IP address | bool | `true` | no |
+| max_subnet_count | Sets the maximum amount of subnets to deploy. 0 will deploy a subnet for every provided availablility zone (in `availability_zones` variable) within the region | string | `0` | no |
 | name | Solution name, e.g. 'app' or 'jenkins' | string | `` | no |
 | namespace | Namespace, which could be your organization name or abbreviation, e.g. 'eg' or 'cp' | string | `` | no |
-| nat_gateway_enabled | Flag to enable/disable NAT Gateways to allow servers in the private subnets to access the Internet | string | `true` | no |
-| nat_instance_enabled | Flag to enable/disable NAT Instances to allow servers in the private subnets to access the Internet | string | `false` | no |
+| nat_gateway_enabled | Flag to enable/disable NAT Gateways to allow servers in the private subnets to access the Internet | bool | `true` | no |
+| nat_instance_enabled | Flag to enable/disable NAT Instances to allow servers in the private subnets to access the Internet | bool | `false` | no |
 | nat_instance_type | NAT Instance type | string | `t3.micro` | no |
 | private_network_acl_id | Network ACL ID that will be added to private subnets. If empty, a new ACL will be created | string | `` | no |
 | public_network_acl_id | Network ACL ID that will be added to public subnets. If empty, a new ACL will be created | string | `` | no |
@@ -182,7 +182,7 @@ Available targets:
 | stage | Stage, e.g. 'prod', 'staging', 'dev', or 'test' | string | `` | no |
 | subnet_type_tag_key | Key for subnet type tag to provide information about the type of subnets, e.g. `cpco.io/subnet/type=private` or `cpco.io/subnet/type=public` | string | `cpco.io/subnet/type` | no |
 | subnet_type_tag_value_format | This is using the format interpolation symbols to allow the value of the subnet_type_tag_key to be modified. | string | `%s` | no |
-| tags | Additional tags to apply to all resources that use this label module | map | `<map>` | no |
+| tags | Additional tags to apply to all resources that use this label module | map(string) | `<map>` | no |
 | vpc_default_route_table_id | Default route table for public subnets. If not set, will be created. (e.g. `rtb-f4f0ce12`) | string | `` | no |
 | vpc_id | VPC ID where subnets will be created (e.g. `vpc-aceb2723`) | string | - | yes |
 

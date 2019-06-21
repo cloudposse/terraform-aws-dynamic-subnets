@@ -1,13 +1,19 @@
-variable "max_availability_zones" {}
-
-variable "region" {}
-
-variable "availability_zones" {
-  type = "list"
+variable "region" {
+  type = string
 }
 
-variable "namespace" {}
+variable "availability_zones" {
+  type = list(string)
+}
 
-variable "name" {}
+variable "namespace" {
+  type = string
+}
 
-variable "stage" {}
+variable "name" {
+  type = string
+}
+
+variable "stage" {
+  type = string
+}
