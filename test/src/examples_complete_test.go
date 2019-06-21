@@ -46,7 +46,8 @@ func TestExamplesComplete(t *testing.T) {
 	// Run `terraform output` to get the value of an output variable
 	privateSubnetCidrs := terraform.OutputList(t, terraformOptions, "private_subnet_cidrs")
 
-	expectedPrivateSubnetCidrs := []string{"172.16.0.0/19", "172.16.32.0/19", "172.16.64.0/19", "172.16.96.0/19"}
+	// expectedPrivateSubnetCidrs := []string{"172.16.0.0/19", "172.16.32.0/19", "172.16.64.0/19", "172.16.96.0/19"}
+	expectedPrivateSubnetCidrs := []string{"172.16.0.0/18", "172.16.64.0/18"}
 	// Verify we're getting back the outputs we expect
 	assert.Equal(t, expectedPrivateSubnetCidrs, privateSubnetCidrs)
 
