@@ -1,5 +1,5 @@
 module "vpc" {
-  source = "git::https://github.com/cloudposse/terraform-aws-vpc.git?ref=tags/0.4.1"
+  source = "git::https://github.com/cloudposse/terraform-aws-vpc.git?ref=tags/0.3.4"
 
   providers = {
     aws = "aws"
