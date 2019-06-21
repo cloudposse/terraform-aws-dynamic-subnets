@@ -162,26 +162,23 @@ Available targets:
 |------|-------------|:----:|:-----:|:-----:|
 | additional_tag_map | Additional tags for appending to each tag map | map | `<map>` | no |
 | attributes | Any extra attributes for naming these resources | list | `<list>` | no |
-| availability_zones | List of Availability Zones where subnets will be created. When none provided, all availability zones will be used up to the number provided in the public_subnet_count and/or private_subnet_count, and then will be reused if the number of subnets requested is more than the number of availability zones | list | `<list>` | no |
-| cidr_block | Base CIDR block which will be divided into subnet CIDR blocks (e.g. `10.0.0.0/16`), or pass in the vpc_id to use the CIDR from the VPC | string | `` | no |
+| availability_zones | List of Availability Zones where subnets will be created | list | - | yes |
+| cidr_block | Base CIDR block which will be divided into subnet CIDR blocks (e.g. `10.0.0.0/16`) | string | - | yes |
 | context | The context output from an external label module to pass to the label modules within this module | map | `<map>` | no |
 | delimiter | Delimiter to be used between `namespace`, `stage`, `name` and `attributes` | string | `-` | no |
 | environment | The environment name if not using stage | string | `` | no |
 | igw_id | Internet Gateway ID the public route table will point to (e.g. `igw-9c26a123`) | string | - | yes |
 | label_order | The naming order of the id output and Name tag | list | `<list>` | no |
 | map_public_ip_on_launch | Instances launched into a public subnet should be assigned a public IP address | string | `true` | no |
-| max_subnet_count | The maximum number of subnets to deploy. 0 for none, -1 to match the number of az's in the region, or a specific number | string | `-1` | no |
+| max_subnet_count | Sets the maximum amount of subnets to deploy.  0 will deploy a subnet for every provided availablility zone (in `availability_zones` variable) within the region | string | `0` | no |
 | name | Solution name, e.g. 'app' or 'jenkins' | string | `` | no |
 | namespace | Namespace, which could be your organization name or abbreviation, e.g. 'eg' or 'cp' | string | `` | no |
 | nat_gateway_enabled | Flag to enable/disable NAT Gateways to allow servers in the private subnets to access the Internet | string | `true` | no |
 | nat_instance_enabled | Flag to enable/disable NAT Instances to allow servers in the private subnets to access the Internet | string | `false` | no |
 | nat_instance_type | NAT Instance type | string | `t3.micro` | no |
 | private_network_acl_id | Network ACL ID that will be added to private subnets. If empty, a new ACL will be created | string | `` | no |
-| private_subnet_count | Sets the amount of private subnets to deploy.  -1 will deploy a subnet for every availablility zone within the region, 0 will deploy no subnets. The AZ's supplied will be cycled through to create the subnets | string | `-1` | no |
 | public_network_acl_id | Network ACL ID that will be added to public subnets. If empty, a new ACL will be created | string | `` | no |
-| public_subnet_count | Sets the amount of public subnets to deploy.  -1 will deploy a subnet for every availablility zone within the region, 0 will deploy no subnets. The AZ's supplied will be cycled through to create the subnets | string | `-1` | no |
 | regex_replace_chars | Regex to replace chars with empty string in `namespace`, `environment`, `stage` and `name`. By default only hyphens, letters and digits are allowed, all other chars are removed | string | `/[^a-zA-Z0-9-]/` | no |
-| region | The region to pass to the AWS provider nested in this module. | string | - | yes |
 | stage | Stage, e.g. 'prod', 'staging', 'dev', or 'test' | string | `` | no |
 | subnet_type_tag_key | Key for subnet type tag to provide information about the type of subnets, e.g. `cpco.io/subnet/type=private` or `cpco.io/subnet/type=public` | string | `cpco.io/subnet/type` | no |
 | subnet_type_tag_value_format | This is using the format interpolation symbols to allow the value of the subnet_type_tag_key to be modified. | string | `%s` | no |
@@ -194,8 +191,6 @@ Available targets:
 | Name | Description |
 |------|-------------|
 | availability_zones | List of Availability Zones where subnets were created |
-| availability_zones_private | List of private Availability Zones where subnets were created |
-| availability_zones_public | List of public Availability Zones where subnets were created |
 | nat_gateway_ids | IDs of the NAT Gateways created |
 | nat_instance_ids | IDs of the NAT Instances created |
 | private_route_table_ids | IDs of the created private route tables |
@@ -343,27 +338,25 @@ Check out [our other projects][github], [follow us on twitter][twitter], [apply 
 
 ### Contributors
 
-|  [![Erik Osterman][osterman_avatar]][osterman_homepage]<br/>[Erik Osterman][osterman_homepage] | [![Andriy Knysh][aknysh_avatar]][aknysh_homepage]<br/>[Andriy Knysh][aknysh_homepage] | [![Jamie Nelson][Jamie-BitFlight_avatar]][Jamie-BitFlight_homepage]<br/>[Jamie Nelson][Jamie-BitFlight_homepage] | [![Sergey Vasilyev][s2504s_avatar]][s2504s_homepage]<br/>[Sergey Vasilyev][s2504s_homepage] | [![Vladimir][SweetOps_avatar]][SweetOps_homepage]<br/>[Vladimir][SweetOps_homepage] | [![Konstantin B][comeanother_avatar]][comeanother_homepage]<br/>[Konstantin B][comeanother_homepage] | [![Ivan Pinatti][ivan-pinatti_avatar]][ivan-pinatti_homepage]<br/>[Ivan Pinatti][ivan-pinatti_homepage] | [![Oscar Sullivan][osulli_avatar]][osulli_homepage]<br/>[Oscar Sullivan][osulli_homepage] | [![dcowan-vestmark][dcowan-vestmark_avatar]][dcowan-vestmark_homepage]<br/>[dcowan-vestmark][dcowan-vestmark_homepage] |
-|---|---|---|---|---|---|---|---|---|
+|  [![Erik Osterman][osterman_avatar]][osterman_homepage]<br/>[Erik Osterman][osterman_homepage] | [![Andriy Knysh][aknysh_avatar]][aknysh_homepage]<br/>[Andriy Knysh][aknysh_homepage] | [![Sergey Vasilyev][s2504s_avatar]][s2504s_homepage]<br/>[Sergey Vasilyev][s2504s_homepage] | [![Vladimir][SweetOps_avatar]][SweetOps_homepage]<br/>[Vladimir][SweetOps_homepage] | [![Konstantin B][comeanother_avatar]][comeanother_homepage]<br/>[Konstantin B][comeanother_homepage] | [![dcowan-vestmark][dcowan-vestmark_avatar]][dcowan-vestmark_homepage]<br/>[dcowan-vestmark][dcowan-vestmark_homepage] | [![Ivan Pinatti][ivan-pinatti_avatar]][ivan-pinatti_homepage]<br/>[Ivan Pinatti][ivan-pinatti_homepage] | [![Oscar Sullivan][osulli_avatar]][osulli_homepage]<br/>[Oscar Sullivan][osulli_homepage] |
+|---|---|---|---|---|---|---|---|
 
   [osterman_homepage]: https://github.com/osterman
   [osterman_avatar]: https://github.com/osterman.png?size=150
   [aknysh_homepage]: https://github.com/aknysh
   [aknysh_avatar]: https://github.com/aknysh.png?size=150
-  [Jamie-BitFlight_homepage]: https://github.com/Jamie-BitFlight
-  [Jamie-BitFlight_avatar]: https://github.com/Jamie-BitFlight.png?size=150
   [s2504s_homepage]: https://github.com/s2504s
   [s2504s_avatar]: https://github.com/s2504s.png?size=150
   [SweetOps_homepage]: https://github.com/SweetOps
   [SweetOps_avatar]: https://github.com/SweetOps.png?size=150
   [comeanother_homepage]: https://github.com/comeanother
   [comeanother_avatar]: https://github.com/comeanother.png?size=150
+  [dcowan-vestmark_homepage]: https://github.com/dcowan-vestmark
+  [dcowan-vestmark_avatar]: https://github.com/dcowan-vestmark.png?size=150
   [ivan-pinatti_homepage]: https://github.com/ivan-pinatti
   [ivan-pinatti_avatar]: https://github.com/ivan-pinatti.png?size=150
   [osulli_homepage]: https://github.com/osulli
   [osulli_avatar]: https://github.com/osulli.png?size=150
-  [dcowan-vestmark_homepage]: https://github.com/dcowan-vestmark
-  [dcowan-vestmark_avatar]: https://github.com/dcowan-vestmark.png?size=150
 
 
 

@@ -10,21 +10,8 @@ variable "subnet_type_tag_value_format" {
 }
 
 variable "max_subnet_count" {
-  ## This variable is converted into a calcuated local value in availability_zones.tf
-  default     = "-1"
-  description = "The maximum number of subnets to deploy. 0 for none, -1 to match the number of az's in the region, or a specific number"
-}
-
-variable "public_subnet_count" {
-  ## This variable is converted into a calcuated local value in public.tf
-  default     = -1
-  description = "Sets the amount of public subnets to deploy.  -1 will deploy a subnet for every availablility zone within the region, 0 will deploy no subnets. The AZ's supplied will be cycled through to create the subnets"
-}
-
-variable "private_subnet_count" {
-  ## This variable is converted into a calcuated local value in private.tf
-  default     = -1
-  description = "Sets the amount of private subnets to deploy.  -1 will deploy a subnet for every availablility zone within the region, 0 will deploy no subnets. The AZ's supplied will be cycled through to create the subnets"
+  default     = 0
+  description = "Sets the maximum amount of subnets to deploy.  0 will deploy a subnet for every provided availablility zone (in `availability_zones` variable) within the region"
 }
 
 variable "vpc_id" {
@@ -39,15 +26,12 @@ variable "igw_id" {
 
 variable "cidr_block" {
   type        = "string"
-  description = "Base CIDR block which will be divided into subnet CIDR blocks (e.g. `10.0.0.0/16`), or pass in the vpc_id to use the CIDR from the VPC"
-  default     = ""
+  description = "Base CIDR block which will be divided into subnet CIDR blocks (e.g. `10.0.0.0/16`)"
 }
 
 variable "availability_zones" {
-  ## This variable is converted into a calcuated local value in availability_zones.tf
   type        = "list"
-  description = "List of Availability Zones where subnets will be created. When none provided, all availability zones will be used up to the number provided in the public_subnet_count and/or private_subnet_count, and then will be reused if the number of subnets requested is more than the number of availability zones"
-  default     = []
+  description = "List of Availability Zones where subnets will be created"
 }
 
 variable "vpc_default_route_table_id" {
@@ -83,9 +67,4 @@ variable "nat_instance_type" {
 variable "map_public_ip_on_launch" {
   default     = "true"
   description = "Instances launched into a public subnet should be assigned a public IP address"
-}
-
-variable "region" {
-  type        = "string"
-  description = "The region to pass to the AWS provider nested in this module."
 }

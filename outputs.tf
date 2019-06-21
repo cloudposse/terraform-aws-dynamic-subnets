@@ -40,15 +40,5 @@ output "nat_instance_ids" {
 
 output "availability_zones" {
   description = "List of Availability Zones where subnets were created"
-  value       = "${distinct(compact(concat(local.availability_zones_public,local.availability_zones_private)))}"
-}
-
-output "availability_zones_public" {
-  description = "List of public Availability Zones where subnets were created"
-  value       = "${distinct(compact(local.availability_zones_public))}"
-}
-
-output "availability_zones_private" {
-  description = "List of private Availability Zones where subnets were created"
-  value       = "${distinct(compact(local.availability_zones_private))}"
+  value       = "${var.availability_zones}"
 }
