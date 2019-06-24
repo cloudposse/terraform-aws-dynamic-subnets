@@ -53,9 +53,6 @@ Instead pin to the release tag (e.g. `?ref=tags/x.y.z`) of one of our [latest re
 ```hcl
 module "subnets" {
   source              = "git::https://github.com/cloudposse/terraform-aws-dynamic-subnets.git?ref=master"
-  providers           = {
-    aws = "aws"
-  }
   namespace           = "eg"
   stage               = "prod"
   name                = "app"
