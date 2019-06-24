@@ -72,9 +72,6 @@ usage: |-
   ```hcl
   module "subnets" {
     source              = "git::https://github.com/cloudposse/terraform-aws-dynamic-subnets.git?ref=master"
-    providers           = {
-      aws = "aws"
-    }
     namespace           = "eg"
     stage               = "prod"
     name                = "app"
