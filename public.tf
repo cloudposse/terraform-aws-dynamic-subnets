@@ -5,6 +5,7 @@ module "public_label" {
 
   tags = merge(
     module.label.tags,
+    var.public_subnet_tags,
     map(var.subnet_type_tag_key, format(var.subnet_type_tag_value_format, "public"))
   )
 }

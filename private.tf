@@ -5,6 +5,7 @@ module "private_label" {
 
   tags = merge(
     module.label.tags,
+    var.private_subnet_tags,
     map(var.subnet_type_tag_key, format(var.subnet_type_tag_value_format, "private"))
   )
 }

@@ -1,3 +1,15 @@
+variable "private_subnet_tags" {
+  type        = map
+  default     = {}
+  description = "Tags to be added to private subnets."
+}
+
+variable "public_subnet_tags" {
+  type        = map
+  default     = {}
+  description = "Tags to be added to public subnets."
+}
+
 variable "subnet_type_tag_key" {
   type        = string
   default     = "cpco.io/subnet/type"
