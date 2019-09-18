@@ -1,3 +1,9 @@
+variable "enabled" {
+  type = bool
+  default = true
+  description = "Whether the resources in this module should be created or not, setting counts to 0 if disabled"
+}
+
 variable "subnet_type_tag_key" {
   type        = string
   default     = "cpco.io/subnet/type"

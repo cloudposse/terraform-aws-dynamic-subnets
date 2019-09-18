@@ -5,7 +5,7 @@ module "nat_instance_label" {
 }
 
 locals {
-  nat_instance_count = var.nat_instance_enabled ? length(var.availability_zones) : 0
+  nat_instance_count = var.enabled ? var.nat_instance_enabled ? length(var.availability_zones) : 0 : 0
   cidr_block         = var.cidr_block != "" ? var.cidr_block : data.aws_vpc.default.cidr_block
 }
 

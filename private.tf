@@ -10,11 +10,11 @@ module "private_label" {
 }
 
 locals {
-  private_subnet_count = var.max_subnet_count == 0 ? length(data.aws_availability_zones.available.names) : var.max_subnet_count
+  private_subnet_count = var.enabled ? var.max_subnet_count == 0 ? length(data.aws_availability_zones.available.names) : var.max_subnet_count : 0
 }
 
 resource "aws_subnet" "private" {
-  count             = length(var.availability_zones)
+  count             = var.enabled ? length(var.availability_zones) : 0
   vpc_id            = data.aws_vpc.default.id
   availability_zone = element(var.availability_zones, count.index)
 
@@ -47,7 +47,7 @@ resource "aws_subnet" "private" {
 }
 
 resource "aws_route_table" "private" {
-  count  = length(var.availability_zones)
+  count  = var.enabled ? length(var.availability_zones) : 0
   vpc_id = data.aws_vpc.default.id
 
   tags = merge(
@@ -68,14 +68,14 @@ resource "aws_route_table" "private" {
 }
 
 resource "aws_route_table_association" "private" {
-  count = length(var.availability_zones)
+  count = var.enabled ? length(var.availability_zones) : 0
 
   subnet_id      = element(aws_subnet.private.*.id, count.index)
   route_table_id = element(aws_route_table.private.*.id, count.index)
 }
 
 resource "aws_network_acl" "private" {
-  count      = signum(length(var.private_network_acl_id)) == 0 ? 1 : 0
+  count      = var.enabled ? signum(length(var.private_network_acl_id)) == 0 ? 1 : 0 : 0
   vpc_id     = var.vpc_id
   subnet_ids = aws_subnet.private.*.id
 
