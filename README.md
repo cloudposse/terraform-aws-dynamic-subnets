@@ -56,7 +56,6 @@ module "subnets" {
   namespace           = "eg"
   stage               = "prod"
   name                = "app"
-  region              = "us-east-1"
   vpc_id              = "vpc-XXXXXXXX"
   igw_id              = "igw-XXXXXXXX"
   cidr_block          = "10.0.0.0/16"
@@ -339,21 +338,21 @@ Check out [our other projects][github], [follow us on twitter][twitter], [apply 
 |---|---|---|---|---|---|---|---|
 
   [osterman_homepage]: https://github.com/osterman
-  [osterman_avatar]: https://github.com/osterman.png?size=150
+  [osterman_avatar]: https://img.cloudposse.com/150x150/https://github.com/osterman.png
   [aknysh_homepage]: https://github.com/aknysh
-  [aknysh_avatar]: https://github.com/aknysh.png?size=150
+  [aknysh_avatar]: https://img.cloudposse.com/150x150/https://github.com/aknysh.png
   [s2504s_homepage]: https://github.com/s2504s
-  [s2504s_avatar]: https://github.com/s2504s.png?size=150
+  [s2504s_avatar]: https://img.cloudposse.com/150x150/https://github.com/s2504s.png
   [SweetOps_homepage]: https://github.com/SweetOps
-  [SweetOps_avatar]: https://github.com/SweetOps.png?size=150
+  [SweetOps_avatar]: https://img.cloudposse.com/150x150/https://github.com/SweetOps.png
   [comeanother_homepage]: https://github.com/comeanother
-  [comeanother_avatar]: https://github.com/comeanother.png?size=150
+  [comeanother_avatar]: https://img.cloudposse.com/150x150/https://github.com/comeanother.png
   [dcowan-vestmark_homepage]: https://github.com/dcowan-vestmark
-  [dcowan-vestmark_avatar]: https://github.com/dcowan-vestmark.png?size=150
+  [dcowan-vestmark_avatar]: https://img.cloudposse.com/150x150/https://github.com/dcowan-vestmark.png
   [ivan-pinatti_homepage]: https://github.com/ivan-pinatti
-  [ivan-pinatti_avatar]: https://github.com/ivan-pinatti.png?size=150
+  [ivan-pinatti_avatar]: https://img.cloudposse.com/150x150/https://github.com/ivan-pinatti.png
   [osulli_homepage]: https://github.com/osulli
-  [osulli_avatar]: https://github.com/osulli.png?size=150
+  [osulli_avatar]: https://img.cloudposse.com/150x150/https://github.com/osulli.png
 
 
 
