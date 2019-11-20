@@ -87,7 +87,7 @@ resource "aws_instance" "nat_instance" {
   # https://docs.aws.amazon.com/vpc/latest/userguide/VPC_NAT_Instance.html#EIP_Disable_SrcDestCheck
   source_dest_check = false
 
-  associate_public_ip_address = false
+  associate_public_ip_address = true
 
   lifecycle {
     create_before_destroy = true
