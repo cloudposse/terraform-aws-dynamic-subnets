@@ -101,14 +101,14 @@ resource "aws_eip" "nat_instance" {
     module.nat_instance_label.tags,
     {
       "Name" = format(
-      "%s%s%s",
-      module.nat_label.id,
-      var.delimiter,
-      replace(
-      element(var.availability_zones, count.index),
-      "-",
-      var.delimiter
-      )
+        "%s%s%s",
+        module.nat_label.id,
+        var.delimiter,
+        replace(
+          element(var.availability_zones, count.index),
+          "-",
+          var.delimiter
+        )
       )
     }
   )
