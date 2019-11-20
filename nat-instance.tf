@@ -87,11 +87,41 @@ resource "aws_instance" "nat_instance" {
   # https://docs.aws.amazon.com/vpc/latest/userguide/VPC_NAT_Instance.html#EIP_Disable_SrcDestCheck
   source_dest_check = false
 
-  associate_public_ip_address = true
+  associate_public_ip_address = false
 
   lifecycle {
     create_before_destroy = true
   }
+}
+
+resource "aws_eip" "nat_instance" {
+  count = local.nat_instance_count
+  vpc   = true
+  tags = merge(
+    module.nat_instance_label.tags,
+    {
+      "Name" = format(
+      "%s%s%s",
+      module.nat_label.id,
+      var.delimiter,
+      replace(
+      element(var.availability_zones, count.index),
+      "-",
+      var.delimiter
+      )
+      )
+    }
+  )
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_eip_association" "nat_instance" {
+  count         = local.nat_instance_count
+  instance_id   = element(aws_instance.nat_instance.*.id, count.index)
+  allocation_id = element(aws_eip.nat_instance.*.id, count.index)
 }
 
 resource "aws_route" "nat_instance" {
