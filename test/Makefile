@@ -27,6 +27,7 @@ deps::
 
 ## Clean up the test harness
 clean:
+	rm -rf *.tfstate
 	[ "$(TEST_HARNESS_PATH)" == "/" ] || rm -rf $(TEST_HARNESS_PATH)
   
 ## Run all tests
