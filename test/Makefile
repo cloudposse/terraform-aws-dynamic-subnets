@@ -35,11 +35,10 @@ all: module examples/complete
 ## Run basic sanity checks against the module itself
 module: export TESTS ?= installed lint get-modules module-pinning get-plugins provider-pinning validate terraform-docs input-descriptions output-descriptions
 module: deps
-	ls -l ../examples/complete
 	$(call RUN_TESTS, ../)
 
 ## Run tests against example
 examples/complete: export TESTS ?= installed lint get-modules get-plugins validate
 examples/complete: deps
-	ls -l ../examples/complete
+	rm -rf ../examples/complete/*.tfstate
 	$(call RUN_TESTS, ../$@)
