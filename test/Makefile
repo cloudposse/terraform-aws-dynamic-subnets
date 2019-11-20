@@ -40,4 +40,5 @@ module: deps
 ## Run tests against example
 examples/complete: export TESTS ?= installed lint get-modules get-plugins validate
 examples/complete: deps
+	rm -rf ../examples/complete/*.tfstate
 	$(call RUN_TESTS, ../$@)
