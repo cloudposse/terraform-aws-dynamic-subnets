@@ -5,7 +5,7 @@ locals {
 resource "aws_eip" "default" {
   count = "${local.nat_eip_count}"
   vpc   = true
-  tags  = "${merge(module.private_label.tags, map("Name",format("%s%s%s", module.private_label.id, var.delimiter, replace(element(var.availability_zones, count.index),"-",var.delimiter))))}"
+  tags  = "${merge(module.private_label.tags, map("Name", format("%s%s%s", module.private_label.id, var.delimiter, replace(element(var.availability_zones, count.index), "-", var.delimiter))))}"
 
   lifecycle {
     create_before_destroy = true
