@@ -50,6 +50,8 @@ Terraform module to provision public and private [`subnets`](http://docs.aws.ama
 __Note:__ this module is intended for use with an existing VPC and existing Internet Gateway.
 To create a new VPC, use [terraform-aws-vpc](https://github.com/cloudposse/terraform-aws-vpc) module.
 
+__Note 2:__ EIP module first checks if `gateway` mode enabled, so takes precedence other `instance` in case both enabled (which is bad idea and won't work anyway)
+
 
 ---
 

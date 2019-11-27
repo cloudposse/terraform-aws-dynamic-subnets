@@ -1,7 +1,7 @@
 module "nat_instance_label" {
   source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.11.1"
   context    = "${module.label.context}"
-  attributes = "${distinct(compact(concat(module.label.attributes,list("nat", "instance"))))}"
+  attributes = "${distinct(compact(concat(module.label.attributes, list("nat", "instance"))))}"
 }
 
 locals {
@@ -67,7 +67,7 @@ resource "aws_instance" "nat_instance" {
   instance_type          = "${var.nat_instance_type}"
   subnet_id              = "${element(aws_subnet.public.*.id, count.index)}"
   vpc_security_group_ids = ["${aws_security_group.nat_instance.id}"]
-  tags                   = "${merge(module.nat_instance_label.tags, map("Name",format("%s%s%s", module.nat_label.id, var.delimiter, replace(element(var.availability_zones, count.index),"-",var.delimiter))))}"
+  tags                   = "${merge(module.nat_instance_label.tags, map("Name", format("%s%s%s", module.nat_label.id, var.delimiter, replace(element(var.availability_zones, count.index), "-", var.delimiter))))}"
 
   # Required by NAT
   # https://docs.aws.amazon.com/vpc/latest/userguide/VPC_NAT_Instance.html#EIP_Disable_SrcDestCheck
@@ -80,20 +80,10 @@ resource "aws_instance" "nat_instance" {
   }
 }
 
-resource "aws_eip" "nat_instance" {
-  count = "${local.nat_instance_count}"
-  vpc   = true
-  tags  = "${merge(module.nat_instance_label.tags, map("Name",format("%s%s%s", module.nat_label.id, var.delimiter, replace(element(var.availability_zones, count.index),"-",var.delimiter))))}"
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
 resource "aws_eip_association" "nat_instance" {
   count         = "${local.nat_instance_count}"
   instance_id   = "${element(aws_instance.nat_instance.*.id, count.index)}"
-  allocation_id = "${element(aws_eip.nat_instance.*.id, count.index)}"
+  allocation_id = "${element(aws_eip.default.*.id, count.index)}"
 }
 
 resource "aws_route" "nat_instance" {
