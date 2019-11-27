@@ -8,16 +8,6 @@ locals {
   nat_gateways_count = "${var.nat_gateway_enabled == "true" ? length(var.availability_zones) : 0}"
 }
 
-resource "aws_eip" "default" {
-  count = "${local.nat_gateways_count}"
-  vpc   = true
-  tags  = "${merge(module.private_label.tags, map("Name",format("%s%s%s", module.private_label.id, var.delimiter, replace(element(var.availability_zones, count.index),"-",var.delimiter))))}"
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
 resource "aws_nat_gateway" "default" {
   count         = "${local.nat_gateways_count}"
   allocation_id = "${element(aws_eip.default.*.id, count.index)}"

@@ -80,20 +80,10 @@ resource "aws_instance" "nat_instance" {
   }
 }
 
-resource "aws_eip" "nat_instance" {
-  count = "${local.nat_instance_count}"
-  vpc   = true
-  tags  = "${merge(module.nat_instance_label.tags, map("Name",format("%s%s%s", module.nat_label.id, var.delimiter, replace(element(var.availability_zones, count.index),"-",var.delimiter))))}"
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
 resource "aws_eip_association" "nat_instance" {
   count         = "${local.nat_instance_count}"
   instance_id   = "${element(aws_instance.nat_instance.*.id, count.index)}"
-  allocation_id = "${element(aws_eip.nat_instance.*.id, count.index)}"
+  allocation_id = "${element(aws_eip.default.*.id, count.index)}"
 }
 
 resource "aws_route" "nat_instance" {
