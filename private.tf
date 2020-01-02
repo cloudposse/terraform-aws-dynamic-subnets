@@ -37,7 +37,8 @@ resource "aws_subnet" "private" {
           var.delimiter
         )
       )
-    }
+    },
+    var.private_subnets_tags,
   )
 
   lifecycle {
