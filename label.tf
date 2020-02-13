@@ -1,5 +1,5 @@
 module "label" {
-  source              = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.14.0"
+  source              = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.16.0"
   attributes          = var.attributes
   namespace           = var.namespace
   environment         = var.environment
@@ -52,7 +52,7 @@ variable "stage" {
 variable "name" {
   type        = string
   default     = ""
-  description = "Solution name, e.g. 'app' or 'jenkins'"
+  description = "Solution name, e.g. 'app' or 'cluster'"
 }
 
 variable "environment" {

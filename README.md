@@ -206,13 +206,15 @@ Available targets:
 | label_order | The naming order of the ID output and Name tag | list(string) | `<list>` | no |
 | map_public_ip_on_launch | Instances launched into a public subnet should be assigned a public IP address | bool | `true` | no |
 | max_subnet_count | Sets the maximum amount of subnets to deploy. 0 will deploy a subnet for every provided availablility zone (in `availability_zones` variable) within the region | string | `0` | no |
-| name | Solution name, e.g. 'app' or 'jenkins' | string | `` | no |
+| name | Solution name, e.g. 'app' or 'cluster' | string | `` | no |
 | namespace | Namespace, which could be your organization name or abbreviation, e.g. 'eg' or 'cp' | string | `` | no |
 | nat_gateway_enabled | Flag to enable/disable NAT Gateways to allow servers in the private subnets to access the Internet | bool | `true` | no |
 | nat_instance_enabled | Flag to enable/disable NAT Instances to allow servers in the private subnets to access the Internet | bool | `false` | no |
 | nat_instance_type | NAT Instance type | string | `t3.micro` | no |
 | private_network_acl_id | Network ACL ID that will be added to private subnets. If empty, a new ACL will be created | string | `` | no |
+| private_subnets_additional_tags | Additional tags to be added to private subnets | map(string) | `<map>` | no |
 | public_network_acl_id | Network ACL ID that will be added to public subnets. If empty, a new ACL will be created | string | `` | no |
+| public_subnets_additional_tags | Additional tags to be added to public subnets | map(string) | `<map>` | no |
 | regex_replace_chars | Regex to replace chars with empty string in `namespace`, `environment`, `stage` and `name`. By default only hyphens, letters and digits are allowed, all other chars are removed | string | `/[^a-zA-Z0-9-]/` | no |
 | stage | Stage, e.g. 'prod', 'staging', 'dev', or 'test' | string | `` | no |
 | subnet_type_tag_key | Key for subnet type tag to provide information about the type of subnets, e.g. `cpco.io/subnet/type=private` or `cpco.io/subnet/type=public` | string | `cpco.io/subnet/type` | no |
@@ -323,7 +325,7 @@ In general, PRs are welcome. We follow the typical "fork-and-pull" Git workflow.
 
 ## Copyright
 
-Copyright © 2017-2019 [Cloud Posse, LLC](https://cpco.io/copyright)
+Copyright © 2017-2020 [Cloud Posse, LLC](https://cpco.io/copyright)
 
 
 
