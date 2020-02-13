@@ -16,7 +16,7 @@ func TestExamplesComplete(t *testing.T) {
 		TerraformDir: "../../examples/complete",
 		Upgrade:      true,
 		// Variables to pass to our Terraform code using -var-file options
-		VarFiles: []string{"fixtures.us-west-1.tfvars"},
+		VarFiles: []string{"fixtures.us-east-2.tfvars"},
 	}
 
 	// At the end of the test, run `terraform destroy` to clean up any resources that were created
@@ -28,14 +28,14 @@ func TestExamplesComplete(t *testing.T) {
 	// Run `terraform output` to get the value of an output variable
 	privateSubnetCidrs := terraform.OutputList(t, terraformOptions, "private_subnet_cidrs")
 
-	expectedPrivateSubnetCidrs := []string{"172.16.0.0/18", "172.16.64.0/18"}
+	expectedPrivateSubnetCidrs := []string{"172.16.0.0/19", "172.16.32.0/19"}
 	// Verify we're getting back the outputs we expect
 	assert.Equal(t, expectedPrivateSubnetCidrs, privateSubnetCidrs)
 
 	// Run `terraform output` to get the value of an output variable
 	publicSubnetCidrs := terraform.OutputList(t, terraformOptions, "public_subnet_cidrs")
 
-	expectedPublicSubnetCidrs := []string{"172.16.128.0/18", "172.16.192.0/18"}
+	expectedPublicSubnetCidrs := []string{"172.16.96.0/19", "172.16.128.0/19"}
 	// Verify we're getting back the outputs we expect
 	assert.Equal(t, expectedPublicSubnetCidrs, publicSubnetCidrs)
 }
