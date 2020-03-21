@@ -7,13 +7,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// Test the Terraform module in examples/complete using Terratest.
-func TestExamplesComplete(t *testing.T) {
+// Test the Terraform module in examples/existing-ips using Terratest.
+func TestExamplesExistingIps(t *testing.T) {
 	t.Parallel()
 
 	terraformOptions := &terraform.Options{
 		// The path to where our Terraform code is located
-		TerraformDir: "../../examples/complete",
+		TerraformDir: "../../examples/existing-ips",
 		Upgrade:      true,
 		// Variables to pass to our Terraform code using -var-file options
 		VarFiles: []string{"fixtures.us-east-2.tfvars"},
@@ -26,16 +26,9 @@ func TestExamplesComplete(t *testing.T) {
 	terraform.InitAndApply(t, terraformOptions)
 
 	// Run `terraform output` to get the value of an output variable
-	privateSubnetCidrs := terraform.OutputList(t, terraformOptions, "private_subnet_cidrs")
+	usedNatIps := terraform.OutputList(t, terraformOptions, "nat_ips")
+	expectedNatIps := []string{"3.52.100.1", "3.52.100.2", "3.52.100.3"}
 
-	expectedPrivateSubnetCidrs := []string{"172.16.0.0/19", "172.16.32.0/19"}
 	// Verify we're getting back the outputs we expect
-	assert.Equal(t, expectedPrivateSubnetCidrs, privateSubnetCidrs)
-
-	// Run `terraform output` to get the value of an output variable
-	publicSubnetCidrs := terraform.OutputList(t, terraformOptions, "public_subnet_cidrs")
-
-	expectedPublicSubnetCidrs := []string{"172.16.96.0/19", "172.16.128.0/19"}
-	// Verify we're getting back the outputs we expect
-	assert.Equal(t, expectedPublicSubnetCidrs, publicSubnetCidrs)
+	assert.Equal(t, expectedNatIps, usedNatIps)
 }
