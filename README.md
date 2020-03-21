@@ -248,13 +248,13 @@ Available targets:
 | nat\_gateway\_ids | IDs of the NAT Gateways created |
 | nat\_gateway\_public\_ips | EIP of the NAT Gateway |
 | nat\_instance\_ids | IDs of the NAT Instances created |
+| nat\_ips | IP Addresses in use for NAT |
 | private\_route\_table\_ids | IDs of the created private route tables |
 | private\_subnet\_cidrs | CIDR blocks of the created private subnets |
 | private\_subnet\_ids | IDs of the created private subnets |
 | public\_route\_table\_ids | IDs of the created public route tables |
 | public\_subnet\_cidrs | CIDR blocks of the created public subnets |
 | public\_subnet\_ids | IDs of the created public subnets |
-
 
 
 
