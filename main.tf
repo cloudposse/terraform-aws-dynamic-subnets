@@ -14,10 +14,10 @@ locals {
 }
 
 data "aws_eip" "nat_ips" {
-  count     = length(var.nat_gateway_ips)
-  public_ip = element(var.nat_gateway_ips, count.index)
+  count     = length(var.existing_nat_ips)
+  public_ip = element(var.existing_nat_ips, count.index)
 }
 
 locals {
-  use_existing_eips = length(var.nat_gateway_ips) > 0
+  use_existing_eips = length(var.existing_nat_ips) > 0
 }
