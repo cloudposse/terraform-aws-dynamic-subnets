@@ -47,3 +47,8 @@ output "availability_zones" {
   description = "List of Availability Zones where subnets were created"
   value       = var.availability_zones
 }
+
+output "nat_ips" {
+  description = "IP Addresses in use for NAT"
+  value       = coalescelist(aws_eip.default.*.public_ip, data.aws_eip.nat_ips.*.public_ip, list(""))
+}
