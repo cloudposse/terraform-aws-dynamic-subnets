@@ -8,4 +8,4 @@ stage = "test"
 
 name = "subnets-vpc-test"
 
-nat_gateway_ips = ["3.52.100.1", "3.52.100.2", "3.52.100.3"]
+existing_nat_ips = ["3.52.100.1", "3.52.100.2", "3.52.100.3"]

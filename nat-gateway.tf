@@ -5,7 +5,7 @@ module "nat_label" {
 }
 
 locals {
-  nat_gateways_count = var.enabled && var.nat_gateway_enabled ? local.availability_zones_count : 0
+  gateway_eip_allocations = local.use_existing_eips ? data.aws_eip.nat_ips.*.id : aws_eip.default.*.id
   use_existing_eips  = length(var.nat_gateway_ips) > 0
   eips_allocations   = local.use_existing_eips ? data.aws_eip.nat_ips.*.id : aws_eip.default.*.id
   nat_gateways_count = var.nat_gateway_enabled && !local.use_existing_eips ? length(var.availability_zones) : 0
@@ -43,7 +43,7 @@ resource "aws_eip" "default" {
 
 resource "aws_nat_gateway" "default" {
   count         = local.nat_gateways_count
-  allocation_id = element(local.eips_allocations, count.index)
+  allocation_id = element(local.gateway_eip_allocations, count.index)
   subnet_id     = element(aws_subnet.public.*.id, count.index)
 
   tags = merge(

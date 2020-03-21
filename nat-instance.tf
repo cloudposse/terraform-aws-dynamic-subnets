@@ -5,9 +5,15 @@ module "nat_instance_label" {
 }
 
 locals {
+<<<<<<< HEAD
   nat_instance_count   = var.enabled && var.nat_instance_enabled ? local.availability_zones_count : 0
   cidr_block           = var.cidr_block != "" ? var.cidr_block : join("", data.aws_vpc.default.*.cidr_block)
   nat_instance_enabled = var.enabled && var.nat_instance_enabled ? 1 : 0
+=======
+  nat_instance_count       = var.nat_instance_enabled && !local.use_existing_eips ? length(var.availability_zones) : 0
+  cidr_block               = var.cidr_block != "" ? var.cidr_block : data.aws_vpc.default.cidr_block
+  instance_eip_allocations = local.use_existing_eips ? data.aws_eip.nat_ips.*.id : aws_eip.nat_instance.*.id
+>>>>>>> use existing eips feature for NAT gateway and instance
 }
 
 resource "aws_security_group" "nat_instance" {
@@ -122,7 +128,7 @@ resource "aws_eip" "nat_instance" {
 resource "aws_eip_association" "nat_instance" {
   count         = local.nat_instance_count
   instance_id   = element(aws_instance.nat_instance.*.id, count.index)
-  allocation_id = element(aws_eip.nat_instance.*.id, count.index)
+  allocation_id = element(local.instance_eip_allocations, count.index)
 }
 
 resource "aws_route" "nat_instance" {

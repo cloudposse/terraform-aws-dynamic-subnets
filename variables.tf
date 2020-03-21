@@ -77,10 +77,10 @@ variable "nat_instance_type" {
   default     = "t3.micro"
 }
 
-variable "nat_gateway_ips" {
+variable "existing_nat_ips" {
   type        = list(string)
   default     = []
-  description = "Existing Elastic IPs to attach to the NAT Gateway instead of creating a new one."  
+  description = "Existing Elastic IPs to attach to the NAT Gateway or Instance instead of creating a new one."  
 }
 
 variable "map_public_ip_on_launch" {

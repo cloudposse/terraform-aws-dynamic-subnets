@@ -23,8 +23,8 @@ variable "name" {
   description = "Solution/application name, e.g. 'app' or 'cluster'"
 }
 
-variable "nat_gateway_ips" {
+variable "existing_nat_ips" {
   type        = list(string)
   default     = []
-  description = "Existing Elastic IPs to attach to the NAT Gateway instead of creating a new one."  
+  description = "Existing Elastic IPs to attach to the NAT Gateway or Instance instead of creating a new one."  
 }
