@@ -6,11 +6,16 @@ module "nat_instance_label" {
 
 locals {
 <<<<<<< HEAD
+<<<<<<< HEAD
   nat_instance_count   = var.enabled && var.nat_instance_enabled ? local.availability_zones_count : 0
   cidr_block           = var.cidr_block != "" ? var.cidr_block : join("", data.aws_vpc.default.*.cidr_block)
   nat_instance_enabled = var.enabled && var.nat_instance_enabled ? 1 : 0
 =======
   nat_instance_count       = var.nat_instance_enabled && !local.use_existing_eips ? length(var.availability_zones) : 0
+=======
+  nat_instance_eip_count   = local.use_existing_eips ? 0 : local.nat_instance_count
+  nat_instance_count       = var.nat_instance_enabled ? length(var.availability_zones) : 0
+>>>>>>> use separate count variable for eip resources
   cidr_block               = var.cidr_block != "" ? var.cidr_block : data.aws_vpc.default.cidr_block
   instance_eip_allocations = local.use_existing_eips ? data.aws_eip.nat_ips.*.id : aws_eip.nat_instance.*.id
 >>>>>>> use existing eips feature for NAT gateway and instance
@@ -102,7 +107,7 @@ resource "aws_instance" "nat_instance" {
 }
 
 resource "aws_eip" "nat_instance" {
-  count = local.nat_instance_count
+  count = local.nat_instance_eip_count
   vpc   = true
   tags = merge(
     module.nat_instance_label.tags,
