@@ -5,12 +5,13 @@ module "nat_instance_label" {
 }
 
 locals {
-  nat_instance_count = var.nat_instance_enabled ? length(var.availability_zones) : 0
-  cidr_block         = var.cidr_block != "" ? var.cidr_block : data.aws_vpc.default.cidr_block
+  nat_instance_count   = var.enabled && var.nat_instance_enabled ? local.availability_zones_count : 0
+  cidr_block           = var.cidr_block != "" ? var.cidr_block : join("", data.aws_vpc.default.*.cidr_block)
+  nat_instance_enabled = var.enabled && var.nat_instance_enabled ? 1 : 0
 }
 
 resource "aws_security_group" "nat_instance" {
-  count       = var.nat_instance_enabled ? 1 : 0
+  count       = local.nat_instance_enabled
   name        = module.nat_instance_label.id
   description = "Security Group for NAT Instance"
   vpc_id      = var.vpc_id
@@ -18,7 +19,7 @@ resource "aws_security_group" "nat_instance" {
 }
 
 resource "aws_security_group_rule" "nat_instance_egress" {
-  count             = var.nat_instance_enabled ? 1 : 0
+  count             = local.nat_instance_enabled
   description       = "Allow all egress traffic"
   from_port         = 0
   to_port           = 0
@@ -29,7 +30,7 @@ resource "aws_security_group_rule" "nat_instance_egress" {
 }
 
 resource "aws_security_group_rule" "nat_instance_ingress" {
-  count             = var.nat_instance_enabled ? 1 : 0
+  count             = local.nat_instance_enabled
   description       = "Allow ingress traffic from the VPC CIDR block"
   from_port         = 0
   to_port           = 0
@@ -41,7 +42,7 @@ resource "aws_security_group_rule" "nat_instance_ingress" {
 
 // aws --region us-west-2 ec2 describe-images --owners amazon --filters Name="name",Values="amzn-ami-vpc-nat*" Name="virtualization-type",Values="hvm"
 data "aws_ami" "nat_instance" {
-  count       = var.nat_instance_enabled ? 1 : 0
+  count       = local.nat_instance_enabled
   most_recent = true
 
   filter {
@@ -131,4 +132,3 @@ resource "aws_route" "nat_instance" {
   destination_cidr_block = "0.0.0.0/0"
   depends_on             = [aws_route_table.private]
 }
-

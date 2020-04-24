@@ -11,6 +11,7 @@ module "label" {
   regex_replace_chars = var.regex_replace_chars
   label_order         = var.label_order
   context             = var.context
+  enabled             = var.enabled
 }
 
 variable "additional_tag_map" {

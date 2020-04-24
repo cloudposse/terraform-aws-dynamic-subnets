@@ -1,3 +1,9 @@
+variable "enabled" {
+  type        = bool
+  default     = true
+  description = "Set to false to prevent the module from creating any resources"
+}
+
 variable "subnet_type_tag_key" {
   type        = string
   default     = "cpco.io/subnet/type"
