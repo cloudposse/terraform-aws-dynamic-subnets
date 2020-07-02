@@ -35,8 +35,8 @@ resource "aws_eip" "default" {
 
 resource "aws_nat_gateway" "default" {
   count         = local.nat_gateways_count
-  allocation_id = element(aws_eip.default.*.id, count.index)
-  subnet_id     = element(aws_subnet.public.*.id, count.index)
+  allocation_id = element(aws_eip.default[*].id, count.index)
+  subnet_id     = element(aws_subnet.public[*].id, count.index)
 
   tags = merge(
     module.nat_label.tags,
