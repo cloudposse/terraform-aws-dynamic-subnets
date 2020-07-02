@@ -61,8 +61,9 @@ resource "aws_nat_gateway" "default" {
 
 resource "aws_route" "default" {
   count                  = local.nat_gateways_count
-  route_table_id         = element(aws_route_table.private[count.index].id, count.index)
-  nat_gateway_id         = element(aws_nat_gateway.default[count.index].id, count.index)
+  route_table_id         = element(concat(aws_route_table.private[*].id,list("")), count.index)
+  nat_gateway_id         = element(concat(aws_nat_gateway.default[*].id,list("")), count.index)
   destination_cidr_block = "0.0.0.0/0"
   depends_on             = [aws_route_table.private]
 }
+
