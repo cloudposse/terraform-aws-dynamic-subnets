@@ -33,6 +33,11 @@ output "nat_gateway_ids" {
   value       = aws_nat_gateway.default.*.id
 }
 
+output "nat_gateway_public_ips" {
+  description = "EIP of the NAT Gateway"
+  value       = aws_eip.default.*.public_ip
+}
+
 output "nat_instance_ids" {
   description = "IDs of the NAT Instances created"
   value       = aws_instance.nat_instance.*.id
