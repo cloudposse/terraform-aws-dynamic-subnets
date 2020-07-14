@@ -1,4 +1,3 @@
----
 #
 # This is the canonical configuration for the `README.md`
 # Run `make readme` to rebuild the `README.md`
@@ -6,7 +5,6 @@
 
 # Name of this project
 name: terraform-aws-dynamic-subnets
-
 # Tags of this project
 tags:
   - aws
@@ -16,33 +14,24 @@ tags:
   - subnet
   - vpc
   - vpc-resources
-
 # Categories of this project
 categories:
   - terraform-modules/networking
-
 # Logo for this project
 #logo: docs/logo.png
 
 # License of this project
 license: "APACHE2"
-
 # Canonical GitHub repo
 github_repo: cloudposse/terraform-aws-dynamic-subnets
-
-
 # Badges to display
 badges:
-  - name: "Codefresh Build Status"
-    image: "https://g.codefresh.io/api/badges/pipeline/cloudposse/terraform-modules%2Fterraform-aws-dynamic-subnets?type=cf-1"
-    url: "https://g.codefresh.io/public/accounts/cloudposse/pipelines/5d02dad8572be040f879f8ed"
   - name: "Latest Release"
     image: "https://img.shields.io/github/release/cloudposse/terraform-aws-dynamic-subnets.svg"
     url: "https://github.com/cloudposse/terraform-aws-dynamic-subnets/releases/latest"
   - name: "Slack Community"
     image: "https://slack.cloudposse.com/badge.svg"
     url: "https://slack.cloudposse.com"
-
 related:
   - name: "terraform-aws-vpc"
     description: "Terraform Module that defines a VPC with public/private subnets across multiple AZs with Internet Gateways"
@@ -56,14 +45,12 @@ related:
   - name: "terraform-aws-named-subnets"
     description: "Terraform module for named subnets provisioning."
     url: "https://github.com/cloudposse/terraform-aws-named-subnets"
-
 # Short description of this project
 description: |-
   Terraform module to provision public and private [`subnets`](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_Subnets.html) in an existing [`VPC`](https://aws.amazon.com/vpc)
 
   __Note:__ this module is intended for use with an existing VPC and existing Internet Gateway.
   To create a new VPC, use [terraform-aws-vpc](https://github.com/cloudposse/terraform-aws-vpc) module.
-
 # How to use this project
 usage: |-
   ```hcl
@@ -80,12 +67,10 @@ usage: |-
   ```
 
   Learn about [using providers](https://www.terraform.io/docs/configuration-0-11/modules.html#providers-within-modules) with terraform modules.
-
 include:
   - "docs/design.md"
   - "docs/targets.md"
   - "docs/terraform.md"
-
 # Contributors to this project
 contributors:
   - name: "Erik Osterman"
@@ -104,4 +89,3 @@ contributors:
     github: "ivan-pinatti"
   - name: "Oscar Sullivan"
     github: "osulli"
-
