@@ -52,6 +52,7 @@
 |------|-------------|
 | availability\_zones | List of Availability Zones where subnets were created |
 | nat\_gateway\_ids | IDs of the NAT Gateways created |
+| nat\_gateway\_public\_ips | EIP of the NAT Gateway |
 | nat\_instance\_ids | IDs of the NAT Instances created |
 | private\_route\_table\_ids | IDs of the created private route tables |
 | private\_subnet\_cidrs | CIDR blocks of the created private subnets |
