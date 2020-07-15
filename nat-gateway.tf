@@ -11,11 +11,6 @@ locals {
   nat_gateways_count      = var.nat_gateway_enabled && ! local.use_existing_eips ? length(var.availability_zones) : 0
 }
 
-data "aws_eip" "nat_ips" {
-  count     = length(var.nat_gateway_ips)
-  public_ip = element(var.nat_gateway_ips, count.index)
-}
-
 resource "aws_eip" "default" {
   count = local.nat_gateway_eip_count
   vpc   = true
