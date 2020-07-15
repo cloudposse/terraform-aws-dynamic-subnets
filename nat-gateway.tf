@@ -7,7 +7,6 @@ module "nat_label" {
 locals {
   nat_gateway_eip_count   = local.use_existing_eips ? 0 : local.nat_gateways_count
   gateway_eip_allocations = local.use_existing_eips ? data.aws_eip.nat_ips.*.id : aws_eip.default.*.id
-  use_existing_eips       = length(var.nat_gateway_ips) > 0
   eips_allocations        = local.use_existing_eips ? data.aws_eip.nat_ips.*.id : aws_eip.default.*.id
   nat_gateways_count      = var.nat_gateway_enabled && ! local.use_existing_eips ? length(var.availability_zones) : 0
 }
