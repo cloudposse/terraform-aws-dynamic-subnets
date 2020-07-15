@@ -5,7 +5,7 @@ module "nat_label" {
 }
 
 locals {
-  nat_gateways_count = var.nat_gateway_enabled ? length(var.availability_zones) : 0
+  nat_gateways_count = var.enabled && var.nat_gateway_enabled ? local.availability_zones_count : 0
 }
 
 resource "aws_eip" "default" {
