@@ -229,7 +229,7 @@ Available targets:
 |------|-------------|
 | availability\_zones | List of Availability Zones where subnets were created |
 | nat\_gateway\_ids | IDs of the NAT Gateways created |
-| nat\_gateway\_public\_ips | EIP of the NAT Gateway. Only set when new EIP was created |
+| nat\_gateway\_public\_ips | EIP of the NAT Gateway |
 | nat\_instance\_ids | IDs of the NAT Instances created |
 | nat\_ips | IP Addresses in use for NAT |
 | private\_route\_table\_ids | IDs of the created private route tables |
