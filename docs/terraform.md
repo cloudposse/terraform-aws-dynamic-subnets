@@ -26,6 +26,7 @@
 | delimiter | Delimiter to be used between `namespace`, `stage`, `name` and `attributes` | `string` | `"-"` | no |
 | enabled | Set to false to prevent the module from creating any resources | `bool` | `true` | no |
 | environment | The environment name if not using stage | `string` | `""` | no |
+| existing\_nat\_ips | Existing Elastic IPs to attach to the NAT Gateway or Instance instead of creating a new one. | `list(string)` | `[]` | no |
 | igw\_id | Internet Gateway ID the public route table will point to (e.g. `igw-9c26a123`) | `string` | n/a | yes |
 | label\_order | The naming order of the ID output and Name tag | `list(string)` | `[]` | no |
 | map\_public\_ip\_on\_launch | Instances launched into a public subnet should be assigned a public IP address | `bool` | `true` | no |
@@ -55,6 +56,7 @@
 | nat\_gateway\_ids | IDs of the NAT Gateways created |
 | nat\_gateway\_public\_ips | EIP of the NAT Gateway |
 | nat\_instance\_ids | IDs of the NAT Instances created |
+| nat\_ips | IP Addresses in use for NAT |
 | private\_route\_table\_ids | IDs of the created private route tables |
 | private\_subnet\_cidrs | CIDR blocks of the created private subnets |
 | private\_subnet\_ids | IDs of the created private subnets |
