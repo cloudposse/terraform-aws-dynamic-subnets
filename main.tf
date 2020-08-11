@@ -21,3 +21,19 @@ data "aws_eip" "nat_ips" {
 locals {
   use_existing_eips = length(var.existing_nat_ips) > 0
 }
+
+module "label" {
+  source              = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.16.0"
+  attributes          = var.attributes
+  namespace           = var.namespace
+  environment         = var.environment
+  stage               = var.stage
+  delimiter           = var.delimiter
+  name                = var.name
+  tags                = var.tags
+  additional_tag_map  = var.additional_tag_map
+  regex_replace_chars = var.regex_replace_chars
+  label_order         = var.label_order
+  context             = var.context
+  enabled             = var.enabled
+}

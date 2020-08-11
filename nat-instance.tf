@@ -1,4 +1,5 @@
 module "nat_instance_label" {
+  enabled    = var.enabled
   source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.16.0"
   context    = module.label.context
   attributes = distinct(compact(concat(module.label.attributes, ["nat", "instance"])))
@@ -6,7 +7,7 @@ module "nat_instance_label" {
 
 locals {
   cidr_block               = var.cidr_block != "" ? var.cidr_block : join("", data.aws_vpc.default.*.cidr_block)
-  nat_instance_enabled     = var.enabled && var.nat_instance_enabled ? 1 : 0
+  nat_instance_enabled     = var.nat_instance_enabled ? 1 : 0
   nat_instance_count       = var.nat_instance_enabled && ! local.use_existing_eips ? length(var.availability_zones) : 0
   nat_instance_eip_count   = local.use_existing_eips ? 0 : local.nat_instance_count
   instance_eip_allocations = local.use_existing_eips ? data.aws_eip.nat_ips.*.id : aws_eip.nat_instance.*.id
