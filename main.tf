@@ -14,7 +14,7 @@ locals {
 }
 
 data "aws_eip" "nat_ips" {
-  count     = length(var.existing_nat_ips)
+  count     = var.enabled ? length(var.existing_nat_ips) : 0
   public_ip = element(var.existing_nat_ips, count.index)
 }
 
