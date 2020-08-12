@@ -1,5 +1,6 @@
 module "public_label" {
   source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.16.0"
+  enabled    = var.enabled
   context    = module.label.context
   attributes = compact(concat(module.label.attributes, ["public"]))
 

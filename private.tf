@@ -1,5 +1,6 @@
 module "private_label" {
   source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.16.0"
+  enabled    = var.enabled
   context    = module.label.context
   attributes = compact(concat(module.label.attributes, ["private"]))
 
@@ -11,12 +12,12 @@ module "private_label" {
 }
 
 locals {
-  private_subnet_count        = var.enabled && var.max_subnet_count == 0 ? length(flatten(data.aws_availability_zones.available.*.names)) : var.max_subnet_count
-  private_network_acl_enabled = var.enabled && signum(length(var.private_network_acl_id)) == 0 ? 1 : 0
+  private_subnet_count        = var.max_subnet_count == 0 ? length(flatten(data.aws_availability_zones.available.*.names)) : var.max_subnet_count
+  private_network_acl_enabled = signum(length(var.private_network_acl_id)) == 0 ? 1 : 0
 }
 
 resource "aws_subnet" "private" {
-  count             = local.availability_zones_count
+  count             = var.enabled ? local.availability_zones_count : 0
   vpc_id            = join("", data.aws_vpc.default.*.id)
   availability_zone = element(var.availability_zones, count.index)
 
@@ -49,7 +50,7 @@ resource "aws_subnet" "private" {
 }
 
 resource "aws_route_table" "private" {
-  count  = local.availability_zones_count
+  count  = var.enabled ? local.availability_zones_count : 0
   vpc_id = join("", data.aws_vpc.default.*.id)
 
   tags = merge(
@@ -70,13 +71,13 @@ resource "aws_route_table" "private" {
 }
 
 resource "aws_route_table_association" "private" {
-  count          = local.availability_zones_count
+  count          = var.enabled ? local.availability_zones_count : 0
   subnet_id      = element(aws_subnet.private.*.id, count.index)
   route_table_id = element(aws_route_table.private.*.id, count.index)
 }
 
 resource "aws_network_acl" "private" {
-  count      = local.private_network_acl_enabled
+  count      = var.enabled ? local.private_network_acl_enabled : 0
   vpc_id     = var.vpc_id
   subnet_ids = aws_subnet.private.*.id
 
