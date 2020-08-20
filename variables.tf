@@ -89,6 +89,18 @@ variable "map_public_ip_on_launch" {
   description = "Instances launched into a public subnet should be assigned a public IP address"
 }
 
+variable "aws_route_create_timeout" {
+  type        = string
+  default     = "2m"
+  description = "Time to wait for AWS route creation specifed as a Go Duration, e.g. `2m`"
+}
+
+variable "aws_route_delete_timeout" {
+  type        = string
+  default     = "5m"
+  description = "Time to wait for AWS route deletion specifed as a Go Duration, e.g. `5m`"
+}
+
 variable "private_subnets_additional_tags" {
   type        = map(string)
   default     = {}
