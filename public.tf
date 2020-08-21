@@ -64,6 +64,11 @@ resource "aws_route" "public" {
   route_table_id         = join("", aws_route_table.public.*.id)
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = var.igw_id
+
+  timeouts {
+    create = var.aws_route_create_timeout
+    delete = var.aws_route_delete_timeout
+  }
 }
 
 resource "aws_route_table_association" "public" {

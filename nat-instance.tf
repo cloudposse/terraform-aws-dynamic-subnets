@@ -134,4 +134,9 @@ resource "aws_route" "nat_instance" {
   instance_id            = element(aws_instance.nat_instance.*.id, count.index)
   destination_cidr_block = "0.0.0.0/0"
   depends_on             = [aws_route_table.private]
+
+  timeouts {
+    create = var.aws_route_create_timeout
+    delete = var.aws_route_delete_timeout
+  }
 }
