@@ -10,9 +10,9 @@ data "aws_availability_zones" "available" {
 
 locals {
   availability_zones_count = local.enabled ? length(var.availability_zones) : 0
-  enabled                  = module.this.context.enabled
+  enabled                  = module.this.enabled
   enabled_count            = local.enabled ? 1 : 0
-
+  delimiter                = module.this.delimiter
 }
 
 data "aws_eip" "nat_ips" {

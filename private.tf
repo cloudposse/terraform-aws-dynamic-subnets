@@ -13,7 +13,6 @@ module "private_label" {
 locals {
   private_subnet_count        = var.max_subnet_count == 0 ? length(flatten(data.aws_availability_zones.available.*.names)) : var.max_subnet_count
   private_network_acl_enabled = signum(length(var.private_network_acl_id)) == 0 ? 1 : 0
-  delimiter                   = module.this.context.delimiter
 }
 
 resource "aws_subnet" "private" {

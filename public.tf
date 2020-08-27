@@ -36,11 +36,11 @@ resource "aws_subnet" "public" {
       "Name" = format(
         "%s%s%s",
         module.public_label.id,
-        local.delimiter,
+        local.private_delimiter,
         replace(
           element(var.availability_zones, count.index),
           "-",
-          local.delimiter
+          local.private_delimiter
         )
       )
     }
@@ -52,7 +52,7 @@ resource "aws_subnet" "public" {
 }
 
 resource "aws_route_table" "public" {
-  count = local.public_route_expr_enabled ? 0 : local.enabled_count
+  count  = local.public_route_expr_enabled ? 0 : local.enabled_count
   vpc_id = join("", data.aws_vpc.default.*.id)
 
   tags = module.public_label.tags
