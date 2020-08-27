@@ -36,11 +36,11 @@ resource "aws_subnet" "public" {
       "Name" = format(
         "%s%s%s",
         module.public_label.id,
-        local.private_delimiter,
+        local.delimiter,
         replace(
           element(var.availability_zones, count.index),
           "-",
-          local.private_delimiter
+          local.delimiter
         )
       )
     }
