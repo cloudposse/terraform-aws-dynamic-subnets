@@ -52,14 +52,13 @@ resource "aws_subnet" "public" {
 }
 
 resource "aws_route_table" "public" {
-  count  = local.public_route_expr_enabled ? 0 : local.enabled
-  vpc_id = join("", data.aws_vpc.default.*.id)
+  count = local.public_route_expr_enabled ? 0 : local.enabled_count
 
   tags = module.public_label.tags
 }
 
 resource "aws_route" "public" {
-  count                  = local.public_route_expr_enabled ? 0 : local.enabled
+  count                  = local.public_route_expr_enabled ? 0 : local.enabled_count
   route_table_id         = join("", aws_route_table.public.*.id)
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = var.igw_id

@@ -5,12 +5,14 @@ data "aws_vpc" "default" {
 }
 
 data "aws_availability_zones" "available" {
-  count = local.enabled ? 1 : 0
+  count = local.enabled_count
 }
 
 locals {
   availability_zones_count = local.enabled ? length(var.availability_zones) : 0
   enabled                  = module.this.context.enabled
+  enabled_count            = local.enabled ? 1 : 0
+
 }
 
 data "aws_eip" "nat_ips" {
