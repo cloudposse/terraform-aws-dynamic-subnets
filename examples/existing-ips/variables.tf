@@ -26,5 +26,5 @@ variable "name" {
 variable "existing_nat_ips" {
   type        = list(string)
   default     = []
-  description = "Existing Elastic IPs to attach to the NAT Gateway or Instance instead of creating a new one."  
+  description = "Existing Elastic IPs to attach to the NAT Gateway or Instance instead of creating a new one."
 }
