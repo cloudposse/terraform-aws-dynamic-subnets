@@ -6,7 +6,8 @@ module "vpc" {
   source     = "git::https://github.com/cloudposse/terraform-aws-vpc.git?ref=tags/0.16.2"
   cidr_block = "172.16.0.0/16"
 
-  # temporary, until VPC module is updated
+  # Obsolete, until VPC module is updated, then use
+  # context = module.this.context
   namespace = module.this.context.namespace
   stage     = module.this.context.stage
   name      = module.this.context.name
