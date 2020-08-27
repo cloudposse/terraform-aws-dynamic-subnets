@@ -53,6 +53,7 @@ resource "aws_subnet" "public" {
 
 resource "aws_route_table" "public" {
   count = local.public_route_expr_enabled ? 0 : local.enabled_count
+  vpc_id = join("", data.aws_vpc.default.*.id)
 
   tags = module.public_label.tags
 }
