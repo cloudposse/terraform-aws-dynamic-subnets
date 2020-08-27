@@ -1,5 +1,5 @@
 module "public_label" {
-  source = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.17.0"
+  source = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.19.1"
 
   attributes = ["public"]
   tags = merge(

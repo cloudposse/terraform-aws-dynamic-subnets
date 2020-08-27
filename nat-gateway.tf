@@ -1,5 +1,5 @@
 module "nat_label" {
-  source = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.19.0"
+  source = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.19.1"
 
   attributes = ["nat"]
 
