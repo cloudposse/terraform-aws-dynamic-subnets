@@ -1,21 +1,20 @@
 module "public_label" {
-  source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.17.0"
-  enabled    = var.enabled
-  context    = module.label.context
-  attributes = compact(concat(module.label.attributes, ["public"]))
+  source = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.19.1"
 
+  attributes = ["public"]
   tags = merge(
-    module.label.tags,
     var.public_subnets_additional_tags,
     map(var.subnet_type_tag_key, format(var.subnet_type_tag_value_format, "public"))
   )
+
+  context = module.this.context
 }
 
 locals {
-  public_subnet_count        = var.enabled && var.max_subnet_count == 0 ? length(flatten(data.aws_availability_zones.available.*.names)) : var.max_subnet_count
-  public_route_expr_enabled  = var.enabled && signum(length(var.vpc_default_route_table_id)) == 1
-  public_network_acl_enabled = var.enabled && signum(length(var.public_network_acl_id)) == 0 ? 1 : 0
-  vpc_default_route_table_id = var.enabled ? signum(length(var.vpc_default_route_table_id)) : 0
+  public_subnet_count        = local.enabled && var.max_subnet_count == 0 ? length(flatten(data.aws_availability_zones.available.*.names)) : var.max_subnet_count
+  public_route_expr_enabled  = local.enabled && signum(length(var.vpc_default_route_table_id)) == 1
+  public_network_acl_enabled = local.enabled && signum(length(var.public_network_acl_id)) == 0 ? 1 : 0
+  vpc_default_route_table_id = local.enabled ? signum(length(var.vpc_default_route_table_id)) : 0
 }
 
 resource "aws_subnet" "public" {
@@ -37,11 +36,11 @@ resource "aws_subnet" "public" {
       "Name" = format(
         "%s%s%s",
         module.public_label.id,
-        var.delimiter,
+        local.delimiter,
         replace(
           element(var.availability_zones, count.index),
           "-",
-          var.delimiter
+          local.delimiter
         )
       )
     }
@@ -53,14 +52,14 @@ resource "aws_subnet" "public" {
 }
 
 resource "aws_route_table" "public" {
-  count  = local.public_route_expr_enabled ? 0 : local.enabled
+  count  = local.public_route_expr_enabled ? 0 : local.enabled_count
   vpc_id = join("", data.aws_vpc.default.*.id)
 
   tags = module.public_label.tags
 }
 
 resource "aws_route" "public" {
-  count                  = local.public_route_expr_enabled ? 0 : local.enabled
+  count                  = local.public_route_expr_enabled ? 0 : local.enabled_count
   route_table_id         = join("", aws_route_table.public.*.id)
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = var.igw_id
