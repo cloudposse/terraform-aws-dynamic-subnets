@@ -78,11 +78,11 @@ resource "aws_instance" "nat_instance" {
       "Name" = format(
         "%s%s%s",
         module.nat_label.id,
-        var.delimiter,
+        local.delimiter,
         replace(
           element(var.availability_zones, count.index),
           "-",
-          var.delimiter
+          local.delimiter
         )
       )
     }
@@ -108,11 +108,11 @@ resource "aws_eip" "nat_instance" {
       "Name" = format(
         "%s%s%s",
         module.nat_label.id,
-        var.delimiter,
+        local.delimiter,
         replace(
           element(var.availability_zones, count.index),
           "-",
-          var.delimiter
+          local.delimiter
         )
       )
     }
