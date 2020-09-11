@@ -173,13 +173,12 @@ Available targets:
 
 ```
 <!-- markdownlint-restore -->
-<!-- markdownlint-disable -->
 ## Requirements
 
 | Name | Version |
 |------|---------|
-| terraform | >= 0.12.0, < 0.14.0 |
-| aws | >= 2.0, < 4.0 |
+| terraform | >= 0.12.0 |
+| aws | >= 2.0 |
 | local | ~> 1.2 |
 | null | ~> 2.0 |
 | template | ~> 2.0 |
@@ -188,7 +187,7 @@ Available targets:
 
 | Name | Version |
 |------|---------|
-| aws | >= 2.0, < 4.0 |
+| aws | >= 2.0 |
 
 ## Inputs
 
@@ -196,6 +195,7 @@ Available targets:
 |------|-------------|------|---------|:--------:|
 | additional\_tag\_map | Additional tags for appending to tags\_as\_list\_of\_maps. Not added to `tags`. | `map(string)` | `{}` | no |
 | attributes | Additional attributes (e.g. `1`) | `list(string)` | `[]` | no |
+| availability\_zone\_attribute\_style | The style of Availability Zone code to use in tags and names. One of `full`, `short`, or `fixed`. | `string` | `"short"` | no |
 | availability\_zones | List of Availability Zones where subnets will be created | `list(string)` | n/a | yes |
 | aws\_route\_create\_timeout | Time to wait for AWS route creation specifed as a Go Duration, e.g. `2m` | `string` | `"2m"` | no |
 | aws\_route\_delete\_timeout | Time to wait for AWS route deletion specifed as a Go Duration, e.g. `5m` | `string` | `"5m"` | no |
@@ -243,7 +243,6 @@ Available targets:
 | public\_subnet\_cidrs | CIDR blocks of the created public subnets |
 | public\_subnet\_ids | IDs of the created public subnets |
 
-<!-- markdownlint-restore -->
 
 
 
