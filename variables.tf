@@ -35,6 +35,12 @@ variable "availability_zones" {
   description = "List of Availability Zones where subnets will be created"
 }
 
+variable "availability_zone_attribute_style" {
+  type        = string
+  default     = "short"
+  description = "The style of Availability Zone code to use in tags and names. One of `full`, `short`, or `fixed`."
+}
+
 variable "vpc_default_route_table_id" {
   type        = string
   default     = ""

@@ -22,4 +22,14 @@ data "aws_eip" "nat_ips" {
 
 locals {
   use_existing_eips = length(var.existing_nat_ips) > 0
+  map_map = {
+    short = "to_short"
+    fixed = "to_fixed"
+    full  = "identity"
+  }
+  az_map = module.utils.region_az_alt_code_maps[local.map_map[var.availability_zone_attribute_style]]
+}
+
+module "utils" {
+  source = "git::https://github.com/cloudposse/terraform-aws-utils.git?ref=tags/0.1.0"
 }

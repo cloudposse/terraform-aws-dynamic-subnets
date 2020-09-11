@@ -1,5 +1,5 @@
 module "nat_label" {
-  source = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.19.1"
+  source = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.19.2"
 
   attributes = ["nat"]
 
@@ -20,16 +20,7 @@ resource "aws_eip" "default" {
   tags = merge(
     module.private_label.tags,
     {
-      "Name" = format(
-        "%s%s%s",
-        module.private_label.id,
-        local.delimiter,
-        replace(
-          element(var.availability_zones, count.index),
-          "-",
-          local.delimiter
-        )
-      )
+      "Name" = format("%s%s%s", module.private_label.id, local.delimiter, local.az_map[element(var.availability_zones, count.index)])
     }
   )
 
@@ -46,16 +37,7 @@ resource "aws_nat_gateway" "default" {
   tags = merge(
     module.nat_label.tags,
     {
-      "Name" = format(
-        "%s%s%s",
-        module.nat_label.id,
-        local.delimiter,
-        replace(
-          element(var.availability_zones, count.index),
-          "-",
-          local.delimiter
-        )
-      )
+      "Name" = format("%s%s%s", module.nat_label.id, local.delimiter, local.az_map[element(var.availability_zones, count.index)])
     }
   )
 

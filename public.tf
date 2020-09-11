@@ -1,5 +1,5 @@
 module "public_label" {
-  source = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.19.1"
+  source = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.19.2"
 
   attributes = ["public"]
   tags = merge(
@@ -33,16 +33,7 @@ resource "aws_subnet" "public" {
   tags = merge(
     module.public_label.tags,
     {
-      "Name" = format(
-        "%s%s%s",
-        module.public_label.id,
-        local.delimiter,
-        replace(
-          element(var.availability_zones, count.index),
-          "-",
-          local.delimiter
-        )
-      )
+      "Name" = format("%s%s%s", module.public_label.id, local.delimiter, local.az_map[element(var.availability_zones, count.index)])
     }
   )
 
