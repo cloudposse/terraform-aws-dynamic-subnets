@@ -173,6 +173,7 @@ Available targets:
 
 ```
 <!-- markdownlint-restore -->
+<!-- markdownlint-disable -->
 ## Requirements
 
 | Name | Version |
@@ -243,6 +244,7 @@ Available targets:
 | public\_subnet\_cidrs | CIDR blocks of the created public subnets |
 | public\_subnet\_ids | IDs of the created public subnets |
 
+<!-- markdownlint-restore -->
 
 
 

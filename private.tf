@@ -29,7 +29,7 @@ resource "aws_subnet" "private" {
   tags = merge(
     module.private_label.tags,
     {
-      "Name" = format("%s%s%s", module.private_label.id, local.delimiter, module.az_map.to_short[element(var.availability_zones, count.index)])
+      "Name" = format("%s%s%s", module.private_label.id, local.delimiter, local.az_map[element(var.availability_zones, count.index)])
     }
   )
 
@@ -46,16 +46,7 @@ resource "aws_route_table" "private" {
   tags = merge(
     module.private_label.tags,
     {
-      "Name" = format(
-        "%s%s%s",
-        module.private_label.id,
-        local.delimiter,
-        replace(
-          element(var.availability_zones, count.index),
-          "-",
-          local.delimiter
-        )
-      )
+      "Name" = format("%s%s%s", module.private_label.id, local.delimiter, local.az_map[element(var.availability_zones, count.index)])
     }
   )
 }

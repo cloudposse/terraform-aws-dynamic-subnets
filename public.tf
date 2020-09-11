@@ -33,7 +33,7 @@ resource "aws_subnet" "public" {
   tags = merge(
     module.public_label.tags,
     {
-      "Name" = format("%s%s%s", module.public_label.id, local.delimiter, module.az_map.to_short[element(var.availability_zones, count.index)])
+      "Name" = format("%s%s%s", module.public_label.id, local.delimiter, local.az_map[element(var.availability_zones, count.index)])
     }
   )
 
