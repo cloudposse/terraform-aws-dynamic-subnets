@@ -3,19 +3,17 @@ provider "aws" {
 }
 
 module "vpc" {
-  source     = "cloudposse/vpc/aws"
-  version    = "0.16.2"
+  source  = "cloudposse/vpc/aws"
+  version = "0.18.1"
+
   cidr_block = "172.16.0.0/16"
 
-  # Obsolete, until VPC module is updated, then use
-  # context = module.this.context
-  namespace = module.this.context.namespace
-  stage     = module.this.context.stage
-  name      = module.this.context.name
+  context = module.this.context
 }
 
 module "subnets" {
-  source                   = "../../"
+  source = "../../"
+
   availability_zones       = var.availability_zones
   vpc_id                   = module.vpc.vpc_id
   igw_id                   = module.vpc.igw_id
