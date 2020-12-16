@@ -1,6 +1,6 @@
 module "public_label" {
   source  = "cloudposse/label/null"
-  version = "0.19.2"
+  version = "0.22.0"
 
   attributes = ["public"]
   tags = merge(
