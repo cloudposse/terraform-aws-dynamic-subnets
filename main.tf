@@ -31,5 +31,6 @@ locals {
 }
 
 module "utils" {
-  source = "git::https://github.com/cloudposse/terraform-aws-utils.git?ref=tags/0.1.0"
+  source  = "cloudposse/utils/aws"
+  version = "0.1.0"
 }

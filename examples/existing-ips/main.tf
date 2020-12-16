@@ -3,7 +3,8 @@ provider "aws" {
 }
 
 module "vpc" {
-  source     = "git::https://github.com/cloudposse/terraform-aws-vpc.git?ref=tags/0.8.1"
+  source = "cloudposse/vpc/aws"
+  version     = "0.8.1"
   namespace  = var.namespace
   stage      = var.stage
   name       = var.name
