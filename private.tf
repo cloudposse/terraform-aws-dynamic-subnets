@@ -1,5 +1,6 @@
 module "private_label" {
-  source = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.19.2"
+  source  = "cloudposse/label/null"
+  version = "0.22.0"
 
   attributes = ["private"]
   tags = merge(
