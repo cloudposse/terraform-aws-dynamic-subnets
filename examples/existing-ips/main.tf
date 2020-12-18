@@ -12,7 +12,7 @@ module "vpc" {
 }
 
 resource "aws_eip" "nat_ips" {
-  for_each = var.assign_elastic_ips ? toset(var.availability_zones) : []
+  for_each = toset(var.availability_zones)
   vpc      = true
 
   depends_on = [
