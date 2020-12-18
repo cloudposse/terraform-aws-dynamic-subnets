@@ -68,6 +68,23 @@ usage: |-
   }
   ```
 
+  ```hcl
+  module "subnets_with_existing_ips" {
+    source = "cloudposse/dynamic-subnets/aws"
+    # Cloud Posse recommends pinning every module to a specific version
+    # version = "x.x.x"
+    namespace           = "eg"
+    stage               = "prod"
+    name                = "app"
+    vpc_id              = "vpc-XXXXXXXX"
+    igw_id              = "igw-XXXXXXXX"
+    cidr_block          = "10.0.0.0/16"
+    availability_zones  = ["us-east-1a", "us-east-1b"]
+    nat_gateway_enabled = true
+    nat_elastic_ips     = ["1.2.3.4", "1.2.3.5"]
+  }
+  ```
+
   Learn about [using providers](https://www.terraform.io/docs/configuration-0-11/modules.html#providers-within-modules) with terraform modules.
 include:
   - "docs/design.md"
@@ -91,3 +108,5 @@ contributors:
     github: "ivan-pinatti"
   - name: "Oscar Sullivan"
     github: "osulli"
+  - name: "Joe Niland"
+    github: "joe-niland"

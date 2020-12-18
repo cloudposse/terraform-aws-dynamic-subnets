@@ -93,6 +93,23 @@ module "subnets" {
 }
 ```
 
+```hcl
+module "subnets_with_existing_ips" {
+  source = "cloudposse/dynamic-subnets/aws"
+  # Cloud Posse recommends pinning every module to a specific version
+  # version = "x.x.x"
+  namespace           = "eg"
+  stage               = "prod"
+  name                = "app"
+  vpc_id              = "vpc-XXXXXXXX"
+  igw_id              = "igw-XXXXXXXX"
+  cidr_block          = "10.0.0.0/16"
+  availability_zones  = ["us-east-1a", "us-east-1b"]
+  nat_gateway_enabled = true
+  nat_elastic_ips     = ["1.2.3.4", "1.2.3.5"]
+}
+```
+
 Learn about [using providers](https://www.terraform.io/docs/configuration-0-11/modules.html#providers-within-modules) with terraform modules.
 
 
@@ -406,8 +423,8 @@ Check out [our other projects][github], [follow us on twitter][twitter], [apply 
 ### Contributors
 
 <!-- markdownlint-disable -->
-|  [![Erik Osterman][osterman_avatar]][osterman_homepage]<br/>[Erik Osterman][osterman_homepage] | [![Andriy Knysh][aknysh_avatar]][aknysh_homepage]<br/>[Andriy Knysh][aknysh_homepage] | [![Sergey Vasilyev][s2504s_avatar]][s2504s_homepage]<br/>[Sergey Vasilyev][s2504s_homepage] | [![Vladimir][SweetOps_avatar]][SweetOps_homepage]<br/>[Vladimir][SweetOps_homepage] | [![Konstantin B][comeanother_avatar]][comeanother_homepage]<br/>[Konstantin B][comeanother_homepage] | [![dcowan-vestmark][dcowan-vestmark_avatar]][dcowan-vestmark_homepage]<br/>[dcowan-vestmark][dcowan-vestmark_homepage] | [![Ivan Pinatti][ivan-pinatti_avatar]][ivan-pinatti_homepage]<br/>[Ivan Pinatti][ivan-pinatti_homepage] | [![Oscar Sullivan][osulli_avatar]][osulli_homepage]<br/>[Oscar Sullivan][osulli_homepage] |
-|---|---|---|---|---|---|---|---|
+|  [![Erik Osterman][osterman_avatar]][osterman_homepage]<br/>[Erik Osterman][osterman_homepage] | [![Andriy Knysh][aknysh_avatar]][aknysh_homepage]<br/>[Andriy Knysh][aknysh_homepage] | [![Sergey Vasilyev][s2504s_avatar]][s2504s_homepage]<br/>[Sergey Vasilyev][s2504s_homepage] | [![Vladimir][SweetOps_avatar]][SweetOps_homepage]<br/>[Vladimir][SweetOps_homepage] | [![Konstantin B][comeanother_avatar]][comeanother_homepage]<br/>[Konstantin B][comeanother_homepage] | [![dcowan-vestmark][dcowan-vestmark_avatar]][dcowan-vestmark_homepage]<br/>[dcowan-vestmark][dcowan-vestmark_homepage] | [![Ivan Pinatti][ivan-pinatti_avatar]][ivan-pinatti_homepage]<br/>[Ivan Pinatti][ivan-pinatti_homepage] | [![Oscar Sullivan][osulli_avatar]][osulli_homepage]<br/>[Oscar Sullivan][osulli_homepage] | [![Joe Niland][joe-niland_avatar]][joe-niland_homepage]<br/>[Joe Niland][joe-niland_homepage] |
+|---|---|---|---|---|---|---|---|---|
 <!-- markdownlint-restore -->
 
   [osterman_homepage]: https://github.com/osterman
@@ -426,6 +443,8 @@ Check out [our other projects][github], [follow us on twitter][twitter], [apply 
   [ivan-pinatti_avatar]: https://img.cloudposse.com/150x150/https://github.com/ivan-pinatti.png
   [osulli_homepage]: https://github.com/osulli
   [osulli_avatar]: https://img.cloudposse.com/150x150/https://github.com/osulli.png
+  [joe-niland_homepage]: https://github.com/joe-niland
+  [joe-niland_avatar]: https://img.cloudposse.com/150x150/https://github.com/joe-niland.png
 
 [![README Footer][readme_footer_img]][readme_footer_link]
 [![Beacon][beacon]][website]
