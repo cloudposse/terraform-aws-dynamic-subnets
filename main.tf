@@ -16,12 +16,12 @@ locals {
 }
 
 data "aws_eip" "nat_ips" {
-  count     = local.enabled ? length(var.existing_nat_ips) : 0
-  public_ip = element(var.existing_nat_ips, count.index)
+  count     = local.enabled ? length(var.nat_elastic_ips) : 0
+  public_ip = element(var.nat_elastic_ips, count.index)
 }
 
 locals {
-  use_existing_eips = length(var.existing_nat_ips) > 0
+  use_existing_eips = length(var.nat_elastic_ips) > 0
   map_map = {
     short = "to_short"
     fixed = "to_fixed"
