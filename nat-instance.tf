@@ -1,6 +1,6 @@
 module "nat_instance_label" {
   source  = "cloudposse/label/null"
-  version = "0.22.0"
+  version = "0.22.1"
 
   attributes = ["nat", "instance"]
 
