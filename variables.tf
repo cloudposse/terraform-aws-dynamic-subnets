@@ -113,3 +113,14 @@ variable "public_subnets_additional_tags" {
   description = "Additional tags to be added to public subnets"
 }
 
+variable "metadata_http_tokens_required" {
+  type        = bool
+  default     = true
+  description = "Whether or not the metadata service requires session tokens, also referred to as Instance Metadata Service Version 2"
+}
+
+variable "root_block_device_encrypted" {
+  type        = bool
+  default     = true
+  description = "Whether to encrypt the root block device"
+}
