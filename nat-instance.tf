@@ -93,7 +93,9 @@ resource "aws_instance" "nat_instance" {
   }
 
   metadata_options {
-    http_tokens = (var.metadata_http_tokens_required) ? "required" : "optional"
+    http_endpoint               = (var.metadata_http_endpoint_enabled) ? "enabled" : "disabled"
+    http_put_response_hop_limit = var.metadata_http_put_response_hop_limit
+    http_tokens                 = (var.metadata_http_tokens_required) ? "required" : "optional"
   }
 
   root_block_device {

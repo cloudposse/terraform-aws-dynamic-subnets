@@ -113,10 +113,22 @@ variable "public_subnets_additional_tags" {
   description = "Additional tags to be added to public subnets"
 }
 
-variable "metadata_http_tokens_required" {
+variable "metadata_http_endpoint_enabled" {
   type        = bool
   default     = true
-  description = "Whether or not the metadata service requires session tokens, also referred to as Instance Metadata Service Version 2"
+  description = "Whether the metadata service is available"
+}
+
+variable "metadata_http_put_response_hop_limit" {
+  type        = number
+  default     = 1
+  description = "The desired HTTP PUT response hop limit (between 1 and 64) for instance metadata requests."
+}
+
+variable "metadata_http_tokens_required" {
+  type        = bool
+  default     = false
+  description = "Whether or not the metadata service requires session tokens, also referred to as Instance Metadata Service Version 2."
 }
 
 variable "root_block_device_encrypted" {
