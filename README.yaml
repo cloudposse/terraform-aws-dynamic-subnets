@@ -49,6 +49,7 @@ related:
 description: |-
   Terraform module to provision public and private [`subnets`](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_Subnets.html) in an existing [`VPC`](https://aws.amazon.com/vpc)
 
+  **IMPORTANT:** This module provisions NAT instance with public IP.
   __Note:__ this module is intended for use with an existing VPC and existing Internet Gateway.
   To create a new VPC, use [terraform-aws-vpc](https://github.com/cloudposse/terraform-aws-vpc) module.
 # How to use this project

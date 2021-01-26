@@ -84,10 +84,20 @@ resource "aws_instance" "nat_instance" {
   # https://docs.aws.amazon.com/vpc/latest/userguide/VPC_NAT_Instance.html#EIP_Disable_SrcDestCheck
   source_dest_check = false
 
+  #bridgecrew:skip=BC_AWS_PUBLIC_12: Skipping `EC2 Should Not Have Public IPs` check. NAT instance requires public IP.
+  #bridgecrew:skip=BC_AWS_GENERAL_31: Skipping `Ensure Instance Metadata Service Version 1 is not enabled` check until BridgeCrew support condition evaluation. See https://github.com/bridgecrewio/checkov/issues/793
   associate_public_ip_address = true #tfsec:ignore:AWS012
 
   lifecycle {
     create_before_destroy = true
+  }
+
+  metadata_options {
+    http_tokens = (var.metadata_http_tokens_required) ? "required" : "optional"
+  }
+
+  root_block_device {
+    encrypted = var.root_block_device_encrypted
   }
 }
 
