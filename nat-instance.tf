@@ -45,7 +45,7 @@ resource "aws_security_group_rule" "nat_instance_ingress" {
   type              = "ingress"
 }
 
-// aws --region us-west-2 ec2 describe-images --owners amazon --filters Name="name",Values="amzn-ami-vpc-nat*" Name="virtualization-type",Values="hvm"
+# aws --region us-west-2 ec2 describe-images --owners amazon --filters Name="name",Values="amzn-ami-vpc-nat*" Name="virtualization-type",Values="hvm"
 data "aws_ami" "nat_instance" {
   count       = local.enabled ? local.nat_instance_enabled : 0
   most_recent = true
@@ -63,9 +63,9 @@ data "aws_ami" "nat_instance" {
   owners = ["amazon"]
 }
 
-// https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-comparison.html
-// https://docs.aws.amazon.com/vpc/latest/userguide/VPC_NAT_Instance.html
-// https://dzone.com/articles/nat-instance-vs-nat-gateway
+# https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-comparison.html
+# https://docs.aws.amazon.com/vpc/latest/userguide/VPC_NAT_Instance.html
+# https://dzone.com/articles/nat-instance-vs-nat-gateway
 resource "aws_instance" "nat_instance" {
   count                  = local.enabled ? local.nat_instance_count : 0
   ami                    = join("", data.aws_ami.nat_instance.*.id)
