@@ -19,7 +19,7 @@ locals {
 }
 
 resource "aws_subnet" "public" {
-  count             = local.availability_zones_count
+  count             = local.enabled ? local.availability_zones_count : 0
   vpc_id            = join("", data.aws_vpc.default.*.id)
   availability_zone = element(var.availability_zones, count.index)
 
