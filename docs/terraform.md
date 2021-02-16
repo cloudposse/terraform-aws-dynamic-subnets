@@ -30,21 +30,21 @@
 
 | Name |
 |------|
-| [aws_ami](https://registry.terraform.io/providers/hashicorp/aws/2.0/docs/data-sources/ami) |
-| [aws_availability_zones](https://registry.terraform.io/providers/hashicorp/aws/2.0/docs/data-sources/availability_zones) |
-| [aws_eip](https://registry.terraform.io/providers/hashicorp/aws/2.0/docs/data-sources/eip) |
-| [aws_eip](https://registry.terraform.io/providers/hashicorp/aws/2.0/docs/resources/eip) |
-| [aws_eip_association](https://registry.terraform.io/providers/hashicorp/aws/2.0/docs/resources/eip_association) |
-| [aws_instance](https://registry.terraform.io/providers/hashicorp/aws/2.0/docs/resources/instance) |
-| [aws_nat_gateway](https://registry.terraform.io/providers/hashicorp/aws/2.0/docs/resources/nat_gateway) |
-| [aws_network_acl](https://registry.terraform.io/providers/hashicorp/aws/2.0/docs/resources/network_acl) |
-| [aws_route](https://registry.terraform.io/providers/hashicorp/aws/2.0/docs/resources/route) |
-| [aws_route_table](https://registry.terraform.io/providers/hashicorp/aws/2.0/docs/resources/route_table) |
-| [aws_route_table_association](https://registry.terraform.io/providers/hashicorp/aws/2.0/docs/resources/route_table_association) |
-| [aws_security_group](https://registry.terraform.io/providers/hashicorp/aws/2.0/docs/resources/security_group) |
-| [aws_security_group_rule](https://registry.terraform.io/providers/hashicorp/aws/2.0/docs/resources/security_group_rule) |
-| [aws_subnet](https://registry.terraform.io/providers/hashicorp/aws/2.0/docs/resources/subnet) |
-| [aws_vpc](https://registry.terraform.io/providers/hashicorp/aws/2.0/docs/data-sources/vpc) |
+| [aws_ami](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami) |
+| [aws_availability_zones](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/availability_zones) |
+| [aws_eip](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/eip) |
+| [aws_eip](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eip) |
+| [aws_eip_association](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eip_association) |
+| [aws_instance](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance) |
+| [aws_nat_gateway](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/nat_gateway) |
+| [aws_network_acl](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/network_acl) |
+| [aws_route](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route) |
+| [aws_route_table](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table) |
+| [aws_route_table_association](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table_association) |
+| [aws_security_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) |
+| [aws_security_group_rule](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group_rule) |
+| [aws_subnet](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/subnet) |
+| [aws_vpc](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/vpc) |
 
 ## Inputs
 
@@ -58,6 +58,8 @@
 | aws\_route\_delete\_timeout | Time to wait for AWS route deletion specifed as a Go Duration, e.g. `5m` | `string` | `"5m"` | no |
 | cidr\_block | Base CIDR block which will be divided into subnet CIDR blocks (e.g. `10.0.0.0/16`) | `string` | n/a | yes |
 | context | Single object for setting entire context at once.<br>See description of individual variables for details.<br>Leave string and numeric variables as `null` to use default value.<br>Individual variable settings (non-null) override settings in context object,<br>except for attributes, tags, and additional\_tag\_map, which are merged. | `any` | <pre>{<br>  "additional_tag_map": {},<br>  "attributes": [],<br>  "delimiter": null,<br>  "enabled": true,<br>  "environment": null,<br>  "id_length_limit": null,<br>  "label_key_case": null,<br>  "label_order": [],<br>  "label_value_case": null,<br>  "name": null,<br>  "namespace": null,<br>  "regex_replace_chars": null,<br>  "stage": null,<br>  "tags": {}<br>}</pre> | no |
+| create\_private\_subnets | Set to false to prevent the module from creating private subnets. Some of your CIDR block will still be reserved, so you can change this later without disruption. | `bool` | `true` | no |
+| create\_public\_subnets | Set to false to prevent the module from creating public subnets. Some of your CIDR block will still be reserved, so you can change this later without disruption. | `bool` | `true` | no |
 | delimiter | Delimiter to be used between `namespace`, `environment`, `stage`, `name` and `attributes`.<br>Defaults to `-` (hyphen). Set to `""` to use no delimiter at all. | `string` | `null` | no |
 | enabled | Set to false to prevent the module from creating any resources | `bool` | `null` | no |
 | environment | Environment, e.g. 'uw2', 'us-west-2', OR 'prod', 'staging', 'dev', 'UAT' | `string` | `null` | no |
