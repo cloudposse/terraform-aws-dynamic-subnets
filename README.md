@@ -255,8 +255,8 @@ Available targets:
 |------|
 | [aws_ami](https://registry.terraform.io/providers/hashicorp/aws/2.0/docs/data-sources/ami) |
 | [aws_availability_zones](https://registry.terraform.io/providers/hashicorp/aws/2.0/docs/data-sources/availability_zones) |
-| [aws_eip](https://registry.terraform.io/providers/hashicorp/aws/2.0/docs/resources/eip) |
 | [aws_eip](https://registry.terraform.io/providers/hashicorp/aws/2.0/docs/data-sources/eip) |
+| [aws_eip](https://registry.terraform.io/providers/hashicorp/aws/2.0/docs/resources/eip) |
 | [aws_eip_association](https://registry.terraform.io/providers/hashicorp/aws/2.0/docs/resources/eip_association) |
 | [aws_instance](https://registry.terraform.io/providers/hashicorp/aws/2.0/docs/resources/instance) |
 | [aws_nat_gateway](https://registry.terraform.io/providers/hashicorp/aws/2.0/docs/resources/nat_gateway) |
