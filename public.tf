@@ -5,7 +5,7 @@ module "public_label" {
   attributes = ["public"]
   tags = merge(
     var.public_subnets_additional_tags,
-    map(var.subnet_type_tag_key, format(var.subnet_type_tag_value_format, "public"))
+    { (var.subnet_type_tag_key) = format(var.subnet_type_tag_value_format, "public") }
   )
 
   context = module.this.context

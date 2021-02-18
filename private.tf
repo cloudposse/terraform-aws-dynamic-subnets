@@ -5,7 +5,7 @@ module "private_label" {
   attributes = ["private"]
   tags = merge(
     var.private_subnets_additional_tags,
-    map(var.subnet_type_tag_key, format(var.subnet_type_tag_value_format, "private"))
+    { (var.subnet_type_tag_key) = format(var.subnet_type_tag_value_format, "private") }
   )
 
   context = module.this.context
