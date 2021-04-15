@@ -50,5 +50,5 @@ output "availability_zones" {
 
 output "nat_ips" {
   description = "IP Addresses in use for NAT"
-  value       = coalescelist(aws_eip.default.*.public_ip, aws_eip.nat_instance.*.public_ip, data.aws_eip.nat_ips.*.public_ip, [""])
+  value       = coalescelist(aws_eip.default.*.public_ip, aws_eip.nat_instance.*.public_ip, data.aws_eip.nat_ips.*.public_ip, tolist([""]))
 }
