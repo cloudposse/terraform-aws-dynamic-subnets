@@ -1,0 +1,28 @@
+version: 2
+updates:
+- package-ecosystem: terraform
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: private_label
+    versions:
+    - 0.22.1
+    - 0.23.0
+  - dependency-name: public_subnet_label
+    versions:
+    - 0.22.1
+    - 0.23.0
+  - dependency-name: public_label
+    versions:
+    - 0.22.1
+    - 0.23.0
+  - dependency-name: private_subnet_label
+    versions:
+    - 0.22.1
+    - 0.23.0
+  - dependency-name: nat_label
+    versions:
+    - 0.22.1
+    - 0.23.0
