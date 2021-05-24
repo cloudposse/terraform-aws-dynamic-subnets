@@ -1,3 +1,4 @@
+
 <!-- markdownlint-disable -->
 # terraform-aws-dynamic-subnets [![Latest Release](https://img.shields.io/github/release/cloudposse/terraform-aws-dynamic-subnets.svg)](https://github.com/cloudposse/terraform-aws-dynamic-subnets/releases/latest) [![Slack Community](https://slack.cloudposse.com/badge.svg)](https://slack.cloudposse.com)
 <!-- markdownlint-restore -->
@@ -33,7 +34,6 @@ Terraform module to provision public and private [`subnets`](http://docs.aws.ama
 __Note:__ this module is intended for use with an existing VPC and existing Internet Gateway.
 To create a new VPC, use [terraform-aws-vpc](https://github.com/cloudposse/terraform-aws-vpc) module.
 
-
 ---
 
 This project is part of our comprehensive ["SweetOps"](https://cpco.io/sweetops) approach towards DevOps.
@@ -58,7 +58,6 @@ It's 100% Open Source and licensed under the [APACHE2](LICENSE).
 
 
 We literally have [*hundreds of terraform modules*][terraform_modules] that are Open Source and well-maintained. Check them out!
-
 
 
 
@@ -246,7 +245,7 @@ Available targets:
 | <a name="module_private_label"></a> [private\_label](#module\_private\_label) | cloudposse/label/null | 0.24.1 |
 | <a name="module_public_label"></a> [public\_label](#module\_public\_label) | cloudposse/label/null | 0.24.1 |
 | <a name="module_this"></a> [this](#module\_this) | cloudposse/label/null | 0.24.1 |
-| <a name="module_utils"></a> [utils](#module\_utils) | cloudposse/utils/aws | 0.4.0 |
+| <a name="module_utils"></a> [utils](#module\_utils) | cloudposse/utils/aws | 0.5.0 |
 
 ## Resources
 
@@ -347,6 +346,7 @@ Like this project? Please give it a ★ on [our GitHub](https://github.com/cloud
 Are you using this project or any of our other projects? Consider [leaving a testimonial][testimonial]. =)
 
 
+
 ## Related Projects
 
 Check out these related projects.
@@ -355,8 +355,6 @@ Check out these related projects.
 - [terraform-aws-vpc-peering](https://github.com/cloudposse/terraform-aws-vpc-peering) - Terraform module to create a peering connection between two VPCs
 - [terraform-aws-kops-vpc-peering](https://github.com/cloudposse/terraform-aws-kops-vpc-peering) - Terraform module to create a peering connection between a backing services VPC and a VPC created by Kops
 - [terraform-aws-named-subnets](https://github.com/cloudposse/terraform-aws-named-subnets) - Terraform module for named subnets provisioning.
-
-
 
 ## Help
 
