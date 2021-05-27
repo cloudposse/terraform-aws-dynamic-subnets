@@ -14,7 +14,7 @@ locals {
   nat_instance_eip_count   = local.use_existing_eips ? 0 : local.nat_instance_count
   instance_eip_allocations = local.use_existing_eips ? data.aws_eip.nat_ips.*.id : aws_eip.nat_instance.*.id
   security_group_enabled   = local.enabled && var.security_group_enabled && var.nat_instance_enabled
-  security_group_rules     = local.nat_instance_enabled && length(var.var.security_group_rules) > 0 ? var.var.security_group_rules : local.default_security_group_rules
+  security_group_rules     = local.nat_instance_enabled && length(var.security_group_rules) > 0 ? var.security_group_rules : local.default_security_group_rules
 
   default_security_group_rules = [
     {
