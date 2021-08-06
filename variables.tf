@@ -65,6 +65,12 @@ variable "nat_gateway_enabled" {
   default     = true
 }
 
+variable "single_nat_gateway" {
+  type        = bool
+  description = "Flag to use a single NAT Gateway across all AZs - this isn't changing the private routes number, it is just using the same NGW on all of them, making it possible to switch between the two configuration on runtime. Note that this option is for saving money during development and not recommended in production."
+  default     = false
+}
+
 variable "nat_instance_enabled" {
   type        = bool
   description = "Flag to enable/disable NAT Instances to allow servers in the private subnets to access the Internet"

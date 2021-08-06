@@ -11,7 +11,9 @@ locals {
   nat_gateway_eip_count   = local.use_existing_eips ? 0 : local.nat_gateways_count
   gateway_eip_allocations = local.use_existing_eips ? data.aws_eip.nat_ips.*.id : aws_eip.default.*.id
   eips_allocations        = local.use_existing_eips ? data.aws_eip.nat_ips.*.id : aws_eip.default.*.id
-  nat_gateways_count      = var.nat_gateway_enabled ? length(var.availability_zones) : 0
+  single_nat_gateway      = var.single_nat_gateway ? 1 : length(var.availability_zones)
+  nat_gateways_count      = var.nat_gateway_enabled ? local.single_nat_gateway : 0
+  aws_route_count         = var.nat_gateway_enabled ? length(var.availability_zones) : 0
 }
 
 resource "aws_eip" "default" {
@@ -48,9 +50,9 @@ resource "aws_nat_gateway" "default" {
 }
 
 resource "aws_route" "default" {
-  count                  = local.enabled ? local.nat_gateways_count : 0
+  count                  = local.enabled ? local.aws_route_count : 0
   route_table_id         = element(aws_route_table.private.*.id, count.index)
-  nat_gateway_id         = element(aws_nat_gateway.default.*.id, count.index)
+  nat_gateway_id         = var.single_nat_gateway ? aws_nat_gateway.default[0].id : element(aws_nat_gateway.default.*.id, count.index)
   destination_cidr_block = "0.0.0.0/0"
   depends_on             = [aws_route_table.private]
 
