@@ -38,6 +38,9 @@ resource "aws_subnet" "public" {
     }
   )
 
+  assign_ipv6_address_on_creation = true
+  ipv6_cidr_block = "${local.trimmed_ipv6cidr_block}0${count.index}::/64"
+
   lifecycle {
     ignore_changes = [tags.kubernetes, tags.SubnetType]
   }
