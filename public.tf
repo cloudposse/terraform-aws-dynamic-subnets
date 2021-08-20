@@ -39,7 +39,7 @@ resource "aws_subnet" "public" {
   )
 
   assign_ipv6_address_on_creation = true
-  ipv6_cidr_block = "${local.trimmed_ipv6cidr_block}0${count.index}::/64"
+  ipv6_cidr_block                 = "${local.trimmed_ipv6cidr_block}0${count.index}::/64"
 
   lifecycle {
     ignore_changes = [tags.kubernetes, tags.SubnetType]
@@ -58,6 +58,18 @@ resource "aws_route" "public" {
   route_table_id         = join("", aws_route_table.public.*.id)
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = var.igw_id
+
+  timeouts {
+    create = var.aws_route_create_timeout
+    delete = var.aws_route_delete_timeout
+  }
+}
+
+resource "aws_route" "public-ipv6" {
+  count                       = local.public_route_expr_enabled ? 0 : local.enabled_count
+  route_table_id              = join("", aws_route_table.public.*.id)
+  destination_ipv6_cidr_block = "::/0"
+  gateway_id                  = var.igw_id
 
   timeouts {
     create = var.aws_route_create_timeout
@@ -91,6 +103,15 @@ resource "aws_network_acl" "public" {
     protocol   = "-1"
   }
 
+  egress {
+    rule_no         = 99
+    action          = "allow"
+    ipv6_cidr_block = "::/0"
+    from_port       = 0
+    to_port         = 0
+    protocol        = "-1"
+  }
+
   ingress {
     rule_no    = 100
     action     = "allow"
@@ -98,6 +119,15 @@ resource "aws_network_acl" "public" {
     from_port  = 0
     to_port    = 0
     protocol   = "-1"
+  }
+
+  ingress {
+    rule_no         = 99
+    action          = "allow"
+    ipv6_cidr_block = "::/0"
+    from_port       = 0
+    to_port         = 0
+    protocol        = "-1"
   }
 
   tags = module.public_label.tags

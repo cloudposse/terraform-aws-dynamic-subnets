@@ -14,8 +14,8 @@ module "private_label" {
 locals {
   private_subnet_count        = var.max_subnet_count == 0 ? length(flatten(data.aws_availability_zones.available.*.names)) : var.max_subnet_count
   private_network_acl_enabled = signum(length(var.private_network_acl_id)) == 0 ? 1 : 0
-  vpc_ipv6_cidr_block = join("", data.aws_vpc.default.*.ipv6_cidr_block)
-  trimmed_ipv6cidr_block = strrev(substr(strrev(local.vpc_ipv6_cidr_block), 7, -1))
+  vpc_ipv6_cidr_block         = join("", data.aws_vpc.default.*.ipv6_cidr_block)
+  trimmed_ipv6cidr_block      = strrev(substr(strrev(local.vpc_ipv6_cidr_block), 7, -1))
 }
 
 resource "aws_subnet" "private" {
@@ -37,7 +37,7 @@ resource "aws_subnet" "private" {
   )
 
   assign_ipv6_address_on_creation = true
-  ipv6_cidr_block = "${local.trimmed_ipv6cidr_block}0${count.index + local.public_subnet_count}::/64"
+  ipv6_cidr_block                 = "${local.trimmed_ipv6cidr_block}0${count.index + local.public_subnet_count}::/64"
 
   lifecycle {
     # Ignore tags added by kops or kubernetes
@@ -57,6 +57,18 @@ resource "aws_route_table" "private" {
   )
 }
 
+resource "aws_route" "private-ipv6" {
+  count                       = local.enabled ? local.availability_zones_count : 0
+  route_table_id              = aws_route_table.private[count.index].id
+  destination_ipv6_cidr_block = "::/0"
+  egress_only_gateway_id      = var.egress_only_igw_id
+
+  timeouts {
+    create = var.aws_route_create_timeout
+    delete = var.aws_route_delete_timeout
+  }
+}
+
 resource "aws_route_table_association" "private" {
   count          = local.enabled ? local.availability_zones_count : 0
   subnet_id      = element(aws_subnet.private.*.id, count.index)
@@ -68,6 +80,15 @@ resource "aws_network_acl" "private" {
   vpc_id     = var.vpc_id
   subnet_ids = aws_subnet.private.*.id
 
+  ingress {
+    rule_no         = 99
+    action          = "allow"
+    ipv6_cidr_block = "::/0"
+    from_port       = 0
+    to_port         = 0
+    protocol        = "-1"
+  }
+
   egress {
     rule_no    = 100
     action     = "allow"
@@ -75,6 +96,15 @@ resource "aws_network_acl" "private" {
     from_port  = 0
     to_port    = 0
     protocol   = "-1"
+  }
+
+  egress {
+    rule_no         = 99
+    action          = "allow"
+    ipv6_cidr_block = "::/0"
+    from_port       = 0
+    to_port         = 0
+    protocol        = "-1"
   }
 
   ingress {
