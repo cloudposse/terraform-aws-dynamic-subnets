@@ -14,8 +14,6 @@ module "private_label" {
 locals {
   private_subnet_count        = var.max_subnet_count == 0 ? length(flatten(data.aws_availability_zones.available.*.names)) : var.max_subnet_count
   private_network_acl_enabled = signum(length(var.private_network_acl_id)) == 0 ? 1 : 0
-  vpc_ipv6_cidr_block         = join("", data.aws_vpc.default.*.ipv6_cidr_block)
-  trimmed_ipv6cidr_block      = strrev(substr(strrev(local.vpc_ipv6_cidr_block), 7, -1))
 }
 
 resource "aws_subnet" "private" {
@@ -37,7 +35,7 @@ resource "aws_subnet" "private" {
   )
 
   assign_ipv6_address_on_creation = true
-  ipv6_cidr_block                 = "${local.trimmed_ipv6cidr_block}0${count.index + local.public_subnet_count}::/64"
+  ipv6_cidr_block                 = "${local.first_3_ipv6_blocks}:${format("%x", local.vpc_ipv6_last_group_hex + count.index)}::/64"
 
   lifecycle {
     # Ignore tags added by kops or kubernetes
