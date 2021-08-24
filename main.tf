@@ -30,13 +30,6 @@ locals {
   az_map = module.utils.region_az_alt_code_maps[local.map_map[var.availability_zone_attribute_style]]
 }
 
-locals {
-  vpc_ipv6_cidr_block         = join("", data.aws_vpc.default.*.ipv6_cidr_block)
-  vpc_ipv6_blocks             = slice(split(":", local.vpc_ipv6_cidr_block), 0, 4)
-  vpc_ipv6_last_group_hex     = parseint(local.vpc_ipv6_blocks[3], 16)
-  first_3_ipv6_blocks         = join(":", slice(local.vpc_ipv6_blocks, 0, 3))
-}
-
 module "utils" {
   source  = "cloudposse/utils/aws"
   version = "0.8.1"
