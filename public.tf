@@ -39,7 +39,7 @@ resource "aws_subnet" "public" {
   )
 
   assign_ipv6_address_on_creation = var.assign_ipv6_address_on_creation
-  ipv6_cidr_block   = cidrsubnet(join("", data.aws_vpc.default.*.ipv6_cidr_block), 8, local.public_subnet_count + count.index)
+  ipv6_cidr_block                 = cidrsubnet(join("", data.aws_vpc.default.*.ipv6_cidr_block), 8, local.public_subnet_count + count.index)
 
   lifecycle {
     ignore_changes = [tags.kubernetes, tags.SubnetType]
