@@ -34,7 +34,7 @@ resource "aws_subnet" "private" {
     }
   )
 
-  assign_ipv6_address_on_creation = var.assign_ipv6_address_on_creation
+  assign_ipv6_address_on_creation = var.map_private_ipv6_on_launch
   ipv6_cidr_block                 = cidrsubnet(join("", data.aws_vpc.default.*.ipv6_cidr_block), 8, count.index)
 
   lifecycle {

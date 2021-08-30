@@ -142,8 +142,8 @@ variable "root_block_device_encrypted" {
   description = "Whether to encrypt the root block device"
 }
 
-variable "assign_ipv6_address_on_creation" {
+variable "map_private_ipv6_on_launch" {
   type        = bool
-  default     = true
+  default     = false
   description = "Whether to assign ipv6 address for new resource"
 }
