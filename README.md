@@ -240,10 +240,10 @@ Available targets:
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_nat_instance_label"></a> [nat\_instance\_label](#module\_nat\_instance\_label) | cloudposse/label/null | 0.24.1 |
-| <a name="module_nat_label"></a> [nat\_label](#module\_nat\_label) | cloudposse/label/null | 0.24.1 |
-| <a name="module_private_label"></a> [private\_label](#module\_private\_label) | cloudposse/label/null | 0.24.1 |
-| <a name="module_public_label"></a> [public\_label](#module\_public\_label) | cloudposse/label/null | 0.24.1 |
+| <a name="module_nat_instance_label"></a> [nat\_instance\_label](#module\_nat\_instance\_label) | cloudposse/label/null | 0.25.0 |
+| <a name="module_nat_label"></a> [nat\_label](#module\_nat\_label) | cloudposse/label/null | 0.25.0 |
+| <a name="module_private_label"></a> [private\_label](#module\_private\_label) | cloudposse/label/null | 0.25.0 |
+| <a name="module_public_label"></a> [public\_label](#module\_public\_label) | cloudposse/label/null | 0.25.0 |
 | <a name="module_this"></a> [this](#module\_this) | cloudposse/label/null | 0.25.0 |
 | <a name="module_utils"></a> [utils](#module\_utils) | cloudposse/utils/aws | 0.8.0 |
 
