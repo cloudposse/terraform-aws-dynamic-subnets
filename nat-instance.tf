@@ -8,11 +8,13 @@ module "nat_instance_label" {
 }
 
 locals {
-  cidr_block               = var.cidr_block != "" ? var.cidr_block : join("", data.aws_vpc.default.*.cidr_block)
-  nat_instance_enabled     = var.nat_instance_enabled ? 1 : 0
-  nat_instance_count       = var.nat_instance_enabled ? length(var.availability_zones) : 0
-  nat_instance_eip_count   = local.use_existing_eips ? 0 : local.nat_instance_count
-  instance_eip_allocations = local.use_existing_eips ? data.aws_eip.nat_ips.*.id : aws_eip.nat_instance.*.id
+  cidr_block                  = var.cidr_block != "" ? var.cidr_block : join("", data.aws_vpc.default.*.cidr_block)
+  nat_instance_enabled        = var.nat_instance_enabled ? 1 : 0
+  nat_instance_count          = var.nat_instance_enabled ? length(var.availability_zones) : 0
+  nat_instance_eip_count      = local.use_existing_eips ? 0 : local.nat_instance_count
+  instance_eip_allocations    = local.use_existing_eips ? data.aws_eip.nat_ips.*.id : aws_eip.nat_instance.*.id
+  create_nat_instance_profile = var.nat_instance_enabled && try(length(var.nat_instance_profile), 0) == 0
+  nat_instance_profile        = local.create_nat_instance_profile ? join("", aws_iam_instance_profile.default.*.name) : var.nat_instance_profile
 }
 
 resource "aws_security_group" "nat_instance" {
@@ -45,6 +47,17 @@ resource "aws_security_group_rule" "nat_instance_ingress" {
   type              = "ingress"
 }
 
+resource "aws_security_group_rule" "nat_instance_ssh_ingress" {
+  count             = local.enabled ? local.nat_instance_enabled : 0
+  description       = "Allow ingress traffic for ssh"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = join("", aws_security_group.nat_instance.*.id)
+  type              = "ingress"
+}
+
 # aws --region us-west-2 ec2 describe-images --owners amazon --filters Name="name",Values="amzn-ami-vpc-nat*" Name="virtualization-type",Values="hvm"
 data "aws_ami" "nat_instance" {
   count       = local.enabled ? local.nat_instance_enabled : 0
@@ -70,8 +83,14 @@ resource "aws_instance" "nat_instance" {
   count                  = local.enabled ? local.nat_instance_count : 0
   ami                    = join("", data.aws_ami.nat_instance.*.id)
   instance_type          = var.nat_instance_type
+  iam_instance_profile   = local.nat_instance_profile
   subnet_id              = element(aws_subnet.public.*.id, count.index)
   vpc_security_group_ids = [aws_security_group.nat_instance[0].id]
+
+  user_data = <<-EOF
+  #!/bin/bash
+  echo '${join("\n", var.nat_instance_public_ssh_keys)}' >> /home/ec2-user/.ssh/authorized_keys
+  EOF
 
   tags = merge(
     module.nat_instance_label.tags,
