@@ -73,7 +73,7 @@ variable "nat_instance_enabled" {
 
 variable "nat_instance_profile" {
   type        = string
-  description = "An existing instance_profile that need to attach to nat_instance"
+  description = "An existing instance_profile that we want to attach to nat_instance"
   default     = ""
 }
 
@@ -144,6 +144,7 @@ variable "root_block_device_encrypted" {
 }
 
 variable "nat_instance_public_ssh_keys" {
-  type    = list(string)
-  default = []
+  type        = list(string)
+  description = "SSH public keys that we want to attach to the nat instance"
+  default     = []
 }

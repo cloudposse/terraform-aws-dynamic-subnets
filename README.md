@@ -314,8 +314,8 @@ Available targets:
 | <a name="input_nat_elastic_ips"></a> [nat\_elastic\_ips](#input\_nat\_elastic\_ips) | Existing Elastic IPs to attach to the NAT Gateway(s) or Instance(s) instead of creating new ones. | `list(string)` | `[]` | no |
 | <a name="input_nat_gateway_enabled"></a> [nat\_gateway\_enabled](#input\_nat\_gateway\_enabled) | Flag to enable/disable NAT Gateways to allow servers in the private subnets to access the Internet | `bool` | `true` | no |
 | <a name="input_nat_instance_enabled"></a> [nat\_instance\_enabled](#input\_nat\_instance\_enabled) | Flag to enable/disable NAT Instances to allow servers in the private subnets to access the Internet | `bool` | `false` | no |
-| <a name="input_nat_instance_profile"></a> [nat\_instance\_profile](#input\_nat\_instance\_profile) | An existing instance\_profile that need to attach to nat\_instance | `string` | `""` | no |
-| <a name="input_nat_instance_public_ssh_keys"></a> [nat\_instance\_public\_ssh\_keys](#input\_nat\_instance\_public\_ssh\_keys) | n/a | `list(string)` | `[]` | no |
+| <a name="input_nat_instance_profile"></a> [nat\_instance\_profile](#input\_nat\_instance\_profile) | An existing instance\_profile that we want to attach to nat\_instance | `string` | `""` | no |
+| <a name="input_nat_instance_public_ssh_keys"></a> [nat\_instance\_public\_ssh\_keys](#input\_nat\_instance\_public\_ssh\_keys) | SSH public keys that we want to attach to the nat instance | `list(string)` | `[]` | no |
 | <a name="input_nat_instance_type"></a> [nat\_instance\_type](#input\_nat\_instance\_type) | NAT Instance type | `string` | `"t3.micro"` | no |
 | <a name="input_private_network_acl_id"></a> [private\_network\_acl\_id](#input\_private\_network\_acl\_id) | Network ACL ID that will be added to private subnets. If empty, a new ACL will be created | `string` | `""` | no |
 | <a name="input_private_subnets_additional_tags"></a> [private\_subnets\_additional\_tags](#input\_private\_subnets\_additional\_tags) | Additional tags to be added to private subnets | `map(string)` | `{}` | no |
