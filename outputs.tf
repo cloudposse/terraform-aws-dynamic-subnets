@@ -18,6 +18,16 @@ output "private_subnet_cidrs" {
   value       = aws_subnet.private.*.cidr_block
 }
 
+output "public_subnet_ipv6_cidrs" {
+  description = "IPv6 CIDR blocks of the created public subnets"
+  value       = aws_subnet.public.*.ipv6_cidr_block
+}
+
+output "private_subnet_ipv6_cidrs" {
+  description = "IPv6 CIDR blocks of the created private subnets"
+  value       = aws_subnet.private.*.ipv6_cidr_block
+}
+
 output "public_route_table_ids" {
   description = "IDs of the created public route tables"
   value       = aws_route_table.public.*.id

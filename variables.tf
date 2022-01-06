@@ -30,6 +30,18 @@ variable "cidr_block" {
   description = "Base CIDR block which will be divided into subnet CIDR blocks (e.g. `10.0.0.0/16`)"
 }
 
+variable "private_subnets_associate_ipv6_cidr" {
+  type        = bool
+  default     = false
+  description = "Assign an IPv6 CIDR block to private subnets. Requires `assign_generated_ipv6_cidr_block` set to true on provided VPC."
+}
+
+variable "public_subnets_associate_ipv6_cidr" {
+  type        = bool
+  default     = false
+  description = "Assign an IPv6 CIDR block to public subnets. Requires `assign_generated_ipv6_cidr_block` set to true on provided VPC."
+}
+
 variable "availability_zones" {
   type        = list(string)
   description = "List of Availability Zones where subnets will be created"
@@ -70,6 +82,12 @@ variable "nat_gateway_enabled" {
   default     = true
 }
 
+variable "ipv6_egress_only_internet_gateway_enabled" {
+  type        = bool
+  description = "Flag to enable/disable IPv6 Egress Only Internet Gateway to allow servers in the private subnets to access the Internet"
+  default     = false
+}
+
 variable "nat_instance_enabled" {
   type        = bool
   description = "Flag to enable/disable NAT Instances to allow servers in the private subnets to access the Internet"
@@ -92,6 +110,12 @@ variable "map_public_ip_on_launch" {
   type        = bool
   default     = true
   description = "Instances launched into a public subnet should be assigned a public IP address"
+}
+
+variable "assign_ipv6_address_on_creation" {
+  type        = bool
+  default     = true
+  description = "Interfaces created into a public subnet should be assigned an IPv6 address"
 }
 
 variable "aws_route_create_timeout" {

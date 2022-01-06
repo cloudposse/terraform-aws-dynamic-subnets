@@ -29,7 +29,13 @@ resource "aws_subnet" "public" {
     local.public_subnet_count + count.index
   )
 
-  map_public_ip_on_launch = var.map_public_ip_on_launch
+  ipv6_cidr_block = var.public_subnets_associate_ipv6_cidr ? cidrsubnet(
+    join("", data.aws_vpc.default.*.ipv6_cidr_block), 8,
+    local.public_subnet_count + count.index
+  ) : null
+
+  map_public_ip_on_launch         = var.map_public_ip_on_launch
+  assign_ipv6_address_on_creation = var.assign_ipv6_address_on_creation
 
   tags = merge(
     module.public_label.tags,
@@ -62,6 +68,18 @@ resource "aws_route" "public" {
   }
 }
 
+resource "aws_route" "public_ipv6" {
+  count                       = local.public_route_expr_enabled ? 0 : local.enabled_count
+  route_table_id              = join("", aws_route_table.public.*.id)
+  destination_ipv6_cidr_block = "::/0"
+  gateway_id                  = var.igw_id
+
+  timeouts {
+    create = var.aws_route_create_timeout
+    delete = var.aws_route_delete_timeout
+  }
+}
+
 resource "aws_route_table_association" "public" {
   count          = local.public_route_expr_enabled ? 0 : local.availability_zones_count
   subnet_id      = element(aws_subnet.public.*.id, count.index)
@@ -87,6 +105,14 @@ resource "aws_network_acl" "public" {
     to_port    = 0
     protocol   = "-1"
   }
+  egress {
+    rule_no         = 101
+    action          = "allow"
+    ipv6_cidr_block = "::/0"
+    from_port       = 0
+    to_port         = 0
+    protocol        = "-1"
+  }
 
   ingress {
     rule_no    = 100
@@ -95,6 +121,14 @@ resource "aws_network_acl" "public" {
     from_port  = 0
     to_port    = 0
     protocol   = "-1"
+  }
+  ingress {
+    rule_no         = 101
+    action          = "allow"
+    ipv6_cidr_block = "::/0"
+    from_port       = 0
+    to_port         = 0
+    protocol        = "-1"
   }
 
   tags = module.public_label.tags
