@@ -114,7 +114,7 @@ variable "map_public_ip_on_launch" {
 
 variable "assign_ipv6_address_on_creation" {
   type        = bool
-  default     = true
+  default     = false
   description = "Interfaces created into a public subnet should be assigned an IPv6 address"
 }
 
