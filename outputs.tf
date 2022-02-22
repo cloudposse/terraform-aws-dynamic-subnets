@@ -52,3 +52,13 @@ output "nat_ips" {
   description = "IP Addresses in use for NAT"
   value       = coalescelist(aws_eip.default.*.public_ip, aws_eip.nat_instance.*.public_ip, data.aws_eip.nat_ips.*.public_ip, tolist([""]))
 }
+
+output "private_network_acl_ids" {
+  deacription = "IDs of private network acl"
+  value       = aws_network_acl.private.*.id
+}
+
+output "public_network_acl_ids" {
+  deacription = "IDs of public network acl"
+  value       = aws_network_acl.public.*.id
+}
