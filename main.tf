@@ -13,6 +13,7 @@ locals {
   enabled                  = module.this.enabled
   enabled_count            = local.enabled ? 1 : 0
   delimiter                = module.this.delimiter
+  ipv6_enabled             = var.assign_ipv6_address_on_creation
 }
 
 data "aws_eip" "nat_ips" {

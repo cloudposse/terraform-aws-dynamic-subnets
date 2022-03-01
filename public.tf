@@ -38,7 +38,7 @@ resource "aws_subnet" "public" {
     }
   )
 
-  assign_ipv6_address_on_creation = var.map_public_ip_on_launch
+  assign_ipv6_address_on_creation = local.ipv6_enabled
   ipv6_cidr_block                 = cidrsubnet(join("", data.aws_vpc.default.*.ipv6_cidr_block), 8, local.public_subnet_count + count.index)
 
   lifecycle {
@@ -65,7 +65,7 @@ resource "aws_route" "public" {
   }
 }
 
-resource "aws_route" "public-ipv6" {
+resource "aws_route" "public_ipv6" {
   count                       = local.public_route_expr_enabled ? 0 : local.enabled_count
   route_table_id              = join("", aws_route_table.public.*.id)
   destination_ipv6_cidr_block = "::/0"
@@ -103,15 +103,6 @@ resource "aws_network_acl" "public" {
     protocol   = "-1"
   }
 
-  egress {
-    rule_no         = 99
-    action          = "allow"
-    ipv6_cidr_block = "::/0"
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
-  }
-
   ingress {
     rule_no    = 100
     action     = "allow"
@@ -121,13 +112,27 @@ resource "aws_network_acl" "public" {
     protocol   = "-1"
   }
 
-  ingress {
-    rule_no         = 99
-    action          = "allow"
-    ipv6_cidr_block = "::/0"
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
+  dynamic "egress" {
+    for_each = local.ipv6_enabled ? [1] : []
+    content {
+      rule_no         = 99
+      action          = "allow"
+      ipv6_cidr_block = "::/0"
+      from_port       = 0
+      to_port         = 0
+      protocol        = "-1"
+    }
+  }
+  dynamic "ingress" {
+    for_each = local.ipv6_enabled ? [1] : []
+    content {
+      rule_no         = 99
+      action          = "allow"
+      ipv6_cidr_block = "::/0"
+      from_port       = 0
+      to_port         = 0
+      protocol        = "-1"
+    }
   }
 
   tags = module.public_label.tags

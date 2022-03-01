@@ -25,11 +25,6 @@ variable "igw_id" {
   description = "Internet Gateway ID the public route table will point to (e.g. `igw-9c26a123`)"
 }
 
-variable "egress_only_igw_id" {
-  type        = string
-  description = "Egress Only Internet Gateway ID the privete route tables will point to (e.g. `eigw-9c26a123`)"
-}
-
 variable "cidr_block" {
   type        = string
   description = "Base CIDR block which will be divided into subnet CIDR blocks (e.g. `10.0.0.0/16`)"
@@ -147,8 +142,15 @@ variable "root_block_device_encrypted" {
   description = "Whether to encrypt the root block device"
 }
 
-variable "map_private_ipv6_on_launch" {
+variable "assign_ipv6_address_on_creation" {
   type        = bool
   default     = false
   description = "Whether to assign ipv6 address for new resource"
 }
+
+variable "egress_only_igw_id" {
+  type        = string
+  description = "Egress Only Internet Gateway ID the privete route tables will point to (e.g. `eigw-9c26a123`)"
+  default     = ""
+}
+

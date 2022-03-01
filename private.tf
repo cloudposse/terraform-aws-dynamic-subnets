@@ -34,7 +34,7 @@ resource "aws_subnet" "private" {
     }
   )
 
-  assign_ipv6_address_on_creation = var.map_private_ipv6_on_launch
+  assign_ipv6_address_on_creation = local.ipv6_enabled
   ipv6_cidr_block                 = cidrsubnet(join("", data.aws_vpc.default.*.ipv6_cidr_block), 8, count.index)
 
   lifecycle {
@@ -55,8 +55,8 @@ resource "aws_route_table" "private" {
   )
 }
 
-resource "aws_route" "private-ipv6" {
-  count                       = local.enabled ? local.availability_zones_count : 0
+resource "aws_route" "private_ipv6" {
+  count                       = local.enabled && local.ipv6_enabled ? local.availability_zones_count : 0
   route_table_id              = aws_route_table.private[count.index].id
   destination_ipv6_cidr_block = "::/0"
   egress_only_gateway_id      = var.egress_only_igw_id
@@ -78,15 +78,6 @@ resource "aws_network_acl" "private" {
   vpc_id     = var.vpc_id
   subnet_ids = aws_subnet.private.*.id
 
-  ingress {
-    rule_no         = 99
-    action          = "allow"
-    ipv6_cidr_block = "::/0"
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
-  }
-
   egress {
     rule_no    = 100
     action     = "allow"
@@ -96,15 +87,6 @@ resource "aws_network_acl" "private" {
     protocol   = "-1"
   }
 
-  egress {
-    rule_no         = 99
-    action          = "allow"
-    ipv6_cidr_block = "::/0"
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
-  }
-
   ingress {
     rule_no    = 100
     action     = "allow"
@@ -112,6 +94,30 @@ resource "aws_network_acl" "private" {
     from_port  = 0
     to_port    = 0
     protocol   = "-1"
+  }
+
+  dynamic "egress" {
+    for_each = local.ipv6_enabled ? [1] : []
+    content {
+      rule_no         = 99
+      action          = "allow"
+      ipv6_cidr_block = "::/0"
+      from_port       = 0
+      to_port         = 0
+      protocol        = "-1"
+    }
+  }
+
+  dynamic "ingress" {
+    for_each = local.ipv6_enabled ? [1] : []
+    content {
+      rule_no         = 99
+      action          = "allow"
+      ipv6_cidr_block = "::/0"
+      from_port       = 0
+      to_port         = 0
+      protocol        = "-1"
+    }
   }
 
   tags = module.private_label.tags
