@@ -67,7 +67,7 @@ variable "nat_gateway_enabled" {
 
 variable "single_nat_gateway" {
   type        = bool
-  description = "Flag to use a single NAT Gateway across all AZs - this isn't changing the private routes number, it is just using the same NGW on all of them, making it possible to switch between the two configuration on runtime. Note that this option is for saving money during development and not recommended in production."
+  description = "Flag to use a single NAT Gateway across all AZs. Note that this isn't changing the private routes number, it is just using the same NGW on all of them to save money and it's therefore not recommended for production. Since it is just using the same NGW it can be updated after the deployment to switch between single and multi-AZ configuration. It defaults to false (multi-AZ)"
   default     = false
 }
 
