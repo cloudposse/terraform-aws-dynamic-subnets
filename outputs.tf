@@ -54,11 +54,11 @@ output "nat_ips" {
 }
 
 output "private_network_acl_ids" {
-  deacription = "IDs of private network acl"
+  description = "IDs of private network acl"
   value       = aws_network_acl.private.*.id
 }
 
 output "public_network_acl_ids" {
-  deacription = "IDs of public network acl"
+  description = "IDs of public network acl"
   value       = aws_network_acl.public.*.id
 }
