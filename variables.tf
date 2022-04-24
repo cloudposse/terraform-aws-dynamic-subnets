@@ -82,6 +82,12 @@ variable "nat_instance_type" {
   default     = "t3.micro"
 }
 
+variable "nat_instance_cpu_credits_override" {
+  type        = string
+  description = "NAT Instance credit option for CPU usage. Valid values include standard or unlimited. T3 instances are launched as unlimited by default. T2 instances are launched as standard by default."
+  default     = ""
+}
+
 variable "nat_elastic_ips" {
   type        = list(string)
   default     = []
