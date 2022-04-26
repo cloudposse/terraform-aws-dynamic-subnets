@@ -88,8 +88,8 @@ variable "nat_instance_cpu_credits_override" {
   default     = ""
 
   validation {
-    condition     = contains(["standard", "unlimited"], var.nat_instance_cpu_credits_override)
-    error_message = "The nat_instance_cpu_credits_override value must be either standard or unlimited."
+    condition     = contains(["standard", "unlimited", ""], var.nat_instance_cpu_credits_override)
+    error_message = "The nat_instance_cpu_credits_override value must be either standard, unlimited, or empty string. Empty string will use default value of the instance type: T3 and T4 are unlimited where T2 is standard."
   }
 }
 
