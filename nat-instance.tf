@@ -101,6 +101,14 @@ resource "aws_instance" "nat_instance" {
   root_block_device {
     encrypted = var.root_block_device_encrypted
   }
+
+  dynamic "credit_specification" {
+    for_each = var.nat_instance_cpu_credits_override == "" ? [] : [var.nat_instance_cpu_credits_override]
+
+    content {
+      cpu_credits = var.nat_instance_cpu_credits_override
+    }
+  }
 }
 
 resource "aws_eip" "nat_instance" {
