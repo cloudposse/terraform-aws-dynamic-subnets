@@ -6,4 +6,4 @@ namespace = "eg"
 
 stage = "test"
 
-name = "subnets-vpc-test"
+name = "subnets-vpc-eip-test"
