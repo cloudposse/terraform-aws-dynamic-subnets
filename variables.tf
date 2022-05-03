@@ -88,6 +88,17 @@ variable "nat_instance_type" {
   default     = "t3.micro"
 }
 
+variable "nat_instance_cpu_credits_override" {
+  type        = string
+  description = "NAT Instance credit option for CPU usage. Valid values include standard or unlimited. T3 instances are launched as unlimited by default. T2 instances are launched as standard by default."
+  default     = ""
+
+  validation {
+    condition     = contains(["standard", "unlimited", ""], var.nat_instance_cpu_credits_override)
+    error_message = "The nat_instance_cpu_credits_override value must be either standard, unlimited, or empty string. Empty string will use default value of the instance type: T3 and T4 are unlimited where T2 is standard."
+  }
+}
+
 variable "nat_elastic_ips" {
   type        = list(string)
   default     = []

@@ -101,6 +101,14 @@ resource "aws_instance" "nat_instance" {
   root_block_device {
     encrypted = var.root_block_device_encrypted
   }
+
+  dynamic "credit_specification" {
+    for_each = var.nat_instance_cpu_credits_override == "" ? [] : [var.nat_instance_cpu_credits_override]
+
+    content {
+      cpu_credits = var.nat_instance_cpu_credits_override
+    }
+  }
 }
 
 resource "aws_eip" "nat_instance" {
@@ -127,7 +135,7 @@ resource "aws_eip_association" "nat_instance" {
 resource "aws_route" "nat_instance" {
   count                  = local.enabled ? local.nat_instance_count : 0
   route_table_id         = element(aws_route_table.private.*.id, count.index)
-  instance_id            = element(aws_instance.nat_instance.*.id, count.index)
+  network_interface_id   = element(aws_instance.nat_instance.*.primary_network_interface_id, count.index)
   destination_cidr_block = "0.0.0.0/0"
   depends_on             = [aws_route_table.private]
 
