@@ -7,38 +7,16 @@ module "nat_label" {
   context = module.this.context
 }
 
-locals {
-  nat_gateway_eip_count   = local.use_existing_eips ? 0 : local.nat_gateways_count
-  gateway_eip_allocations = local.use_existing_eips ? data.aws_eip.nat_ips.*.id : aws_eip.default.*.id
-  eips_allocations        = local.use_existing_eips ? data.aws_eip.nat_ips.*.id : aws_eip.default.*.id
-  nat_gateways_count      = var.nat_gateway_enabled ? length(var.availability_zones) : 0
-}
-
-resource "aws_eip" "default" {
-  count = local.enabled ? local.nat_gateway_eip_count : 0
-  vpc   = true
-
-  tags = merge(
-    module.private_label.tags,
-    {
-      "Name" = format("%s%s%s", module.private_label.id, local.delimiter, local.az_map[element(var.availability_zones, count.index)])
-    }
-  )
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
 resource "aws_nat_gateway" "default" {
-  count         = local.enabled ? local.nat_gateways_count : 0
-  allocation_id = element(local.gateway_eip_allocations, count.index)
-  subnet_id     = element(aws_subnet.public.*.id, count.index)
+  count = local.nat_gateway_enabled ? local.subnet_az_count : 0
+
+  allocation_id = local.nat_eip_allocations[count.index]
+  subnet_id     = aws_subnet.public[count.index].id
 
   tags = merge(
     module.nat_label.tags,
     {
-      "Name" = format("%s%s%s", module.nat_label.id, local.delimiter, local.az_map[element(var.availability_zones, count.index)])
+      "Name" = format("%s%s%s", module.nat_label.id, local.delimiter, local.subnet_az_abbreviations[count.index])
     }
   )
 
@@ -47,15 +25,44 @@ resource "aws_nat_gateway" "default" {
   }
 }
 
-resource "aws_route" "default" {
-  count                  = local.enabled ? local.nat_gateways_count : 0
-  route_table_id         = element(aws_route_table.private.*.id, count.index)
-  nat_gateway_id         = element(aws_nat_gateway.default.*.id, count.index)
+resource "aws_route" "nat4" {
+  count = local.nat_gateway_enabled && local.private_network_route_enabled && local.ipv4_enabled ? local.private_network_table_count : 0
+
+  route_table_id         = aws_route_table.private[count.index].id
+  nat_gateway_id         = aws_nat_gateway.default[count.index].id
   destination_cidr_block = "0.0.0.0/0"
   depends_on             = [aws_route_table.private]
 
   timeouts {
-    create = var.aws_route_create_timeout
-    delete = var.aws_route_delete_timeout
+    create = local.route_create_timeout
+    delete = local.route_delete_timeout
+  }
+}
+
+resource "aws_route" "private_nat64" {
+  count = local.nat_gateway_enabled && local.private_network_route_enabled && local.private_dns64_enabled ? local.private_network_table_count : 0
+
+  route_table_id              = aws_route_table.private[count.index].id
+  nat_gateway_id              = aws_nat_gateway.default[count.index].id
+  destination_ipv6_cidr_block = local.nat64_cidr
+  depends_on                  = [aws_route_table.private]
+
+  timeouts {
+    create = local.route_create_timeout
+    delete = local.route_delete_timeout
+  }
+}
+
+resource "aws_route" "public_nat64" {
+  count = local.nat_gateway_enabled && local.public_network_route_enabled && local.public_dns64_enabled ? local.public_network_table_count : 0
+
+  route_table_id              = aws_route_table.public[count.index].id
+  nat_gateway_id              = aws_nat_gateway.default[count.index].id
+  destination_ipv6_cidr_block = local.nat64_cidr
+  depends_on                  = [aws_route_table.public]
+
+  timeouts {
+    create = local.route_create_timeout
+    delete = local.route_delete_timeout
   }
 }
