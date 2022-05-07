@@ -201,6 +201,7 @@ resource "aws_eip" "default" {
   lifecycle {
     create_before_destroy = true
   }
+  #bridgecrew:skip=BC_AWS_NETWORKING_48: Skipping requirement for EIPs to be attached to EC2 instances because we are attaching to NAT Gateway.
 }
 
 module "utils" {

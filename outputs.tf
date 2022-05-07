@@ -51,11 +51,13 @@ output "private_route_table_ids" {
 }
 
 output "public_network_acl" {
-  value = local.public_open_network_acl_enabled ? aws_network_acl.public[0].id : null
+  description = "ID of the Network ACL created for public subnets"
+  value       = local.public_open_network_acl_enabled ? aws_network_acl.public[0].id : null
 }
 
 output "private_network_acl" {
-  value = local.private_open_network_acl_enabled ? aws_network_acl.private[0].id : null
+  description = "ID of the Network ACL created for private subnets"
+  value       = local.private_open_network_acl_enabled ? aws_network_acl.private[0].id : null
 }
 
 output "nat_gateway_ids" {

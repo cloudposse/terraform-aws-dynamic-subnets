@@ -93,6 +93,7 @@ resource "aws_instance" "nat_instance" {
 
   #bridgecrew:skip=BC_AWS_PUBLIC_12: Skipping `EC2 Should Not Have Public IPs` check. NAT instance requires public IP.
   #bridgecrew:skip=BC_AWS_GENERAL_31: Skipping `Ensure Instance Metadata Service Version 1 is not enabled` check until BridgeCrew support condition evaluation. See https://github.com/bridgecrewio/checkov/issues/793
+  #bridgecrew:skip=BC_AWS_LOGGING_26: Skipping requirement for detailed monitoring of NAT instance.
   associate_public_ip_address = true #tfsec:ignore:AWS012
 
   lifecycle {
@@ -116,6 +117,8 @@ resource "aws_instance" "nat_instance" {
       cpu_credits = var.nat_instance_cpu_credits_override
     }
   }
+
+  ebs_optimized = true
 }
 
 resource "aws_eip_association" "nat_instance" {

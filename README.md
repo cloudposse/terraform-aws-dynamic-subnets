@@ -286,7 +286,7 @@ Available targets:
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 4.13.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 3.71.0 |
 
 ## Modules
 
@@ -430,12 +430,12 @@ Available targets:
 | <a name="output_nat_instance_ami_id"></a> [nat\_instance\_ami\_id](#output\_nat\_instance\_ami\_id) | ID of AMI used by NAT instance |
 | <a name="output_nat_instance_ids"></a> [nat\_instance\_ids](#output\_nat\_instance\_ids) | IDs of the NAT Instances created |
 | <a name="output_nat_ips"></a> [nat\_ips](#output\_nat\_ips) | IP Addresses in use by NAT |
-| <a name="output_private_network_acl"></a> [private\_network\_acl](#output\_private\_network\_acl) | n/a |
+| <a name="output_private_network_acl"></a> [private\_network\_acl](#output\_private\_network\_acl) | ID of the Network ACL created for private subnets |
 | <a name="output_private_route_table_ids"></a> [private\_route\_table\_ids](#output\_private\_route\_table\_ids) | IDs of the created private route tables |
 | <a name="output_private_subnet_cidrs"></a> [private\_subnet\_cidrs](#output\_private\_subnet\_cidrs) | IPv4 CIDR blocks of the created private subnets |
 | <a name="output_private_subnet_ids"></a> [private\_subnet\_ids](#output\_private\_subnet\_ids) | IDs of the created private subnets |
 | <a name="output_private_subnet_ipv6_cidrs"></a> [private\_subnet\_ipv6\_cidrs](#output\_private\_subnet\_ipv6\_cidrs) | IPv6 CIDR blocks of the created private subnets |
-| <a name="output_public_network_acl"></a> [public\_network\_acl](#output\_public\_network\_acl) | n/a |
+| <a name="output_public_network_acl"></a> [public\_network\_acl](#output\_public\_network\_acl) | ID of the Network ACL created for public subnets |
 | <a name="output_public_route_table_ids"></a> [public\_route\_table\_ids](#output\_public\_route\_table\_ids) | IDs of the created public route tables |
 | <a name="output_public_subnet_cidrs"></a> [public\_subnet\_cidrs](#output\_public\_subnet\_cidrs) | IPv4 CIDR blocks of the created public subnets |
 | <a name="output_public_subnet_ids"></a> [public\_subnet\_ids](#output\_public\_subnet\_ids) | IDs of the created public subnets |

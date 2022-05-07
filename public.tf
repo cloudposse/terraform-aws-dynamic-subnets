@@ -23,7 +23,7 @@ resource "aws_subnet" "public" {
   ipv6_cidr_block = local.ipv6_enabled ? element(local.ipv6_public_subnet_cidrs, count.index) : null
   ipv6_native     = local.ipv6_enabled && !local.ipv4_enabled
 
-
+  #bridgecrew:skip=BC_AWS_NETWORKING_53:Public VPCs should be allowed to default to public IPs
   map_public_ip_on_launch = local.ipv4_enabled ? var.map_public_ip_on_launch : null
 
   assign_ipv6_address_on_creation = local.ipv6_enabled ? var.public_assign_ipv6_address_on_creation : null

@@ -25,9 +25,9 @@ module "subnets" {
 
   availability_zones   = var.availability_zones
   vpc_id               = module.vpc.vpc_id
-  igw_id               = module.vpc.igw_id
-  cidr_block           = module.vpc.vpc_cidr_block
-  nat_elastic_ips      = [for az, eip in aws_eip.nat_ips : eip.public_ip]
+  igw_id               = [module.vpc.igw_id]
+  cidr_block           = [module.vpc.vpc_cidr_block]
+  nat_elastic_ips      = aws_eip.nat_ips.*.public_ip
   nat_gateway_enabled  = true
   nat_instance_enabled = false
 
