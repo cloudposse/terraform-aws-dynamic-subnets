@@ -50,8 +50,13 @@ description: |-
   Terraform module to provision public and private [`subnets`](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_Subnets.html) in an existing [`VPC`](https://aws.amazon.com/vpc)
 
   
-  __Note:__ this module is intended for use with an existing VPC and existing Internet Gateway.
+  __Note:__ This module is intended for use with an existing VPC and existing Internet Gateway.
   To create a new VPC, use [terraform-aws-vpc](https://github.com/cloudposse/terraform-aws-vpc) module.
+  
+  _Note:__ Due to Terraform [limitations](https://github.com/hashicorp/terraform/issues/26755#issuecomment-719103775),
+  many optional inputs to this module are specified as a `list(string)` that can have zero or one elements, rather than
+  as `string` that could be empty or `null`. The designation of an input as a `list` type does not necessarily
+  mean that you can supply more than one value in the list, so check the input's description before supplying more than one value.
   
   The core feature of this module is dividing up a given CIDR range so that a set of subnets each gets its own 
   distinct CIDR range within that range, and then creating those subnets in the appropriate availability zones.
@@ -89,7 +94,7 @@ description: |-
   
   ### Customization for special use cases
   
-  Various features are controlled by `bool` arguments with names ending in `_enabled`. By changing the default
+  Various features are controlled by `bool` inputs with names ending in `_enabled`. By changing the default
   values, you can enable or disable creation of public subnets, private subnets, route tables, 
   NAT gateways, NAT instances, or Network ACLs. So for example, you could use this module to create only
   private subnets and the open Network ACL, and then add your own route table associations to the subnets

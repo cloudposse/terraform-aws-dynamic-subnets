@@ -7,7 +7,7 @@ variable "igw_id" {
   type        = list(string)
   description = <<-EOT
     The Internet Gateway ID that the public subnets will route traffic to.
-    Used if `public_network_route_enabled` is `true`, ignored otherwise.
+    Used if `public_route_table_enabled` is `true`, ignored otherwise.
     EOT
   default     = []
   validation {
@@ -20,7 +20,7 @@ variable "ipv6_egress_only_igw_id" {
   type        = list(string)
   description = <<-EOT
     The Egress Only Internet Gateway ID the private IPv6 subnets will route traffic to.
-    Used if `private_network_route_enabled` is `true` and `ipv6_enabled` is `true`, ignored otherwise.
+    Used if `private_route_table_enabled` is `true` and `ipv6_enabled` is `true`, ignored otherwise.
     EOT
   default     = []
   validation {
@@ -35,8 +35,10 @@ variable "max_subnet_count" {
     Sets the maximum number of each type (public or private) of subnet to deploy.
     0 will reserve a CIDR for every Availability Zone (excluding Local Zones) in the region, and
     deploy a subnet in each availability zone specified in `availability_zones` or `availability_zone_ids`,
-    or every zone if none are specified. Recommended to set equal to the maximum number of AZs you anticipate using,
+    or every zone if none are specified. We recommend setting this equal to the maximum number of AZs you anticipate using,
     to avoid causing subnets to be destroyed and recreated with smaller IPv4 CIDRs when AWS adds an availability zone.
+    Due to Terraform limitations, you can not set `max_subnet_count` from a computed value, you have to set it
+    from an explicit constant. For most cases, `3` is a good choice.
     EOT
   default     = 0
 }
@@ -133,11 +135,12 @@ variable "ipv6_cidrs" {
 variable "availability_zones" {
   type        = list(string)
   description = <<-EOT
-    List of Availability Zones (AZs) where subnets will be created. Conflicts with `availability_zone_ids`.
+    List of Availability Zones (AZs) where subnets will be created. Ignored when `availability_zone_ids` is set.
     The order of zones in the list ***must be stable*** or else Terraform will continually make changes.
     If no AZs are specified, then `max_subnet_count` AZs will be selected in alphabetical order.
     If `max_subnet_count > 0` and `length(var.availability_zones) > max_subnet_count`, the list
-    will be truncated.
+    will be truncated. We recommend setting `availability_zones` and `max_subnet_count` explicitly as constant
+    (not computed) values for predictability, consistency, and stability.
     EOT
   default     = []
 }
@@ -145,7 +148,7 @@ variable "availability_zones" {
 variable "availability_zone_ids" {
   type        = list(string)
   description = <<-EOT
-    List of Availability Zones IDs where subnets will be created. Conflicts with `availability_zones`.
+    List of Availability Zones IDs where subnets will be created. Overrides `availability_zones`.
     Useful in some regions when using only some AZs and you want to use the same ones across multiple accounts.
     EOT
   default     = []
@@ -196,20 +199,22 @@ variable "public_assign_ipv6_address_on_creation" {
   default     = true
 }
 
-variable "private_dns64_enabled" {
+variable "private_dns64_nat64_enabled" {
   type        = bool
   description = <<-EOT
-    If `true` and IPv6 is enabled, DNS queries made to the Amazon-provided DNS Resolver in private subnets will return synthetic IPv6 addresses for IPv4-only destinations.
-    Requires `public_subnets_enabled`, `nat_gateway_enabled`, and `private_network_route_enabled` to be `true` to be fully operational.
+    If `true` and IPv6 is enabled, DNS queries made to the Amazon-provided DNS Resolver in private subnets will return synthetic
+    IPv6 addresses for IPv4-only destinations, and these addresses will be routed to the NAT Gateway.
+    Requires `public_subnets_enabled`, `nat_gateway_enabled`, and `private_route_table_enabled` to be `true` to be fully operational.
     EOT
   default     = true
 }
 
-variable "public_dns64_enabled" {
+variable "public_dns64_nat64_enabled" {
   type        = bool
   description = <<-EOT
-    If `true` and IPv6 is enabled, DNS queries made to the Amazon-provided DNS Resolver in public subnets will return synthetic IPv6 addresses for IPv4-only destinations.
-    Requires `nat_gateway_enabled` and `public_network_route_enabled` to be `true` to be fully operational.
+    If `true` and IPv6 is enabled, DNS queries made to the Amazon-provided DNS Resolver in public subnets will return synthetic
+    IPv6 addresses for IPv4-only destinations, and these addresses will be routed to the NAT Gateway.
+    Requires `nat_gateway_enabled` and `public_route_table_enabled` to be `true` to be fully operational.
     EOT
   default     = false
 }
@@ -292,7 +297,7 @@ variable "open_network_acl_ipv6_rule_number" {
   default     = 111
 }
 
-variable "private_network_route_enabled" {
+variable "private_route_table_enabled" {
   type        = bool
   description = <<-EOT
     If true, a network route table and default route to the NAT gateway, NAT instance, or egress-only gateway
@@ -301,28 +306,39 @@ variable "private_network_route_enabled" {
   default     = true
 }
 
-# TODO Number of public route tables depends on public_dns64_enabled
-variable "public_route_table_id" {
+# TODO Number of public route tables depends on public_dns64_nat64_enabled
+variable "public_route_table_ids" {
   type        = list(string)
   description = <<-EOT
-    List optionally containing the ID of a single route table shared by all public subnets.
-    If provided, and `public_network_route_enabled` is `true`,
-    a route will be added to it, directing traffic to the VPC's Internet Gateway.
-    Ignored (treated as omitted) if `public_dns64_enabled` is `true`.
-    If omitted (or ignored), and `public_network_route_enabled` is `true`,
-    a network route table will be created for each public subnet (1:1) and routes added to it.
+    List optionally containing the ID of a single route table shared by all public subnets
+    or exactly one route table ID for each public subnet.
+    If provided, it overrides `public_route_table_per_subnet_enabled`.
+    If omitted and `public_route_table_enabled` is `true`,
+    one or more network route tables will be created for the public subnets,
+    according to the setting of `public_route_table_per_subnet_enabled`.
     EOT
   default     = []
 }
 
-variable "public_network_route_enabled" {
+variable "public_route_table_enabled" {
   type        = bool
   description = <<-EOT
-    If `true`, a default route to the internet gateway will be added route table(s) associated with the public subnets.
-    If `public_dns64_enabled` and `nat_gateway_enabled` are also `true`, a route for NAT64 addresses to the NAT gateway will also be created.
-    If `false`, you will need to create your own route(s).
+    If `true`, network route table(s) will be created as determined by `public_route_table_per_subnet_enabled` and
+    appropriate routes will be added to destinations this module knows about.
+    If `false`, you will need to create your own route table(s) and route(s).
+    Ignored if `public_route_table_ids` is non-empty.
     EOT
   default     = true
+}
+
+variable "public_route_table_per_subnet_enabled" {
+  type        = bool
+  description = <<-EOT
+    If `true` (and `public_route_table_enabled` is `true), a separate network route table will be created for and associated with each public subnet.
+    If `false` (and `public_route_table_enabled` is `true), a single network route table will be created and it will be associated with every public subnet.
+    If not set, it will be set to the value of `public_dns64_nat64_enabled`.
+    EOT
+  default     = null
 }
 
 variable "route_create_timeout" {

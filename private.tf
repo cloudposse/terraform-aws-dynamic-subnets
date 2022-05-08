@@ -29,7 +29,7 @@ resource "aws_subnet" "private" {
   )
 
   assign_ipv6_address_on_creation = local.ipv6_enabled ? var.private_assign_ipv6_address_on_creation : null
-  enable_dns64                    = local.ipv6_enabled ? var.private_dns64_enabled : null
+  enable_dns64                    = local.ipv6_enabled ? local.private_dns64_enabled : null
 
   enable_resource_name_dns_a_record_on_launch    = local.ipv4_enabled ? var.ipv4_private_instance_hostnames_enabled : null
   enable_resource_name_dns_aaaa_record_on_launch = local.ipv6_enabled ? var.ipv6_private_instance_hostnames_enabled : null
@@ -43,9 +43,9 @@ resource "aws_subnet" "private" {
 }
 
 resource "aws_route_table" "private" {
-  # Currently private_network_table_count == subnet_az_count,
+  # Currently private_route_table_count == subnet_az_count,
   # but keep parallel to public route table configuration
-  count = local.private_network_table_count
+  count = local.private_route_table_count
 
   vpc_id = local.vpc_id
 
@@ -58,9 +58,9 @@ resource "aws_route_table" "private" {
 }
 
 resource "aws_route" "private6" {
-  count = local.ipv6_egress_only_configured ? local.private_network_table_count : 0
+  count = local.ipv6_egress_only_configured ? local.private_route_table_count : 0
 
-  route_table_id              = aws_route_table.private[count.index].id
+  route_table_id              = local.private_route_table_ids[count.index]
   destination_ipv6_cidr_block = "::/0"
   egress_only_gateway_id      = var.ipv6_egress_only_igw_id[0]
 
@@ -71,11 +71,11 @@ resource "aws_route" "private6" {
 }
 
 resource "aws_route_table_association" "private" {
-  count = local.private_network_route_enabled ? local.subnet_az_count : 0
+  count = local.private_route_table_enabled ? local.subnet_az_count : 0
 
   subnet_id = aws_subnet.private[count.index].id
   # Use element() to "wrap around" and allow for a single table to be associated with all subnets
-  route_table_id = element(local.private_network_table_ids, count.index)
+  route_table_id = element(local.private_route_table_ids, count.index)
 }
 
 resource "aws_network_acl" "private" {

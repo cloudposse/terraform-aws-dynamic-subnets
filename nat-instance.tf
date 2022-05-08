@@ -129,9 +129,9 @@ resource "aws_eip_association" "nat_instance" {
 }
 
 resource "aws_route" "nat_instance" {
-  count = local.nat_instance_enabled && local.private_network_route_enabled ? local.private_network_table_count : 0
+  count = local.nat_instance_enabled ? local.private_route_table_count : 0
 
-  route_table_id         = aws_route_table.private[count.index].id
+  route_table_id         = local.private_route_table_ids[count.index]
   network_interface_id   = aws_instance.nat_instance[count.index].primary_network_interface_id
   destination_cidr_block = "0.0.0.0/0"
   depends_on             = [aws_route_table.private]

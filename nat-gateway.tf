@@ -26,9 +26,9 @@ resource "aws_nat_gateway" "default" {
 }
 
 resource "aws_route" "nat4" {
-  count = local.nat_gateway_enabled && local.private_network_route_enabled && local.ipv4_enabled ? local.private_network_table_count : 0
+  count = local.nat_gateway_enabled && local.ipv4_enabled ? local.private_route_table_count : 0
 
-  route_table_id         = aws_route_table.private[count.index].id
+  route_table_id         = local.private_route_table_ids[count.index]
   nat_gateway_id         = aws_nat_gateway.default[count.index].id
   destination_cidr_block = "0.0.0.0/0"
   depends_on             = [aws_route_table.private]
@@ -40,9 +40,9 @@ resource "aws_route" "nat4" {
 }
 
 resource "aws_route" "private_nat64" {
-  count = local.nat_gateway_enabled && local.private_network_route_enabled && local.private_dns64_enabled ? local.private_network_table_count : 0
+  count = local.nat_gateway_enabled && local.private_dns64_enabled ? local.private_route_table_count : 0
 
-  route_table_id              = aws_route_table.private[count.index].id
+  route_table_id              = local.private_route_table_ids[count.index]
   nat_gateway_id              = aws_nat_gateway.default[count.index].id
   destination_ipv6_cidr_block = local.nat64_cidr
   depends_on                  = [aws_route_table.private]
@@ -54,9 +54,9 @@ resource "aws_route" "private_nat64" {
 }
 
 resource "aws_route" "public_nat64" {
-  count = local.nat_gateway_enabled && local.public_network_route_enabled && local.public_dns64_enabled ? local.public_network_table_count : 0
+  count = local.nat_gateway_enabled && local.public_dns64_enabled ? local.public_route_table_count : 0
 
-  route_table_id              = aws_route_table.public[count.index].id
+  route_table_id              = local.public_route_table_ids[count.index]
   nat_gateway_id              = aws_nat_gateway.default[count.index].id
   destination_ipv6_cidr_block = local.nat64_cidr
   depends_on                  = [aws_route_table.public]

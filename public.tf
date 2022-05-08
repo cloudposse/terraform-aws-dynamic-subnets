@@ -27,7 +27,7 @@ resource "aws_subnet" "public" {
   map_public_ip_on_launch = local.ipv4_enabled ? var.map_public_ip_on_launch : null
 
   assign_ipv6_address_on_creation = local.ipv6_enabled ? var.public_assign_ipv6_address_on_creation : null
-  enable_dns64                    = local.ipv6_enabled ? var.public_dns64_enabled : null
+  enable_dns64                    = local.ipv6_enabled ? local.public_dns64_enabled : null
 
   enable_resource_name_dns_a_record_on_launch    = local.ipv4_enabled ? var.ipv4_public_instance_hostnames_enabled : null
   enable_resource_name_dns_aaaa_record_on_launch = local.ipv6_enabled ? var.ipv6_public_instance_hostnames_enabled : null
@@ -49,7 +49,7 @@ resource "aws_subnet" "public" {
 
 resource "aws_route_table" "public" {
   # May need 1 table or 1 per AZ
-  count = local.public_network_table_count
+  count = local.create_public_route_tables ? local.public_route_table_count : 0
 
   vpc_id = local.vpc_id
 
@@ -57,9 +57,9 @@ resource "aws_route_table" "public" {
 }
 
 resource "aws_route" "public" {
-  count = local.ipv4_enabled && local.igw_configured ? local.public_network_table_count : 0
+  count = local.ipv4_enabled && local.igw_configured ? local.public_route_table_count : 0
 
-  route_table_id         = aws_route_table.public[count.index].id
+  route_table_id         = local.public_route_table_ids[count.index]
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = var.igw_id[0]
 
@@ -70,9 +70,9 @@ resource "aws_route" "public" {
 }
 
 resource "aws_route" "public6" {
-  count = local.ipv6_enabled && local.igw_configured ? local.public_network_table_count : 0
+  count = local.ipv6_enabled && local.igw_configured ? local.public_route_table_count : 0
 
-  route_table_id              = aws_route_table.public[count.index].id
+  route_table_id              = local.public_route_table_ids[count.index]
   destination_ipv6_cidr_block = "::/0"
   gateway_id                  = var.igw_id[0]
 
@@ -83,10 +83,10 @@ resource "aws_route" "public6" {
 }
 
 resource "aws_route_table_association" "public" {
-  count = local.public_network_table_enabled ? local.subnet_az_count : 0
+  count = local.public_route_table_enabled ? local.subnet_az_count : 0
 
   subnet_id      = aws_subnet.public[count.index].id
-  route_table_id = element(local.public_network_table_ids, count.index)
+  route_table_id = element(local.public_route_table_ids, count.index)
 }
 
 resource "aws_network_acl" "public" {

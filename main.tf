@@ -129,18 +129,30 @@ locals {
   private4_enabled = local.private_enabled && local.ipv4_enabled
   private6_enabled = local.private_enabled && local.ipv6_enabled
 
-  public_dns64_enabled  = local.public6_enabled && var.public_dns64_enabled
-  private_dns64_enabled = local.private6_enabled && var.private_dns64_enabled
+  public_dns64_enabled  = local.public6_enabled && var.public_dns64_nat64_enabled
+  private_dns64_enabled = local.private6_enabled && var.private_dns64_nat64_enabled
 
-  public_network_route_enabled = local.public_enabled && var.public_network_route_enabled
-  public_network_table_enabled = local.public_network_route_enabled && (length(var.public_route_table_id) == 0 || local.public_dns64_enabled)
-  public_network_table_count   = local.public_network_table_enabled ? (local.public_dns64_enabled ? local.subnet_az_count : 1) : 0
-  public_network_table_ids     = local.public_network_table_enabled ? aws_route_table.public.*.id : var.public_route_table_id
+  public_route_table_enabled = local.public_enabled && var.public_route_table_enabled
+  # Use `coalesce` to pick the highest priority value (null means go to next test)
+  public_route_table_count = coalesce(
+    # Do not bother with route tables if not creating subnets
+    local.public_enabled ? null : 0,
+    # Use provided route tables when provided
+    length(var.public_route_table_ids) == 0 ? null : length(var.public_route_table_ids),
+    # Do not create route tables when told not to:
+    var.public_route_table_enabled ? null : 0,
+    # Explicitly test var.public_route_table_per_subnet_enabled == true or == false
+    # because both will be false when var.public_route_table_per_subnet_enabled == null
+    var.public_route_table_per_subnet_enabled == true ? local.subnet_az_count : null,
+    var.public_route_table_per_subnet_enabled == false ? 1 : null,
+    local.public_dns64_enabled ? local.subnet_az_count : 1
+  )
+  create_public_route_tables = local.public_route_table_enabled && length(var.public_route_table_ids) == 0
+  public_route_table_ids     = local.create_public_route_tables ? aws_route_table.public.*.id : var.public_route_table_ids
 
-  private_network_route_enabled = local.private_enabled && (local.nat_enabled || local.ipv6_egress_only_configured) && var.private_network_route_enabled
-  private_network_table_enabled = local.private_network_route_enabled
-  private_network_table_count   = local.private_network_table_enabled ? local.subnet_az_count : 0
-  private_network_table_ids     = local.private_network_table_enabled ? aws_route_table.private.*.id : []
+  private_route_table_enabled = local.private_enabled && var.private_route_table_enabled
+  private_route_table_count   = local.private_route_table_enabled ? local.subnet_az_count : 0
+  private_route_table_ids     = local.private_route_table_enabled ? aws_route_table.private.*.id : []
 
   # public and private network ACLs
   # Support deprecated var.public_network_acl_id
@@ -152,9 +164,8 @@ locals {
   # but since it must be placed in a public subnet, we consider it not required if we are not creating public subnets.
   nat_required        = local.public_enabled && (local.private4_enabled || local.public_dns64_enabled)
   nat_gateway_enabled = local.nat_required && var.nat_gateway_enabled
-  # An AWS NAT instance does not perform NAT64, but we allow for one anyway because
-  # the user can supply their own NAT instance AMI that does support it.
-  nat_instance_enabled = local.nat_required && var.nat_instance_enabled
+  # An AWS NAT instance does not perform NAT64, and we choose not to support it at this time
+  nat_instance_enabled = local.public_enabled && local.private4_enabled && var.nat_instance_enabled
   nat_enabled          = local.nat_gateway_enabled || local.nat_instance_enabled
   need_nat_eips        = local.nat_enabled && length(var.nat_elastic_ips) == 0
   need_nat_eip_data    = local.nat_enabled && length(var.nat_elastic_ips) > 0
