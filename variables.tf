@@ -80,3 +80,13 @@ variable "nat_gateway_enabled" {
   description = "Flag to enable/disable NAT gateways for private subnets"
   default     = "true"
 }
+
+variable private_subnet_alternate_name {
+  description = "Use this if you don't want key 'private' in the subnet names"
+  default = ""
+}
+
+variable public_subnet_alternate_name {
+  description = "Use this if you don't want key 'public' in the subnet names"
+  default = ""
+}

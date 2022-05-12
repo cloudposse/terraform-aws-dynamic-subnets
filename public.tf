@@ -16,7 +16,7 @@ module "public_subnet_label" {
   namespace  = "${var.namespace}"
   stage      = "${var.stage}"
   name       = "${var.name}"
-  attributes = ["public"]
+  attributes = ["${var.public_subnet_alternate_name == "" ? "public" :var.public_subnet_alternate_name}"]
   tags       = "${merge(
     var.tags,
     map("Network", "Public")

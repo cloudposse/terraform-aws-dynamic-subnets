@@ -16,7 +16,7 @@ module "private_subnet_label" {
   namespace  = "${var.namespace}"
   stage      = "${var.stage}"
   name       = "${var.name}"
-  attributes = ["private"]
+  attributes = ["${var.private_subnet_alternate_name == "" ? "private" :var.private_subnet_alternate_name}"]
   tags       = "${merge(
     var.tags,
     map("Network", "Private")
