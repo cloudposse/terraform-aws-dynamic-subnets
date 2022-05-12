@@ -47,15 +47,15 @@ related:
     url: "https://github.com/cloudposse/terraform-aws-named-subnets"
 # Short description of this project
 description: |-
-  Terraform module to provision public and private [`subnets`](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_Subnets.html) in an existing [`VPC`](https://aws.amazon.com/vpc)
+  Terraform module to provision public and private [`subnets`](https://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_Subnets.html) in an existing [`VPC`](https://aws.amazon.com/vpc)
 
   
   __Note:__ This module is intended for use with an existing VPC and existing Internet Gateway.
   To create a new VPC, use [terraform-aws-vpc](https://github.com/cloudposse/terraform-aws-vpc) module.
   
-  _Note:__ Due to Terraform [limitations](https://github.com/hashicorp/terraform/issues/26755#issuecomment-719103775),
-  many optional inputs to this module are specified as a `list(string)` that can have zero or one elements, rather than
-  as `string` that could be empty or `null`. The designation of an input as a `list` type does not necessarily
+  __Note:__ Due to Terraform [limitations](https://github.com/hashicorp/terraform/issues/26755#issuecomment-719103775),
+  many optional inputs to this module are specified as a `list(string)` that can have zero or one element, rather than
+  as a `string` that could be empty or `null`. The designation of an input as a `list` type does not necessarily
   mean that you can supply more than one value in the list, so check the input's description before supplying more than one value.
   
   The core feature of this module is dividing up a given CIDR range so that a set of subnets each gets its own 
@@ -123,8 +123,8 @@ usage: |-
     stage               = "prod"
     name                = "app"
     vpc_id              = "vpc-XXXXXXXX"
-    igw_id              = "igw-XXXXXXXX"
-    cidr_block          = "10.0.0.0/16"
+    igw_id              = ["igw-XXXXXXXX"]
+    ipv4_cidr_block          = "10.0.0.0/16"
     availability_zones  = ["us-east-1a", "us-east-1b"]
   }
   ```
@@ -138,7 +138,7 @@ usage: |-
     stage               = "prod"
     name                = "app"
     vpc_id              = "vpc-XXXXXXXX"
-    igw_id              = "igw-XXXXXXXX"
+    igw_id              = ["igw-XXXXXXXX"]
     cidr_block          = "10.0.0.0/16"
     availability_zones  = ["us-east-1a", "us-east-1b"]
     nat_gateway_enabled = true
@@ -146,7 +146,6 @@ usage: |-
   }
   ```
 
-  Learn about [using providers](https://www.terraform.io/docs/configuration-0-11/modules.html#providers-within-modules) with terraform modules.
 include:
   - "docs/design.md"
   - "docs/targets.md"
@@ -157,6 +156,8 @@ contributors:
     github: "osterman"
   - name: "Andriy Knysh"
     github: "aknysh"
+  - name: "Nuru"
+    github: "Nuru"
   - name: "Sergey Vasilyev"
     github: "s2504s"
   - name: "Vladimir"
