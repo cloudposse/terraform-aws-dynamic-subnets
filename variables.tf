@@ -60,6 +60,19 @@ variable "public_subnets_enabled" {
   default     = true
 }
 
+variable "private_label" {
+  type        = string
+  description = "The string to use in IDs and elsewhere to distinguish resources for the private subnets from resources for the public subnets"
+  default     = "private"
+}
+
+
+variable "public_label" {
+  type        = string
+  description = "The string to use in IDs and elsewhere to distinguish resources for the private subnets from resources for the public subnets"
+  default     = "public"
+}
+
 variable "ipv4_enabled" {
   type        = bool
   description = "Set true to enable IPv4 addresses in the subnets"
@@ -84,7 +97,6 @@ variable "ipv4_cidr_block" {
     error_message = "Only 1 ipv4_cidr_block can be provided. Use ipv4_cidrs to provide a CIDR per subnet."
   }
 }
-locals { ipv4_cidr_block = var.cidr_block == null ? var.ipv4_cidr_block : [var.cidr_block] }
 
 variable "ipv6_cidr_block" {
   type        = list(string)
@@ -306,7 +318,6 @@ variable "private_route_table_enabled" {
   default     = true
 }
 
-# TODO Number of public route tables depends on public_dns64_nat64_enabled
 variable "public_route_table_ids" {
   type        = list(string)
   description = <<-EOT

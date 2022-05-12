@@ -1,12 +1,3 @@
-variable "cidr_block" {
-  type        = string
-  description = <<-EOT
-    DEPRECATED: Use `ipv4_cidr_block` instead.
-    Base IPv4 CIDR block which will be divided into subnet CIDR blocks (e.g. `10.0.0.0/16`)
-    EOT
-  default     = null
-}
-
 variable "aws_route_create_timeout" {
   type        = string
   description = <<-EOT
@@ -42,24 +33,6 @@ variable "subnet_type_tag_value_format" {
     EOT
   type        = string
   default     = "%s"
-}
-
-variable "public_network_acl_id" {
-  type        = string
-  default     = ""
-  description = <<-EOT
-    DEPRECATED: Use `public_open_network_acl_enabled` instead.
-    If set, no Network ACL will be created or assigned to the public subnets.
-    EOT
-}
-
-variable "private_network_acl_id" {
-  type        = string
-  default     = ""
-  description = <<-EOT
-    DEPRECATED: Use `private_open_network_acl_enabled` instead.
-    If set, no Network ACL will be created or assigned to the public subnets.
-    EOT
 }
 
 variable "root_block_device_encrypted" {

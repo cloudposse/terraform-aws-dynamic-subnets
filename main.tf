@@ -156,16 +156,19 @@ locals {
 
   # public and private network ACLs
   # Support deprecated var.public_network_acl_id
-  public_open_network_acl_enabled = local.public_enabled && (length(var.public_network_acl_id) > 0 ? false : var.public_open_network_acl_enabled)
+  public_open_network_acl_enabled = local.public_enabled && var.public_open_network_acl_enabled
   # Support deprecated var.private_network_acl_id
-  private_open_network_acl_enabled = local.private_enabled && (length(var.private_network_acl_id) > 0 ? false : var.private_open_network_acl_enabled)
+  private_open_network_acl_enabled = local.private_enabled && var.private_open_network_acl_enabled
 
   # A NAT device is needed to NAT from private IPv4 to public IPv4 or to perform NAT64 for IPv6,
   # but since it must be placed in a public subnet, we consider it not required if we are not creating public subnets.
   nat_required        = local.public_enabled && (local.private4_enabled || local.public_dns64_enabled)
   nat_gateway_enabled = local.nat_required && var.nat_gateway_enabled
-  # An AWS NAT instance does not perform NAT64, and we choose not to support it at this time
-  nat_instance_enabled = local.public_enabled && local.private4_enabled && var.nat_instance_enabled
+  # An AWS NAT instance does not perform NAT64, and we choose not to try to support NAT64 via NAT instances at this time.
+  # It does not make sense to create both a NAT Gateway and a NAT instance, since they perform the same function
+  # and occupy the same slot in a network routing table. Rather than try to create both,
+  # we favor the more powerful NAT Gateway over the deprecated NAT Instance and make the former suppress the latter.
+  nat_instance_enabled = local.public_enabled && local.private4_enabled && var.nat_instance_enabled && !local.nat_gateway_enabled
   nat_enabled          = local.nat_gateway_enabled || local.nat_instance_enabled
   need_nat_eips        = local.nat_enabled && length(var.nat_elastic_ips) == 0
   need_nat_eip_data    = local.nat_enabled && length(var.nat_elastic_ips) > 0

@@ -2,10 +2,10 @@ module "public_label" {
   source  = "cloudposse/label/null"
   version = "0.25.0"
 
-  attributes = ["public"]
+  attributes = [var.public_label]
   tags = merge(
     var.public_subnets_additional_tags,
-    var.subnet_type_tag_key != null && var.subnet_type_tag_value_format != null ? { (var.subnet_type_tag_key) = format(var.subnet_type_tag_value_format, "public") } : {}
+    var.subnet_type_tag_key != null && var.subnet_type_tag_value_format != null ? { (var.subnet_type_tag_key) = format(var.subnet_type_tag_value_format, var.public_label) } : {}
   )
 
   context = module.this.context
