@@ -39,7 +39,9 @@ many optional inputs to this module are specified as a `list(string)` that can h
 as a `string` that could be empty or `null`. The designation of an input as a `list` type does not necessarily
 mean that you can supply more than one value in the list, so check the input's description before supplying more than one value.
 
-The core feature of this module is dividing up a given CIDR range so that a set of subnets each gets its own 
+The core function of this module is to create 2 sets of subnets, a "public" set with bidirectional access to the
+public internet, and a "private" set behind a firewall with egress-only access to the public internet. This 
+includes dividing up a given CIDR range so that a each subnet gets its own 
 distinct CIDR range within that range, and then creating those subnets in the appropriate availability zones.
 The intention is to keep this module relatively simple and easy to use for the most popular use cases. 
 In its default configuration, this module creates 1 public subnet and 1 private subnet in each
@@ -166,13 +168,15 @@ module "subnets" {
   name                = "app"
   vpc_id              = "vpc-XXXXXXXX"
   igw_id              = ["igw-XXXXXXXX"]
-  ipv4_cidr_block          = "10.0.0.0/16"
+  ipv4_cidr_block     = "10.0.0.0/16"
   availability_zones  = ["us-east-1a", "us-east-1b"]
 }
 ```
 
+Create only private subnets, route to transit gateway:
+
 ```hcl
-module "subnets_with_existing_ips" {
+module "private_tgw_subnets" {
   source = "cloudposse/dynamic-subnets/aws"
   # Cloud Posse recommends pinning every module to a specific version
   # version = "x.x.x"
@@ -181,10 +185,19 @@ module "subnets_with_existing_ips" {
   name                = "app"
   vpc_id              = "vpc-XXXXXXXX"
   igw_id              = ["igw-XXXXXXXX"]
-  cidr_block          = "10.0.0.0/16"
+  ipv4_cidr_block     = "10.0.0.0/16"
   availability_zones  = ["us-east-1a", "us-east-1b"]
-  nat_gateway_enabled = true
-  nat_elastic_ips     = ["1.2.3.4", "1.2.3.5"]
+
+  nat_gateway_enabled    = false
+  public_subnets_enabled = false
+}
+
+resource "aws_route" "private" {
+  count = length(module.private_tgw_subnets.private_route_table_ids)
+
+  route_table_id         = module.private_tgw_subnets.private_route_table_ids[count.index]
+  destination_cidr_block = "0.0.0.0/0"
+  transit_gateway_id     = "tgw-XXXXXXXXX"
 }
 ```
 
@@ -216,7 +229,7 @@ cidr_count = existing_az_count * subnet_type_count
 
 4. Calculate the number of bits needed to enumerate all the CIDRs:
 ```
-subnet_bits = ciel(log(cidr_count, 2))
+subnet_bits = ceil(log(cidr_count, 2))
 ```
 5. Reserve CIDRs for private subnets using [`cidrsubnet`](https://www.terraform.io/language/functions/cidrsubnet): 
 ```
@@ -231,7 +244,7 @@ public_subnet_cidrs = [ for netnumber in range(existing_az_count, existing_az_co
 Note that this means that, for example, in a region with 4 availability zones, if you specify only 3 availability zones 
 in `var.availability_zones`, this module will still reserve CIDRs for the 4th zone. This is so that if you later
 want to expand into that zone, the existing subnet CIDR assignments will not be disturbed. If you do not want
-to reserve these CIDRs
+to reserve these CIDRs, set `max_subnet_count` to the number of zones you are actually using.
 <!-- markdownlint-disable -->
 ## Makefile Targets
 ```text
@@ -352,10 +365,10 @@ Available targets:
 | <a name="input_name"></a> [name](#input\_name) | ID element. Usually the component or solution name, e.g. 'app' or 'jenkins'.<br>This is the only ID element not also included as a `tag`.<br>The "name" tag is set to the full `id` string. There is no tag with the value of the `name` input. | `string` | `null` | no |
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | ID element. Usually an abbreviation of your organization name, e.g. 'eg' or 'cp', to help ensure generated IDs are globally unique | `string` | `null` | no |
 | <a name="input_nat_elastic_ips"></a> [nat\_elastic\_ips](#input\_nat\_elastic\_ips) | Existing Elastic IPs (not EIP IDs) to attach to the NAT Gateway(s) or Instance(s) instead of creating new ones. | `list(string)` | `[]` | no |
-| <a name="input_nat_gateway_enabled"></a> [nat\_gateway\_enabled](#input\_nat\_gateway\_enabled) | Flag to enable/disable NAT Gateways to allow servers in the private subnets to access the Internet | `bool` | `true` | no |
+| <a name="input_nat_gateway_enabled"></a> [nat\_gateway\_enabled](#input\_nat\_gateway\_enabled) | Set `true` to create NAT Gateways to perform IPv4 NAT and NAT64 as needed.<br>Defaults to `true` unless `nat_instance_enabled` is `true`. | `bool` | `null` | no |
 | <a name="input_nat_instance_ami_id"></a> [nat\_instance\_ami\_id](#input\_nat\_instance\_ami\_id) | A list optionally containing the ID of the AMI to use for the NAT instance.<br>If the list is empty (the default), the latest official AWS NAT instance AMI<br>will be used. NOTE: The Official NAT instance AMI is being phased out and<br>does not support NAT64. Use of a NAT gateway is recommended instead. | `list(string)` | `[]` | no |
 | <a name="input_nat_instance_cpu_credits_override"></a> [nat\_instance\_cpu\_credits\_override](#input\_nat\_instance\_cpu\_credits\_override) | NAT Instance credit option for CPU usage. Valid values are "standard" or "unlimited".<br>T3 and later instances are launched as unlimited by default. T2 instances are launched as standard by default. | `string` | `""` | no |
-| <a name="input_nat_instance_enabled"></a> [nat\_instance\_enabled](#input\_nat\_instance\_enabled) | Flag to enable/disable NAT Instances to allow servers in the private subnets to access the Internet | `bool` | `false` | no |
+| <a name="input_nat_instance_enabled"></a> [nat\_instance\_enabled](#input\_nat\_instance\_enabled) | Set `true` to create NAT Instances to perform IPv4 NAT.<br>Defaults to `false`. | `bool` | `null` | no |
 | <a name="input_nat_instance_root_block_device_encrypted"></a> [nat\_instance\_root\_block\_device\_encrypted](#input\_nat\_instance\_root\_block\_device\_encrypted) | Whether to encrypt the root block device on the created NAT instances | `bool` | `true` | no |
 | <a name="input_nat_instance_type"></a> [nat\_instance\_type](#input\_nat\_instance\_type) | NAT Instance type | `string` | `"t3.micro"` | no |
 | <a name="input_open_network_acl_ipv4_rule_number"></a> [open\_network\_acl\_ipv4\_rule\_number](#input\_open\_network\_acl\_ipv4\_rule\_number) | The `rule_no` assigned to the network ACL rules for IPv4 traffic generated by this module | `number` | `100` | no |

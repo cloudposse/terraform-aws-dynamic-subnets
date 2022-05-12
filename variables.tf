@@ -183,14 +183,20 @@ variable "availability_zone_attribute_style" {
 
 variable "nat_gateway_enabled" {
   type        = bool
-  description = "Flag to enable/disable NAT Gateways to allow servers in the private subnets to access the Internet"
-  default     = true
+  description = <<-EOT
+    Set `true` to create NAT Gateways to perform IPv4 NAT and NAT64 as needed.
+    Defaults to `true` unless `nat_instance_enabled` is `true`.
+    EOT
+  default     = null
 }
 
 variable "nat_instance_enabled" {
   type        = bool
-  description = "Flag to enable/disable NAT Instances to allow servers in the private subnets to access the Internet"
-  default     = false
+  description = <<-EOT
+    Set `true` to create NAT Instances to perform IPv4 NAT.
+    Defaults to `false`.
+    EOT
+  default     = null
 }
 
 variable "nat_elastic_ips" {

@@ -58,7 +58,9 @@ description: |-
   as a `string` that could be empty or `null`. The designation of an input as a `list` type does not necessarily
   mean that you can supply more than one value in the list, so check the input's description before supplying more than one value.
   
-  The core feature of this module is dividing up a given CIDR range so that a set of subnets each gets its own 
+  The core function of this module is to create 2 sets of subnets, a "public" set with bidirectional access to the
+  public internet, and a "private" set behind a firewall with egress-only access to the public internet. This 
+  includes dividing up a given CIDR range so that a each subnet gets its own 
   distinct CIDR range within that range, and then creating those subnets in the appropriate availability zones.
   The intention is to keep this module relatively simple and easy to use for the most popular use cases. 
   In its default configuration, this module creates 1 public subnet and 1 private subnet in each
@@ -124,13 +126,15 @@ usage: |-
     name                = "app"
     vpc_id              = "vpc-XXXXXXXX"
     igw_id              = ["igw-XXXXXXXX"]
-    ipv4_cidr_block          = "10.0.0.0/16"
+    ipv4_cidr_block     = "10.0.0.0/16"
     availability_zones  = ["us-east-1a", "us-east-1b"]
   }
   ```
+  
+  Create only private subnets, route to transit gateway:
 
   ```hcl
-  module "subnets_with_existing_ips" {
+  module "private_tgw_subnets" {
     source = "cloudposse/dynamic-subnets/aws"
     # Cloud Posse recommends pinning every module to a specific version
     # version = "x.x.x"
@@ -139,10 +143,19 @@ usage: |-
     name                = "app"
     vpc_id              = "vpc-XXXXXXXX"
     igw_id              = ["igw-XXXXXXXX"]
-    cidr_block          = "10.0.0.0/16"
+    ipv4_cidr_block     = "10.0.0.0/16"
     availability_zones  = ["us-east-1a", "us-east-1b"]
-    nat_gateway_enabled = true
-    nat_elastic_ips     = ["1.2.3.4", "1.2.3.5"]
+  
+    nat_gateway_enabled    = false
+    public_subnets_enabled = false
+  }
+  
+  resource "aws_route" "private" {
+    count = length(module.private_tgw_subnets.private_route_table_ids)
+
+    route_table_id         = module.private_tgw_subnets.private_route_table_ids[count.index]
+    destination_cidr_block = "0.0.0.0/0"
+    transit_gateway_id     = "tgw-XXXXXXXXX"
   }
   ```
 

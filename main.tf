@@ -170,12 +170,19 @@ locals {
   nat_required = local.public_enabled && (local.private4_enabled || local.public_dns64_enabled)
   nat_count    = min(local.subnet_az_count, var.max_nats)
 
-  nat_gateway_enabled = local.nat_required && var.nat_gateway_enabled
   # An AWS NAT instance does not perform NAT64, and we choose not to try to support NAT64 via NAT instances at this time.
   # It does not make sense to create both a NAT Gateway and a NAT instance, since they perform the same function
   # and occupy the same slot in a network routing table. Rather than try to create both,
-  # we favor the more powerful NAT Gateway over the deprecated NAT Instance and make the former suppress the latter.
-  nat_instance_enabled = local.public_enabled && local.private4_enabled && var.nat_instance_enabled && !local.nat_gateway_enabled
+  # we favor the more powerful NAT Gateway over the deprecated NAT Instance.
+  # However, we do not want to force people to set `nat_gateway_enabled` to `false` to enable a NAT Instance,
+  # so if `nat_instance_enabled` is set to true, we set the default for `nat_gateway_enabled` to `false`.
+  nat_gateway_setting = var.nat_instance_enabled == true ? var.nat_gateway_enabled == true : !(
+    var.nat_gateway_enabled == false # not true or null
+  )
+  nat_instance_setting = local.nat_gateway_setting ? false : var.nat_instance_enabled == true # not false or null
+
+  nat_gateway_enabled  = local.nat_required && local.nat_gateway_setting
+  nat_instance_enabled = local.public_enabled && local.private4_enabled && local.nat_instance_setting
   nat_enabled          = local.nat_gateway_enabled || local.nat_instance_enabled
   need_nat_eips        = local.nat_enabled && length(var.nat_elastic_ips) == 0
   need_nat_eip_data    = local.nat_enabled && length(var.nat_elastic_ips) > 0
@@ -209,7 +216,7 @@ data "aws_eip" "nat" {
 
 
 resource "aws_eip" "default" {
-  count = local.need_nat_eips ? local.subnet_az_count : 0
+  count = local.need_nat_eips ? local.nat_count : 0
   vpc   = true
 
   tags = merge(

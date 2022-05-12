@@ -1,7 +1,7 @@
 ## Migration Notes for Dynamic Subnets v2.0
 
 The first version of `terraform-aws-dynamic-subnets` was written for Terraform v0.9.1, 
-which was so limited that it do not even have a boolean data type, and 
+which was so limited that it did not even have a boolean data type, and 
 lists did not have first-class support. Cloud Posse continued to upgrade
 the module over time, but retained many of the awkward constructions required
 by those early Terraform versions.
@@ -34,8 +34,8 @@ rather than a `string` that could be empty or `null`.
 ### `cidr_block` replaced with `ipv4_cidr_block`
 
 Previously this module required an IPv4 CIDR block input as `cidr_block`.
-This value is now optional, and,  Since we had to make 
-a breaking change in type, we took the opportunity to reduce the ambiguity
+This value is now optional, and, since we had to make a breaking change in 
+its type anyway, we took the opportunity to reduce the ambiguity
 of `cidr_block` and renamed it `ipv4_cidr_block`.
 
 ***Migration***: Replace
@@ -69,7 +69,7 @@ igw_id = [aws_internet_gateway.default.id]
 ```
 
 Because the Internet Gateway ID is now optional, you
-can create a "public" set of subnets but not have the routed directly 
+can create a "public" set of subnets but not have them routed directly 
 to the internet. You could, instead, route them to a Transit Gateway, 
 VPC Endpoint, or other egress by adding your own entry into the route table.
 

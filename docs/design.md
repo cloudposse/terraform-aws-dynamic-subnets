@@ -21,7 +21,7 @@ cidr_count = existing_az_count * subnet_type_count
 
 4. Calculate the number of bits needed to enumerate all the CIDRs:
 ```
-subnet_bits = ciel(log(cidr_count, 2))
+subnet_bits = ceil(log(cidr_count, 2))
 ```
 5. Reserve CIDRs for private subnets using [`cidrsubnet`](https://www.terraform.io/language/functions/cidrsubnet): 
 ```
@@ -36,4 +36,4 @@ public_subnet_cidrs = [ for netnumber in range(existing_az_count, existing_az_co
 Note that this means that, for example, in a region with 4 availability zones, if you specify only 3 availability zones 
 in `var.availability_zones`, this module will still reserve CIDRs for the 4th zone. This is so that if you later
 want to expand into that zone, the existing subnet CIDR assignments will not be disturbed. If you do not want
-to reserve these CIDRs
+to reserve these CIDRs, set `max_subnet_count` to the number of zones you are actually using.
