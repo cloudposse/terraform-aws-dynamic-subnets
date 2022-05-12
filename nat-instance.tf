@@ -73,7 +73,7 @@ data "aws_ami" "nat_instance" {
 # https://docs.aws.amazon.com/vpc/latest/userguide/VPC_NAT_Instance.html
 # https://dzone.com/articles/nat-instance-vs-nat-gateway
 resource "aws_instance" "nat_instance" {
-  count = local.nat_instance_enabled ? local.subnet_az_count : 0
+  count = local.nat_instance_enabled ? local.nat_count : 0
 
   ami                    = local.nat_instance_ami_id
   instance_type          = var.nat_instance_type
@@ -95,10 +95,6 @@ resource "aws_instance" "nat_instance" {
   #bridgecrew:skip=BC_AWS_GENERAL_31: Skipping `Ensure Instance Metadata Service Version 1 is not enabled` check until BridgeCrew support condition evaluation. See https://github.com/bridgecrewio/checkov/issues/793
   #bridgecrew:skip=BC_AWS_LOGGING_26: Skipping requirement for detailed monitoring of NAT instance.
   associate_public_ip_address = true #tfsec:ignore:AWS012
-
-  lifecycle {
-    create_before_destroy = true
-  }
 
   metadata_options {
     http_endpoint               = var.metadata_http_endpoint_enabled ? "enabled" : "disabled"
@@ -122,7 +118,7 @@ resource "aws_instance" "nat_instance" {
 }
 
 resource "aws_eip_association" "nat_instance" {
-  count = local.nat_instance_enabled ? local.subnet_az_count : 0
+  count = local.nat_instance_enabled ? local.nat_count : 0
 
   instance_id   = aws_instance.nat_instance[count.index].id
   allocation_id = local.nat_eip_allocations[count.index]
@@ -132,7 +128,7 @@ resource "aws_route" "nat_instance" {
   count = local.nat_instance_enabled ? local.private_route_table_count : 0
 
   route_table_id         = local.private_route_table_ids[count.index]
-  network_interface_id   = aws_instance.nat_instance[count.index].primary_network_interface_id
+  network_interface_id   = element(aws_instance.nat_instance.*.primary_network_interface_id, count.index)
   destination_cidr_block = "0.0.0.0/0"
   depends_on             = [aws_route_table.private]
 

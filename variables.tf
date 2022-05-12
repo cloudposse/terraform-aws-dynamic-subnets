@@ -43,6 +43,12 @@ variable "max_subnet_count" {
   default     = 0
 }
 
+variable "max_nats" {
+  type        = number
+  description = "Maximum number of NAT Gateways or NAT instances to create"
+  default     = 999
+}
+
 variable "private_subnets_enabled" {
   type        = bool
   description = "If false, do not create private subnets (or NAT gateways or instances)"

@@ -47,7 +47,12 @@ locals {
   subnet_possible_availability_zones = local.az_option_map[local.subnet_availability_zone_option]
 
   # Adjust list according to `max_subnet_count`
-  subnet_availability_zones = slice(local.subnet_possible_availability_zones, 0, var.max_subnet_count > 0 ? var.max_subnet_count : length(local.subnet_possible_availability_zones))
+  subnet_availability_zones = (
+    var.max_subnet_count == 0 || var.max_subnet_count >= length(local.subnet_possible_availability_zones)
+    ) ? (
+    local.subnet_possible_availability_zones
+  ) : slice(local.subnet_possible_availability_zones, 0, var.max_subnet_count)
+
 
   subnet_az_count = local.e ? length(local.subnet_availability_zones) : 0
   subnet_count    = ((local.public_enabled ? 1 : 0) + (local.private_enabled ? 1 : 0)) * local.subnet_az_count
@@ -162,7 +167,9 @@ locals {
 
   # A NAT device is needed to NAT from private IPv4 to public IPv4 or to perform NAT64 for IPv6,
   # but since it must be placed in a public subnet, we consider it not required if we are not creating public subnets.
-  nat_required        = local.public_enabled && (local.private4_enabled || local.public_dns64_enabled)
+  nat_required = local.public_enabled && (local.private4_enabled || local.public_dns64_enabled)
+  nat_count    = min(local.subnet_az_count, var.max_nats)
+
   nat_gateway_enabled = local.nat_required && var.nat_gateway_enabled
   # An AWS NAT instance does not perform NAT64, and we choose not to try to support NAT64 via NAT instances at this time.
   # It does not make sense to create both a NAT Gateway and a NAT instance, since they perform the same function

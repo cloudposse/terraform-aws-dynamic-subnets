@@ -150,3 +150,13 @@ Also, the default values have changed from `2m` and `5m` to `5m` and `10m` respe
 
 For clarity, `root_block_device_encrypted` is deprecated in favor of
 `nat_instance_root_block_device_encrypted`.
+
+## Deprecated outputs
+
+### `nat_gateway_public_ips`
+
+This module now uses the same EIPs for both NAT Gateways and NAT instances, so 
+that switching from one to the other is possible without changing IPs. 
+Therefore the `nat_gateway_public_ips` output is deprecated in favor
+of the `nat_ips` output.
+
