@@ -20,24 +20,27 @@ output "private_subnet_ids" {
   value       = aws_subnet.private.*.id
 }
 
+# Provide some consistency in CDIR outputs by always returning a list.
+# Avoid (or at least reduce) `count` problems by toggling the return
+# value via configuration rather than computing it via `compact()`.
 output "public_subnet_cidrs" {
   description = "IPv4 CIDR blocks of the created public subnets"
-  value       = aws_subnet.public.*.cidr_block
+  value       = local.public4_enabled ? aws_subnet.public.*.cidr_block : []
 }
 
 output "public_subnet_ipv6_cidrs" {
   description = "IPv6 CIDR blocks of the created public subnets"
-  value       = aws_subnet.public.*.ipv6_cidr_block
+  value       = local.public6_enabled ? aws_subnet.public.*.ipv6_cidr_block : []
 }
 
 output "private_subnet_cidrs" {
   description = "IPv4 CIDR blocks of the created private subnets"
-  value       = aws_subnet.private.*.cidr_block
+  value       = local.private4_enabled ? aws_subnet.private.*.cidr_block : []
 }
 
 output "private_subnet_ipv6_cidrs" {
   description = "IPv6 CIDR blocks of the created private subnets"
-  value       = aws_subnet.private.*.ipv6_cidr_block
+  value       = local.private6_enabled ? aws_subnet.private.*.ipv6_cidr_block : []
 }
 
 output "public_route_table_ids" {

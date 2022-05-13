@@ -229,8 +229,9 @@ variable "private_dns64_nat64_enabled" {
     If `true` and IPv6 is enabled, DNS queries made to the Amazon-provided DNS Resolver in private subnets will return synthetic
     IPv6 addresses for IPv4-only destinations, and these addresses will be routed to the NAT Gateway.
     Requires `public_subnets_enabled`, `nat_gateway_enabled`, and `private_route_table_enabled` to be `true` to be fully operational.
+    Defaults to `true` unless there is no public IPv4 subnet for egress, in which case it defaults to false.
     EOT
-  default     = true
+  default     = null
 }
 
 variable "public_dns64_nat64_enabled" {
@@ -245,46 +246,50 @@ variable "public_dns64_nat64_enabled" {
 
 variable "ipv4_private_instance_hostname_type" {
   type        = string
-  default     = "ip-name"
   description = <<-EOT
     How to generate the DNS name for the instances in the private subnets.
     Either `ip-name` to generate it from the IPv4 address, or
     `resource-name` to generate it from the instance ID.
     EOT
+  default     = "ip-name"
 }
 
 variable "ipv4_private_instance_hostnames_enabled" {
   type        = bool
-  default     = false
   description = "If `true`, DNS queries for instance hostnames in the private subnets will be answered with A (IPv4) records."
+  default     = false
 }
 
 variable "ipv6_private_instance_hostnames_enabled" {
   type        = bool
+  description = <<-EOT
+    If `true` (or if `ipv4_enabled` is false), DNS queries for instance hostnames in the private subnets will be answered with AAAA (IPv6) records.
+    EOT
   default     = false
-  description = "If `true`, DNS queries for instance hostnames in the private subnets will be answered with AAAA (IPv6) records."
 }
 
 variable "ipv4_public_instance_hostname_type" {
   type        = string
-  default     = "ip-name"
   description = <<-EOT
     How to generate the DNS name for the instances in the public subnets.
     Either `ip-name` to generate it from the IPv4 address, or
     `resource-name` to generate it from the instance ID.
     EOT
+  default     = "ip-name"
 }
 
 variable "ipv4_public_instance_hostnames_enabled" {
   type        = bool
-  default     = false
   description = "If `true`, DNS queries for instance hostnames in the public subnets will be answered with A (IPv4) records."
+  default     = false
 }
 
 variable "ipv6_public_instance_hostnames_enabled" {
   type        = bool
+  description = <<-EOT
+    If `true` (or if `ipv4_enabled` is false), DNS queries for instance hostnames in the public subnets will be answered with AAAA (IPv6) records.
+    EOT
   default     = false
-  description = "If `true`, DNS queries for instance hostnames in the public subnets will be answered with AAAA (IPv6) records."
 }
 
 variable "private_open_network_acl_enabled" {
@@ -366,40 +371,42 @@ variable "public_route_table_per_subnet_enabled" {
 
 variable "route_create_timeout" {
   type        = string
-  default     = "5m"
   description = "Time to wait for a network routing table entry to be created, specified as a Go Duration, e.g. `2m`"
+  default     = "5m"
 }
 locals { route_create_timeout = var.aws_route_create_timeout == null ? var.route_create_timeout : var.aws_route_create_timeout }
 
 variable "route_delete_timeout" {
   type        = string
-  default     = "10m"
   description = "Time to wait for a network routing table entry to be deleted, specified as a Go Duration, e.g. `2m`"
+  default     = "10m"
 }
 locals { route_delete_timeout = var.aws_route_delete_timeout == null ? var.route_delete_timeout : var.aws_route_delete_timeout }
 
 variable "subnet_create_timeout" {
   type        = string
-  default     = "10m"
   description = "Time to wait for a subnet to be created, specified as a Go Duration, e.g. `2m`"
+  # 10m is the AWS Provider's default value
+  default = "10m"
 }
 
 variable "subnet_delete_timeout" {
   type        = string
-  default     = "20m"
   description = "Time to wait for a subnet to be deleted, specified as a Go Duration, e.g. `5m`"
+  # 20m is the AWS Provider's default value
+  default = "20m"
 }
 
 variable "private_subnets_additional_tags" {
   type        = map(string)
-  default     = {}
   description = "Additional tags to be added to private subnets"
+  default     = {}
 }
 
 variable "public_subnets_additional_tags" {
   type        = map(string)
-  default     = {}
   description = "Additional tags to be added to public subnets"
+  default     = {}
 }
 
 ############## NAT instance configuration ###################
@@ -443,25 +450,25 @@ variable "nat_instance_cpu_credits_override" {
 
 variable "metadata_http_endpoint_enabled" {
   type        = bool
-  default     = true
   description = "Whether the metadata service is available on the created NAT instances"
+  default     = true
 }
 
 variable "metadata_http_put_response_hop_limit" {
   type        = number
-  default     = 1
   description = "The desired HTTP PUT response hop limit (between 1 and 64) for instance metadata requests on the created NAT instances"
+  default     = 1
 }
 
 variable "metadata_http_tokens_required" {
   type        = bool
-  default     = true
   description = "Whether or not the metadata service requires session tokens, also referred to as Instance Metadata Service Version 2, on the created NAT instances"
+  default     = true
 }
 
 variable "nat_instance_root_block_device_encrypted" {
   type        = bool
-  default     = true
   description = "Whether to encrypt the root block device on the created NAT instances"
+  default     = true
 }
 locals { nat_instance_root_block_device_encrypted = var.root_block_device_encrypted == null ? var.nat_instance_root_block_device_encrypted : var.root_block_device_encrypted }

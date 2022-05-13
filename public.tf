@@ -19,20 +19,20 @@ resource "aws_subnet" "public" {
 
   # When provisioning both public and private subnets, the public subnets get the second set of CIDRs.
   # Use element()'s wrap-around behavior to handle the case where we are only provisioning public subnets.
-  cidr_block      = local.ipv4_enabled ? element(local.ipv4_public_subnet_cidrs, count.index) : null
-  ipv6_cidr_block = local.ipv6_enabled ? element(local.ipv6_public_subnet_cidrs, count.index) : null
-  ipv6_native     = local.ipv6_enabled && !local.ipv4_enabled
+  cidr_block      = local.public4_enabled ? element(local.ipv4_public_subnet_cidrs, count.index) : null
+  ipv6_cidr_block = local.public6_enabled ? element(local.ipv6_public_subnet_cidrs, count.index) : null
+  ipv6_native     = local.public6_enabled && !local.private4_enabled
 
   #bridgecrew:skip=BC_AWS_NETWORKING_53:Public VPCs should be allowed to default to public IPs
-  map_public_ip_on_launch = local.ipv4_enabled ? var.map_public_ip_on_launch : null
+  map_public_ip_on_launch = local.private4_enabled ? var.map_public_ip_on_launch : null
 
-  assign_ipv6_address_on_creation = local.ipv6_enabled ? var.public_assign_ipv6_address_on_creation : null
-  enable_dns64                    = local.ipv6_enabled ? local.public_dns64_enabled : null
+  assign_ipv6_address_on_creation = local.public6_enabled ? var.public_assign_ipv6_address_on_creation : null
+  enable_dns64                    = local.public6_enabled ? local.public_dns64_enabled : null
 
-  enable_resource_name_dns_a_record_on_launch    = local.ipv4_enabled ? var.ipv4_public_instance_hostnames_enabled : null
-  enable_resource_name_dns_aaaa_record_on_launch = local.ipv6_enabled ? var.ipv6_public_instance_hostnames_enabled : null
+  enable_resource_name_dns_a_record_on_launch    = local.private4_enabled ? var.ipv4_public_instance_hostnames_enabled : null
+  enable_resource_name_dns_aaaa_record_on_launch = local.public6_enabled ? var.ipv6_public_instance_hostnames_enabled || !local.private4_enabled : null
 
-  private_dns_hostname_type_on_launch = local.ipv4_enabled ? var.ipv4_public_instance_hostname_type : null
+  private_dns_hostname_type_on_launch = local.private4_enabled ? var.ipv4_public_instance_hostname_type : null
 
 
   tags = merge(
@@ -44,6 +44,11 @@ resource "aws_subnet" "public" {
 
   lifecycle {
     ignore_changes = [tags.kubernetes, tags.SubnetType]
+  }
+
+  timeouts {
+    create = var.subnet_create_timeout
+    delete = var.subnet_delete_timeout
   }
 }
 
@@ -57,7 +62,7 @@ resource "aws_route_table" "public" {
 }
 
 resource "aws_route" "public" {
-  count = local.ipv4_enabled && local.igw_configured ? local.public_route_table_count : 0
+  count = local.private4_enabled && local.igw_configured ? local.public_route_table_count : 0
 
   route_table_id         = local.public_route_table_ids[count.index]
   destination_cidr_block = "0.0.0.0/0"
@@ -70,7 +75,7 @@ resource "aws_route" "public" {
 }
 
 resource "aws_route" "public6" {
-  count = local.ipv6_enabled && local.igw_configured ? local.public_route_table_count : 0
+  count = local.public6_enabled && local.igw_configured ? local.public_route_table_count : 0
 
   route_table_id              = local.public_route_table_ids[count.index]
   destination_ipv6_cidr_block = "::/0"
@@ -99,7 +104,7 @@ resource "aws_network_acl" "public" {
 }
 
 resource "aws_network_acl_rule" "public4_ingress" {
-  count = local.public_open_network_acl_enabled && local.ipv4_enabled ? 1 : 0
+  count = local.public_open_network_acl_enabled && local.private4_enabled ? 1 : 0
 
   network_acl_id = aws_network_acl.public[0].id
   rule_action    = "allow"
@@ -113,7 +118,7 @@ resource "aws_network_acl_rule" "public4_ingress" {
 }
 
 resource "aws_network_acl_rule" "public4_egress" {
-  count = local.public_open_network_acl_enabled && local.ipv4_enabled ? 1 : 0
+  count = local.public_open_network_acl_enabled && local.private4_enabled ? 1 : 0
 
   network_acl_id = aws_network_acl.public[0].id
   rule_action    = "allow"
@@ -127,7 +132,7 @@ resource "aws_network_acl_rule" "public4_egress" {
 }
 
 resource "aws_network_acl_rule" "public6_ingress" {
-  count = local.public_open_network_acl_enabled && local.ipv6_enabled ? 1 : 0
+  count = local.public_open_network_acl_enabled && local.public6_enabled ? 1 : 0
 
   network_acl_id = aws_network_acl.public[0].id
   rule_action    = "allow"
@@ -141,7 +146,7 @@ resource "aws_network_acl_rule" "public6_ingress" {
 }
 
 resource "aws_network_acl_rule" "public6_egress" {
-  count = local.public_open_network_acl_enabled && local.ipv6_enabled ? 1 : 0
+  count = local.public_open_network_acl_enabled && local.public6_enabled ? 1 : 0
 
   network_acl_id = aws_network_acl.public[0].id
   rule_action    = "allow"

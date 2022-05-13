@@ -134,8 +134,11 @@ locals {
   private4_enabled = local.private_enabled && local.ipv4_enabled
   private6_enabled = local.private_enabled && local.ipv6_enabled
 
-  public_dns64_enabled  = local.public6_enabled && var.public_dns64_nat64_enabled
-  private_dns64_enabled = local.private6_enabled && var.private_dns64_nat64_enabled
+  public_dns64_enabled = local.public6_enabled && var.public_dns64_nat64_enabled
+  # Set the default for private_dns64_enabled to true unless there is no IPv4 egress to enable it.
+  private_dns64_enabled = local.private6_enabled && (
+    var.private_dns64_nat64_enabled == null ? local.public4_enabled : var.private_dns64_nat64_enabled
+  )
 
   public_route_table_enabled = local.public_enabled && var.public_route_table_enabled
   # Use `coalesce` to pick the highest priority value (null means go to next test)
@@ -165,12 +168,12 @@ locals {
   # Support deprecated var.private_network_acl_id
   private_open_network_acl_enabled = local.private_enabled && var.private_open_network_acl_enabled
 
-  # A NAT device is needed to NAT from private IPv4 to public IPv4 or to perform NAT64 for IPv6,
-  # but since it must be placed in a public subnet, we consider it not required if we are not creating public subnets.
-  nat_required = local.public_enabled && (local.private4_enabled || local.public_dns64_enabled)
-  nat_count    = min(local.subnet_az_count, var.max_nats)
-
+  # A NAT device is needed to NAT from private IPv4 to public IPv4 or to perform NAT64 for IPv6.
   # An AWS NAT instance does not perform NAT64, and we choose not to try to support NAT64 via NAT instances at this time.
+  nat_instance_useful = local.private4_enabled
+  nat_gateway_useful  = local.nat_instance_useful || local.public_dns64_enabled || local.private_dns64_enabled
+  nat_count           = min(local.subnet_az_count, var.max_nats)
+
   # It does not make sense to create both a NAT Gateway and a NAT instance, since they perform the same function
   # and occupy the same slot in a network routing table. Rather than try to create both,
   # we favor the more powerful NAT Gateway over the deprecated NAT Instance.
@@ -181,8 +184,11 @@ locals {
   )
   nat_instance_setting = local.nat_gateway_setting ? false : var.nat_instance_enabled == true # not false or null
 
-  nat_gateway_enabled  = local.nat_required && local.nat_gateway_setting
-  nat_instance_enabled = local.public_enabled && local.private4_enabled && local.nat_instance_setting
+  # We suppress creating NATs if not useful, but choose to attempt to create NATs
+  # when useful even if we know they will fail (e.g. due to no public subnets)
+  # to provide useful feedback to users.
+  nat_gateway_enabled  = local.nat_gateway_useful && local.nat_gateway_setting
+  nat_instance_enabled = local.nat_instance_useful && local.nat_instance_setting
   nat_enabled          = local.nat_gateway_enabled || local.nat_instance_enabled
   need_nat_eips        = local.nat_enabled && length(var.nat_elastic_ips) == 0
   need_nat_eip_data    = local.nat_enabled && length(var.nat_elastic_ips) > 0

@@ -24,7 +24,7 @@ resource "aws_nat_gateway" "default" {
 }
 
 resource "aws_route" "nat4" {
-  count = local.nat_gateway_enabled && local.ipv4_enabled ? local.private_route_table_count : 0
+  count = local.nat_gateway_enabled && local.private4_enabled ? local.private_route_table_count : 0
 
   route_table_id         = local.private_route_table_ids[count.index]
   nat_gateway_id         = element(aws_nat_gateway.default.*.id, count.index)
