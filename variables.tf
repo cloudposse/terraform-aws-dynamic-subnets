@@ -229,7 +229,7 @@ variable "private_dns64_nat64_enabled" {
     If `true` and IPv6 is enabled, DNS queries made to the Amazon-provided DNS Resolver in private subnets will return synthetic
     IPv6 addresses for IPv4-only destinations, and these addresses will be routed to the NAT Gateway.
     Requires `public_subnets_enabled`, `nat_gateway_enabled`, and `private_route_table_enabled` to be `true` to be fully operational.
-    Defaults to `true` unless there is no public IPv4 subnet for egress, in which case it defaults to false.
+    Defaults to `true` unless there is no public IPv4 subnet for egress, in which case it defaults to `false`.
     EOT
   default     = null
 }
@@ -263,7 +263,7 @@ variable "ipv4_private_instance_hostnames_enabled" {
 variable "ipv6_private_instance_hostnames_enabled" {
   type        = bool
   description = <<-EOT
-    If `true` (or if `ipv4_enabled` is false), DNS queries for instance hostnames in the private subnets will be answered with AAAA (IPv6) records.
+    If `true` (or if `ipv4_enabled` is `false`), DNS queries for instance hostnames in the private subnets will be answered with AAAA (IPv6) records.
     EOT
   default     = false
 }
