@@ -53,12 +53,12 @@ output "private_route_table_ids" {
   value       = aws_route_table.private.*.id
 }
 
-output "public_network_acl" {
+output "public_network_acl_id" {
   description = "ID of the Network ACL created for public subnets"
   value       = local.public_open_network_acl_enabled ? aws_network_acl.public[0].id : null
 }
 
-output "private_network_acl" {
+output "private_network_acl_id" {
   description = "ID of the Network ACL created for private subnets"
   value       = local.private_open_network_acl_enabled ? aws_network_acl.private[0].id : null
 }
@@ -79,7 +79,7 @@ output "nat_instance_ami_id" {
 }
 
 output "nat_ips" {
-  description = "IP Addresses in use by NAT"
+  description = "Elastic IP Addresses in use by NAT"
   value       = local.need_nat_eip_data ? var.nat_elastic_ips : aws_eip.default.*.public_ip
 }
 

@@ -46,7 +46,8 @@ variable "max_subnet_count" {
 variable "max_nats" {
   type        = number
   description = "Maximum number of NAT Gateways or NAT instances to create"
-  default     = 999
+  # Default should be MAX_INT, but Terraform does not provide that. 999 is big enough.
+  default = 999
 }
 
 variable "private_subnets_enabled" {
@@ -68,26 +69,26 @@ variable "public_subnets_enabled" {
 
 variable "private_label" {
   type        = string
-  description = "The string to use in IDs and elsewhere to distinguish resources for the private subnets from resources for the public subnets"
+  description = "The string to use in IDs and elsewhere to identify resources for the private subnets and distinguish them from resources for the public subnets"
   default     = "private"
 }
 
 
 variable "public_label" {
   type        = string
-  description = "The string to use in IDs and elsewhere to distinguish resources for the private subnets from resources for the public subnets"
+  description = "The string to use in IDs and elsewhere to identify resources for the public subnets and distinguish them from resources for the private subnets"
   default     = "public"
 }
 
 variable "ipv4_enabled" {
   type        = bool
-  description = "Set true to enable IPv4 addresses in the subnets"
+  description = "Set `true` to enable IPv4 addresses in the subnets"
   default     = true
 }
 
 variable "ipv6_enabled" {
   type        = bool
-  description = "Set true to enable IPv6 addresses in the subnets"
+  description = "Set `true` to enable IPv6 addresses in the subnets"
   default     = false
 }
 
@@ -298,7 +299,7 @@ variable "private_open_network_acl_enabled" {
     If `true`, a single network ACL be created and it will be associated with every private subnet, and a rule (number 100)
     will be created allowing all ingress and all egress. You can add additional rules to this network ACL
     using the `aws_network_acl_rule` resource.
-    If `false`, you will will need to manage the network ACL external to this module.
+    If `false`, you will need to manage the network ACL outside of this module.
     EOT
   default     = true
 }
@@ -309,7 +310,7 @@ variable "public_open_network_acl_enabled" {
     If `true`, a single network ACL be created and it will be associated with every public subnet, and a rule
     will be created allowing all ingress and all egress. You can add additional rules to this network ACL
     using the `aws_network_acl_rule` resource.
-    If `false`, you will will need to manage the network ACL external to this module.
+    If `false`, you will need to manage the network ACL outside of this module.
     EOT
   default     = true
 }
@@ -329,7 +330,7 @@ variable "open_network_acl_ipv6_rule_number" {
 variable "private_route_table_enabled" {
   type        = bool
   description = <<-EOT
-    If true, a network route table and default route to the NAT gateway, NAT instance, or egress-only gateway
+    If `true`, a network route table and default route to the NAT gateway, NAT instance, or egress-only gateway
     will be created for each private subnet (1:1). If false, you will need to create your own route table(s) and route(s).
     EOT
   default     = true
@@ -429,7 +430,6 @@ variable "nat_instance_ami_id" {
     condition     = length(var.nat_instance_ami_id) < 2
     error_message = "Only 1 NAT Instance AMI ID can be provided."
   }
-
 }
 
 variable "nat_instance_cpu_credits_override" {
