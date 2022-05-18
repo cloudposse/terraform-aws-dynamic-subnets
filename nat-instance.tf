@@ -124,6 +124,8 @@ resource "aws_eip_association" "nat_instance" {
   allocation_id = local.nat_eip_allocations[count.index]
 }
 
+# If private IPv4 subnets and NAT Gateway are both enabled, create a
+# default route from private subnet to NAT Gateway in each subnet
 resource "aws_route" "nat_instance" {
   count = local.nat_instance_enabled ? local.private_route_table_count : 0
 

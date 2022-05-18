@@ -23,6 +23,8 @@ resource "aws_nat_gateway" "default" {
   depends_on = [aws_eip_association.nat_instance]
 }
 
+# If private IPv4 subnets and NAT Gateway are both enabled, create a
+# default route from private subnet to NAT Gateway in each subnet
 resource "aws_route" "nat4" {
   count = local.nat_gateway_enabled && local.private4_enabled ? local.private_route_table_count : 0
 
@@ -37,6 +39,8 @@ resource "aws_route" "nat4" {
   }
 }
 
+# If private IPv6 subnet needs NAT64 and NAT Gateway is enabled, create a
+# NAT64 route from private subnet to NAT Gateway in each subnet
 resource "aws_route" "private_nat64" {
   count = local.nat_gateway_enabled && local.private_dns64_enabled ? local.private_route_table_count : 0
 
@@ -51,6 +55,8 @@ resource "aws_route" "private_nat64" {
   }
 }
 
+# If public IPv6 subnet needs NAT64 and NAT Gateway is enabled, create a
+# NAT64 route from private subnet to NAT Gateway in each subnet
 resource "aws_route" "public_nat64" {
   count = local.nat_gateway_enabled && local.public_dns64_enabled ? local.public_route_table_count : 0
 

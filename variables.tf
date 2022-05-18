@@ -45,7 +45,10 @@ variable "max_subnet_count" {
 
 variable "max_nats" {
   type        = number
-  description = "Maximum number of NAT Gateways or NAT instances to create"
+  description = <<-EOT
+    Upper limit on number of NAT Gateways/Instances to create.
+    Set to 1 or 2 for cost savings at the expense of availability.
+    EOT
   # Default should be MAX_INT, but Terraform does not provide that. 999 is big enough.
   default = 999
 }
