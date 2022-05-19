@@ -12,7 +12,7 @@ module "public_label" {
 }
 
 resource "aws_subnet" "public" {
-  count = local.subnet_az_count
+  count = local.public_enabled ? local.subnet_az_count : 0
 
   vpc_id            = local.vpc_id
   availability_zone = local.subnet_availability_zones[count.index]
