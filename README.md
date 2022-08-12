@@ -168,7 +168,7 @@ module "subnets" {
   name                = "app"
   vpc_id              = "vpc-XXXXXXXX"
   igw_id              = ["igw-XXXXXXXX"]
-  ipv4_cidr_block     = "10.0.0.0/16"
+  ipv4_cidr_block     = ["10.0.0.0/16"]
   availability_zones  = ["us-east-1a", "us-east-1b"]
 }
 ```
@@ -185,7 +185,7 @@ module "private_tgw_subnets" {
   name                = "app"
   vpc_id              = "vpc-XXXXXXXX"
   igw_id              = ["igw-XXXXXXXX"]
-  ipv4_cidr_block     = "10.0.0.0/16"
+  ipv4_cidr_block     = ["10.0.0.0/16"]
   availability_zones  = ["us-east-1a", "us-east-1b"]
 
   nat_gateway_enabled    = false
