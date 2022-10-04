@@ -280,7 +280,7 @@ Available targets:
 | <a name="module_private_label"></a> [private\_label](#module\_private\_label) | cloudposse/label/null | 0.25.0 |
 | <a name="module_public_label"></a> [public\_label](#module\_public\_label) | cloudposse/label/null | 0.25.0 |
 | <a name="module_this"></a> [this](#module\_this) | cloudposse/label/null | 0.25.0 |
-| <a name="module_utils"></a> [utils](#module\_utils) | cloudposse/utils/aws | 1.0.0 |
+| <a name="module_utils"></a> [utils](#module\_utils) | cloudposse/utils/aws | 1.1.0 |
 
 ## Resources
 
@@ -388,7 +388,7 @@ Available targets:
 | <a name="input_public_route_table_ids"></a> [public\_route\_table\_ids](#input\_public\_route\_table\_ids) | List optionally containing the ID of a single route table shared by all public subnets<br>or exactly one route table ID for each public subnet.<br>If provided, it overrides `public_route_table_per_subnet_enabled`.<br>If omitted and `public_route_table_enabled` is `true`,<br>one or more network route tables will be created for the public subnets,<br>according to the setting of `public_route_table_per_subnet_enabled`. | `list(string)` | `[]` | no |
 | <a name="input_public_route_table_per_subnet_enabled"></a> [public\_route\_table\_per\_subnet\_enabled](#input\_public\_route\_table\_per\_subnet\_enabled) | If `true` (and `public_route_table_enabled` is `true), a separate network route table will be created for and associated with each public subnet.<br>If `false` (and `public\_route\_table\_enabled` is `true), a single network route table will be created and it will be associated with every public subnet.<br>If not set, it will be set to the value of `public_dns64_nat64_enabled`. | `bool` | `null` | no |
 | <a name="input_public_subnets_additional_tags"></a> [public\_subnets\_additional\_tags](#input\_public\_subnets\_additional\_tags) | Additional tags to be added to public subnets | `map(string)` | `{}` | no |
-| <a name="input_public_subnets_enabled"></a> [public\_subnets\_enabled](#input\_public\_subnets\_enabled) | If false, do not create public subnets.<br>Since NAT gateways and instances must be created in public subnets, these will also not be created when `false`.<br>Since the only default route for a private subnet is to a NAT gateway or instance,<br>route tables and routes will also not be created when `false`. | `bool` | `true` | no |
+| <a name="input_public_subnets_enabled"></a> [public\_subnets\_enabled](#input\_public\_subnets\_enabled) | If false, do not create public subnets.<br>Since NAT gateways and instances must be created in public subnets, these will also not be created when `false`. | `bool` | `true` | no |
 | <a name="input_regex_replace_chars"></a> [regex\_replace\_chars](#input\_regex\_replace\_chars) | Terraform regular expression (regex) string.<br>Characters matching the regex will be removed from the ID elements.<br>If not set, `"/[^a-zA-Z0-9-]/"` is used to remove all characters other than hyphens, letters and digits. | `string` | `null` | no |
 | <a name="input_root_block_device_encrypted"></a> [root\_block\_device\_encrypted](#input\_root\_block\_device\_encrypted) | DEPRECATED: use `nat_instance_root_block_device_encrypted` instead.<br>Whether to encrypt the root block device on the created NAT instances | `bool` | `null` | no |
 | <a name="input_route_create_timeout"></a> [route\_create\_timeout](#input\_route\_create\_timeout) | Time to wait for a network routing table entry to be created, specified as a Go Duration, e.g. `2m` | `string` | `"5m"` | no |
@@ -601,7 +601,7 @@ Check out [our other projects][github], [follow us on twitter][twitter], [apply 
 
 [![README Footer][readme_footer_img]][readme_footer_link]
 [![Beacon][beacon]][website]
-
+<!-- markdownlint-disable -->
   [logo]: https://cloudposse.com/logo-300x69.svg
   [docs]: https://cpco.io/docs?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/terraform-aws-dynamic-subnets&utm_content=docs
   [website]: https://cpco.io/homepage?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/terraform-aws-dynamic-subnets&utm_content=website
@@ -632,3 +632,4 @@ Check out [our other projects][github], [follow us on twitter][twitter], [apply 
   [share_googleplus]: https://plus.google.com/share?url=https://github.com/cloudposse/terraform-aws-dynamic-subnets
   [share_email]: mailto:?subject=terraform-aws-dynamic-subnets&body=https://github.com/cloudposse/terraform-aws-dynamic-subnets
   [beacon]: https://ga-beacon.cloudposse.com/UA-76589703-4/cloudposse/terraform-aws-dynamic-subnets?pixel&cs=github&cm=readme&an=terraform-aws-dynamic-subnets
+<!-- markdownlint-restore -->
