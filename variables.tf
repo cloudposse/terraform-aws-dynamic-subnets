@@ -64,8 +64,6 @@ variable "public_subnets_enabled" {
   description = <<-EOT
     If false, do not create public subnets.
     Since NAT gateways and instances must be created in public subnets, these will also not be created when `false`.
-    Since the only default route for a private subnet is to a NAT gateway or instance,
-    route tables and routes will also not be created when `false`.
     EOT
   default     = true
 }
