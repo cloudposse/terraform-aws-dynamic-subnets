@@ -100,10 +100,10 @@ resource "aws_network_acl_rule" "private4_ingress" {
   rule_number    = var.open_network_acl_ipv4_rule_number
 
   egress     = false
-  cidr_block = "0.0.0.0/0"
+  cidr_block = "0.0.0.0/0" #tfsec:ignore:aws-ec2-no-public-ingress-acl
   from_port  = 0
   to_port    = 0
-  protocol   = "-1"
+  protocol   = "-1" #tfsec:ignore:aws-ec2-no-excessive-port-access
 }
 
 resource "aws_network_acl_rule" "private4_egress" {
@@ -117,7 +117,7 @@ resource "aws_network_acl_rule" "private4_egress" {
   cidr_block = "0.0.0.0/0"
   from_port  = 0
   to_port    = 0
-  protocol   = "-1"
+  protocol   = "-1" #tfsec:ignore:aws-ec2-no-excessive-port-access
 }
 
 resource "aws_network_acl_rule" "private6_ingress" {
@@ -128,10 +128,10 @@ resource "aws_network_acl_rule" "private6_ingress" {
   rule_number    = var.open_network_acl_ipv6_rule_number
 
   egress          = false
-  ipv6_cidr_block = "::/0"
+  ipv6_cidr_block = "::/0" #tfsec:ignore:aws-ec2-no-public-ingress-acl
   from_port       = 0
   to_port         = 0
-  protocol        = "-1"
+  protocol        = "-1" #tfsec:ignore:aws-ec2-no-excessive-port-access
 }
 
 resource "aws_network_acl_rule" "private6_egress" {
@@ -145,5 +145,5 @@ resource "aws_network_acl_rule" "private6_egress" {
   ipv6_cidr_block = "::/0"
   from_port       = 0
   to_port         = 0
-  protocol        = "-1"
+  protocol        = "-1" #tfsec:ignore:aws-ec2-no-excessive-port-access
 }
