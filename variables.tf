@@ -74,3 +74,47 @@ variable "map_public_ip_on_launch" {
   description = "Instances launched into a public subnet should be assigned a public IP address"
 }
 
+
+variable "private_ingress_acl_rules" {
+  default = [{    
+    rule_no    = 100
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 0
+    to_port    = 0
+    protocol   = "-1"
+  }]
+}
+
+variable "private_egress_acl_rules" {
+  default = [{    
+    rule_no    = 100
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 0
+    to_port    = 0
+    protocol   = "-1"
+  }]
+}
+
+variable "public_ingress_acl_rules" {
+  default = [{    
+    rule_no    = 100
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 0
+    to_port    = 0
+    protocol   = "-1"
+  }]
+}
+
+variable "public_egress_acl_rules" {
+  default = [{    
+    rule_no    = 100
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 0
+    to_port    = 0
+    protocol   = "-1"
+  }]
+}
