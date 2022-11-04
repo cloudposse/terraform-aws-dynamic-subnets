@@ -102,8 +102,8 @@ resource "aws_network_acl" "private" {
       rule_no    = egress.value["rule_no"]
       action     = egress.value["action"]
       cidr_block = egress.value["cidr_block"]
-      from_port  = egress.value["port"]
-      to_port    = egress.value["port"]
+      from_port  = egress.value["from_port"]
+      to_port    = egress.value["to_port"]
     }
   }
   tags = module.private_label.tags
