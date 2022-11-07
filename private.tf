@@ -103,7 +103,11 @@ resource "aws_network_acl_rule" "private4_ingress" {
   cidr_block = "0.0.0.0/0"
   from_port  = 0
   to_port    = 0
-  protocol   = "-1"
+  #checkov:skip=CKV_AWS_229:Ensure no NACL allow ingress from 0.0.0.0:0 to port 21
+  #checkov:skip=CKV_AWS_230:Ensure no NACL allow ingress from 0.0.0.0:0 to port 20
+  #checkov:skip=CKV_AWS_231:Ensure no NACL allow ingress from 0.0.0.0:0 to port 3389
+  #checkov:skip=CKV_AWS_232:Ensure no NACL allow ingress from 0.0.0.0:0 to port 22
+  protocol = "-1"
 }
 
 resource "aws_network_acl_rule" "private4_egress" {
@@ -131,7 +135,11 @@ resource "aws_network_acl_rule" "private6_ingress" {
   ipv6_cidr_block = "::/0"
   from_port       = 0
   to_port         = 0
-  protocol        = "-1"
+  #checkov:skip=CKV_AWS_229:Ensure no NACL allow ingress from 0.0.0.0:0 to port 21
+  #checkov:skip=CKV_AWS_230:Ensure no NACL allow ingress from 0.0.0.0:0 to port 20
+  #checkov:skip=CKV_AWS_231:Ensure no NACL allow ingress from 0.0.0.0:0 to port 3389
+  #checkov:skip=CKV_AWS_232:Ensure no NACL allow ingress from 0.0.0.0:0 to port 22
+  protocol = "-1"
 }
 
 resource "aws_network_acl_rule" "private6_egress" {
