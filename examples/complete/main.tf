@@ -4,10 +4,9 @@ provider "aws" {
 
 module "vpc" {
   source  = "cloudposse/vpc/aws"
-  version = "1.1.0"
+  version = "2.0.0"
 
-  cidr_block = "172.16.0.0/16"
-
+  ipv4_primary_cidr_block                   = "172.16.0.0/16"
   assign_generated_ipv6_cidr_block          = true
   ipv6_egress_only_internet_gateway_enabled = true
 
