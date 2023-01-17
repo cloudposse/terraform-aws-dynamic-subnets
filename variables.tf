@@ -74,7 +74,6 @@ variable "private_label" {
   default     = "private"
 }
 
-
 variable "public_label" {
   type        = string
   description = "The string to use in IDs and elsewhere to identify resources for the public subnets and distinguish them from resources for the private subnets"
@@ -149,7 +148,6 @@ variable "ipv6_cidrs" {
     condition     = length(var.ipv6_cidrs) < 2
     error_message = "Only 1 ipv6_cidrs object can be provided. Lists of CIDRs are passed via the `public` and `private` attributes of the single object."
   }
-
 }
 
 variable "availability_zones" {
@@ -364,8 +362,8 @@ variable "public_route_table_enabled" {
 variable "public_route_table_per_subnet_enabled" {
   type        = bool
   description = <<-EOT
-    If `true` (and `public_route_table_enabled` is `true), a separate network route table will be created for and associated with each public subnet.
-    If `false` (and `public_route_table_enabled` is `true), a single network route table will be created and it will be associated with every public subnet.
+    If `true` (and `public_route_table_enabled` is `true`), a separate network route table will be created for and associated with each public subnet.
+    If `false` (and `public_route_table_enabled` is `true`), a single network route table will be created and it will be associated with every public subnet.
     If not set, it will be set to the value of `public_dns64_nat64_enabled`.
     EOT
   default     = null
