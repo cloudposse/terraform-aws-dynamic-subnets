@@ -33,7 +33,7 @@ variable "max_subnet_count" {
   type        = number
   description = <<-EOT
     Sets the maximum number of each type (public or private) of subnet to deploy.
-    0 will reserve a CIDR for every Availability Zone (excluding Local Zones) in the region, and
+    `0` will reserve a CIDR for every Availability Zone (excluding Local Zones) in the region, and
     deploy a subnet in each availability zone specified in `availability_zones` or `availability_zone_ids`,
     or every zone if none are specified. We recommend setting this equal to the maximum number of AZs you anticipate using,
     to avoid causing subnets to be destroyed and recreated with smaller IPv4 CIDRs when AWS adds an availability zone.
