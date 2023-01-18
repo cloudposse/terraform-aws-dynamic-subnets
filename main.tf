@@ -55,7 +55,6 @@ locals {
 
 
   subnet_az_count = local.e ? length(local.subnet_availability_zones) : 0
-  subnet_count    = ((local.public_enabled ? 1 : 0) + (local.private_enabled ? 1 : 0)) * local.subnet_az_count
 
   # Lookup the abbreviations for the availability zones we are using
   az_abbreviation_map_map = {
@@ -63,6 +62,7 @@ locals {
     fixed = "to_fixed"
     full  = "identity"
   }
+
   az_abbreviation_map = module.utils.region_az_alt_code_maps[local.az_abbreviation_map_map[var.availability_zone_attribute_style]]
 
   subnet_az_abbreviations = [for az in local.subnet_availability_zones : local.az_abbreviation_map[az]]
@@ -141,6 +141,7 @@ locals {
   )
 
   public_route_table_enabled = local.public_enabled && var.public_route_table_enabled
+
   # Use `coalesce` to pick the highest priority value (null means go to next test)
   public_route_table_count = coalesce(
     # Do not bother with route tables if not creating subnets
@@ -155,6 +156,7 @@ locals {
     var.public_route_table_per_subnet_enabled == false ? 1 : null,
     local.public_dns64_enabled ? local.subnet_az_count : 1
   )
+
   create_public_route_tables = local.public_route_table_enabled && length(var.public_route_table_ids) == 0
   public_route_table_ids     = local.create_public_route_tables ? aws_route_table.public.*.id : var.public_route_table_ids
 
@@ -216,14 +218,16 @@ data "aws_vpc" "default" {
 }
 
 data "aws_eip" "nat" {
-  count     = local.need_nat_eip_data ? length(var.nat_elastic_ips) : 0
+  count = local.need_nat_eip_data ? length(var.nat_elastic_ips) : 0
+
   public_ip = element(var.nat_elastic_ips, count.index)
 }
 
 
 resource "aws_eip" "default" {
   count = local.need_nat_eips ? local.nat_count : 0
-  vpc   = true
+
+  vpc = true
 
   tags = merge(
     module.nat_label.tags,
