@@ -31,5 +31,8 @@ module "subnets" {
 
   subnet_type_tag_key = "cpco.io/subnet/type"
 
+  subnets_per_az_count = var.subnets_per_az_count
+  subnets_per_az_names = var.subnets_per_az_names
+
   context = module.this.context
 }

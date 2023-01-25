@@ -47,12 +47,15 @@ locals {
   subnet_possible_availability_zones = local.az_option_map[local.subnet_availability_zone_option]
 
   # Adjust list according to `max_subnet_count`
-  subnet_availability_zones = (
+  vpc_availability_zones = (
     var.max_subnet_count == 0 || var.max_subnet_count >= length(local.subnet_possible_availability_zones)
     ) ? (
     local.subnet_possible_availability_zones
   ) : slice(local.subnet_possible_availability_zones, 0, var.max_subnet_count)
 
+
+  # Copy the AZs taking into account the `subnets_per_az` var
+  subnet_availability_zones = flatten([for z in local.vpc_availability_zones : [for net in range(0, var.subnets_per_az_count) : z]])
 
   subnet_az_count = local.e ? length(local.subnet_availability_zones) : 0
 
@@ -75,7 +78,7 @@ locals {
   # Figure out how many CIDRs to reserve. By default, we often reserve more CIDRs than we need so that
   # with future growth, we can add subnets without affecting existing subnets.
   existing_az_count         = local.e ? length(data.aws_availability_zones.default[0].names) : 0
-  base_cidr_reservations    = var.max_subnet_count == 0 ? local.existing_az_count : var.max_subnet_count
+  base_cidr_reservations    = (var.max_subnet_count == 0 ? local.existing_az_count : var.max_subnet_count) * var.subnets_per_az_count
   private_cidr_reservations = (local.private_enabled ? 1 : 0) * local.base_cidr_reservations
   public_cidr_reservations  = (local.public_enabled ? 1 : 0) * local.base_cidr_reservations
   cidr_reservations         = local.private_cidr_reservations + local.public_cidr_reservations
@@ -103,6 +106,7 @@ locals {
   ipv4_private_subnet_cidrs = local.compute_ipv4_cidrs ? [
     for net in range(0, local.private_cidr_reservations) : cidrsubnet(local.base_ipv4_cidr_block, local.required_ipv4_subnet_bits, net)
   ] : local.supplied_ipv4_private_subnet_cidrs
+
   ipv4_public_subnet_cidrs = local.compute_ipv4_cidrs ? [
     for net in range(local.private_cidr_reservations, local.cidr_reservations) : cidrsubnet(local.base_ipv4_cidr_block, local.required_ipv4_subnet_bits, net)
   ] : local.supplied_ipv4_public_subnet_cidrs
@@ -110,6 +114,7 @@ locals {
   ipv6_private_subnet_cidrs = local.compute_ipv6_cidrs ? [
     for net in range(0, local.private_cidr_reservations) : cidrsubnet(local.base_ipv6_cidr_block, local.required_ipv6_subnet_bits, net)
   ] : local.supplied_ipv6_private_subnet_cidrs
+
   ipv6_public_subnet_cidrs = local.compute_ipv6_cidrs ? [
     for net in range(local.private_cidr_reservations, local.cidr_reservations) : cidrsubnet(local.base_ipv6_cidr_block, local.required_ipv6_subnet_bits, net)
   ] : local.supplied_ipv6_public_subnet_cidrs
@@ -199,6 +204,58 @@ locals {
   need_nat_ami_id     = local.nat_instance_enabled && length(var.nat_instance_ami_id) == 0
   nat_instance_ami_id = local.need_nat_ami_id ? data.aws_ami.nat_instance[0].id : try(var.nat_instance_ami_id[0], "")
 
+  # Locals for outputs
+  az_private_subnets_map = { for z in local.vpc_availability_zones : z => (
+    [for s in aws_subnet.private : s.id if s.availability_zone == z])
+  }
+
+  az_public_subnets_map = { for z in local.vpc_availability_zones : z => (
+    [for s in aws_subnet.public : s.id if s.availability_zone == z])
+  }
+
+  az_private_route_table_ids_map = { for k, v in local.az_private_subnets_map : k => (
+    [for t in aws_route_table_association.private : t.route_table_id if contains(v, t.subnet_id)])
+  }
+
+  az_public_route_table_ids_map = { for k, v in local.az_public_subnets_map : k => (
+    [for t in aws_route_table_association.public : t.route_table_id if contains(v, t.subnet_id)])
+  }
+
+  named_private_subnets_map = { for i, s in var.subnets_per_az_names : s => (
+    compact([for k, v in local.az_private_subnets_map : try(v[i], "")]))
+  }
+
+  named_public_subnets_map = { for i, s in var.subnets_per_az_names : s => (
+    compact([for k, v in local.az_public_subnets_map : try(v[i], "")]))
+  }
+
+  named_private_route_table_ids_map = { for i, s in var.subnets_per_az_names : s => (
+    compact([for k, v in local.az_private_route_table_ids_map : try(v[i], "")]))
+  }
+
+  named_public_route_table_ids_map = { for i, s in var.subnets_per_az_names : s => (
+    compact([for k, v in local.az_public_route_table_ids_map : try(v[i], "")]))
+  }
+
+  named_private_subnets_stats_map = { for i, s in var.subnets_per_az_names : s => (
+    [
+      for k, v in local.az_private_route_table_ids_map : {
+        az             = k
+        route_table_id = try(v[i], "")
+        subnet_id      = try(local.az_private_subnets_map[k][i], "")
+      }
+    ])
+  }
+
+  named_public_subnets_stats_map = { for i, s in var.subnets_per_az_names : s => (
+    [
+      for k, v in local.az_public_route_table_ids_map : {
+        az             = k
+        route_table_id = try(v[i], "")
+        subnet_id      = try(local.az_public_subnets_map[k][i], "")
+      }
+    ])
+  }
 }
 
 data "aws_availability_zones" "default" {
@@ -222,7 +279,6 @@ data "aws_eip" "nat" {
 
   public_ip = element(var.nat_elastic_ips, count.index)
 }
-
 
 resource "aws_eip" "default" {
   count = local.need_nat_eips ? local.nat_count : 0

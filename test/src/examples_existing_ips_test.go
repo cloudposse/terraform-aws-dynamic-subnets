@@ -2,7 +2,7 @@ package test
 
 import (
 	"github.com/gruntwork-io/terratest/modules/random"
-	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
+	teststructure "github.com/gruntwork-io/terratest/modules/test-structure"
 	"strings"
 	"testing"
 
@@ -20,7 +20,7 @@ func TestExamplesExistingIps(t *testing.T) {
 	terraformFolderRelativeToRoot := "examples/existing-ips"
 	varFiles := []string{"fixtures.us-east-2.tfvars"}
 
-	tempTestFolder := test_structure.CopyTerraformFolderToTemp(t, rootFolder, terraformFolderRelativeToRoot)
+	tempTestFolder := teststructure.CopyTerraformFolderToTemp(t, rootFolder, terraformFolderRelativeToRoot)
 
 	terraformOptions := &terraform.Options{
 		// The path to where our Terraform code is located

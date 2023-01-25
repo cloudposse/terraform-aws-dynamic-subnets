@@ -1,12 +1,12 @@
 output "availability_zones" {
   description = "List of Availability Zones where subnets were created"
-  value       = local.subnet_availability_zones
+  value       = local.vpc_availability_zones
 }
 
 output "availability_zone_ids" {
   description = "List of Availability Zones IDs where subnets were created, when available"
   value = local.use_az_ids ? var.availability_zone_ids : [
-    for az in local.subnet_availability_zones : local.az_name_map[az]
+    for az in local.vpc_availability_zones : local.az_name_map[az]
   ]
 }
 
@@ -86,4 +86,54 @@ output "nat_ips" {
 output "nat_eip_allocation_ids" {
   description = "Elastic IP allocations in use by NAT"
   value       = local.nat_eip_allocations
+}
+
+output "az_private_subnets_map" {
+  description = "Map of AZ names to list of private subnet IDs in the AZs"
+  value       = local.az_private_subnets_map
+}
+
+output "az_public_subnets_map" {
+  description = "Map of AZ names to list of public subnet IDs in the AZs"
+  value       = local.az_public_subnets_map
+}
+
+output "az_private_route_table_ids_map" {
+  description = "Map of AZ names to list of private route table IDs in the AZs"
+  value       = local.az_private_route_table_ids_map
+}
+
+output "az_public_route_table_ids_map" {
+  description = "Map of AZ names to list of public route table IDs in the AZs"
+  value       = local.az_public_route_table_ids_map
+}
+
+output "named_private_subnets_map" {
+  description = "Map of subnet names (specified in `subnets_per_az_names` variable) to lists of private subnet IDs"
+  value       = local.named_private_subnets_map
+}
+
+output "named_public_subnets_map" {
+  description = "Map of subnet names (specified in `subnets_per_az_names` variable) to lists of public subnet IDs"
+  value       = local.named_public_subnets_map
+}
+
+output "named_private_route_table_ids_map" {
+  description = "Map of subnet names (specified in `subnets_per_az_names` variable) to lists of private route table IDs"
+  value       = local.named_private_route_table_ids_map
+}
+
+output "named_public_route_table_ids_map" {
+  description = "Map of subnet names (specified in `subnets_per_az_names` variable) to lists of public route table IDs"
+  value       = local.named_public_route_table_ids_map
+}
+
+output "named_private_subnets_stats_map" {
+  description = "Map of subnet names (specified in `subnets_per_az_names` variable) to lists of objects with each object having three items: AZ, private subnet ID, private route table ID"
+  value       = local.named_private_subnets_stats_map
+}
+
+output "named_public_subnets_stats_map" {
+  description = "Map of subnet names (specified in `subnets_per_az_names` variable) to lists of objects with each object having three items: AZ, public subnet ID, public route table ID"
+  value       = local.named_public_subnets_stats_map
 }

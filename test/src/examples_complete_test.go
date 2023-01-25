@@ -2,19 +2,13 @@ package test
 
 import (
 	"github.com/gruntwork-io/terratest/modules/random"
-	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
-	"os"
+	teststructure "github.com/gruntwork-io/terratest/modules/test-structure"
 	"strings"
 	"testing"
 
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/stretchr/testify/assert"
 )
-
-func cleanup(t *testing.T, terraformOptions *terraform.Options, tempTestFolder string) {
-	terraform.Destroy(t, terraformOptions)
-	os.RemoveAll(tempTestFolder)
-}
 
 // Test the Terraform module in examples/complete using Terratest.
 func TestExamplesComplete(t *testing.T) {
@@ -26,7 +20,7 @@ func TestExamplesComplete(t *testing.T) {
 	terraformFolderRelativeToRoot := "examples/complete"
 	varFiles := []string{"fixtures.us-east-2.tfvars"}
 
-	tempTestFolder := test_structure.CopyTerraformFolderToTemp(t, rootFolder, terraformFolderRelativeToRoot)
+	tempTestFolder := teststructure.CopyTerraformFolderToTemp(t, rootFolder, terraformFolderRelativeToRoot)
 
 	terraformOptions := &terraform.Options{
 		// The path to where our Terraform code is located
@@ -69,7 +63,7 @@ func TestExamplesCompleteDisabled(t *testing.T) {
 	terraformFolderRelativeToRoot := "examples/complete"
 	varFiles := []string{"fixtures.us-east-2.tfvars"}
 
-	tempTestFolder := test_structure.CopyTerraformFolderToTemp(t, rootFolder, terraformFolderRelativeToRoot)
+	tempTestFolder := teststructure.CopyTerraformFolderToTemp(t, rootFolder, terraformFolderRelativeToRoot)
 
 	terraformOptions := &terraform.Options{
 		// The path to where our Terraform code is located
@@ -79,7 +73,7 @@ func TestExamplesCompleteDisabled(t *testing.T) {
 		VarFiles: varFiles,
 		Vars: map[string]interface{}{
 			"attributes": attributes,
-			"enabled":    "false",
+			"enabled":    false,
 		},
 	}
 
