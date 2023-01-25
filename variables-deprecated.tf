@@ -1,7 +1,7 @@
 variable "aws_route_create_timeout" {
   type        = string
   description = <<-EOT
-    DEPRECTATED: Use `route_create_timeout` instead.
+    DEPRECATED: Use `route_create_timeout` instead.
     Time to wait for AWS route creation, specified as a Go Duration, e.g. `2m`
     EOT
   default     = null
@@ -10,7 +10,7 @@ variable "aws_route_create_timeout" {
 variable "aws_route_delete_timeout" {
   type        = string
   description = <<-EOT
-    DEPRECTATED: Use `route_delete_timeout` instead.
+    DEPRECATED: Use `route_delete_timeout` instead.
     Time to wait for AWS route deletion, specified as a Go Duration, e.g. `2m`
     EOT
   default     = null
