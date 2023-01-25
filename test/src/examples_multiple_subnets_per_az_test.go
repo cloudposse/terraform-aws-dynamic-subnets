@@ -40,15 +40,31 @@ func TestExamplesMultipleSubnetsPerAZ(t *testing.T) {
 
 	// Run `terraform output` to get the value of an output variable
 	privateSubnetCidrs := terraform.OutputList(t, terraformOptions, "private_subnet_cidrs")
-	expectedPrivateSubnetCidrs := []string{"172.16.0.0/19", "172.16.32.0/19"}
+	expectedPrivateSubnetCidrs := []string{"172.16.0.0/21", "172.16.8.0/21", "172.16.16.0/21", "172.16.24.0/21", "172.16.32.0/21", "172.16.40.0/21"}
 	// Verify we're getting back the outputs we expect
 	assert.Equal(t, expectedPrivateSubnetCidrs, privateSubnetCidrs)
 
 	// Run `terraform output` to get the value of an output variable
 	publicSubnetCidrs := terraform.OutputList(t, terraformOptions, "public_subnet_cidrs")
-	expectedPublicSubnetCidrs := []string{"172.16.96.0/19", "172.16.128.0/19"}
+	expectedPublicSubnetCidrs := []string{"172.16.72.0/21", "172.16.80.0/21", "172.16.88.0/21", "172.16.96.0/21", "172.16.104.0/21", "172.16.112.0/21"}
 	// Verify we're getting back the outputs we expect
 	assert.Equal(t, expectedPublicSubnetCidrs, publicSubnetCidrs)
+
+	// Run `terraform output` to get the value of an output variable
+	namedPrivateSubnetsStatsMap := terraform.OutputMapOfObjects(t, terraformOptions, "named_private_subnets_stats_map")
+	// Verify we're getting back the outputs we expect
+	assert.Equal(t, len(namedPrivateSubnetsStatsMap), 3)
+	assert.Equal(t, len(namedPrivateSubnetsStatsMap["backend"].([]any)), 2)
+	assert.Equal(t, len(namedPrivateSubnetsStatsMap["services"].([]any)), 2)
+	assert.Equal(t, len(namedPrivateSubnetsStatsMap["db"].([]any)), 2)
+
+	// Run `terraform output` to get the value of an output variable
+	namedPublicSubnetsStatsMap := terraform.OutputMapOfObjects(t, terraformOptions, "named_public_subnets_stats_map")
+	// Verify we're getting back the outputs we expect
+	assert.Equal(t, len(namedPublicSubnetsStatsMap), 3)
+	assert.Equal(t, len(namedPublicSubnetsStatsMap["backend"].([]any)), 2)
+	assert.Equal(t, len(namedPublicSubnetsStatsMap["services"].([]any)), 2)
+	assert.Equal(t, len(namedPublicSubnetsStatsMap["db"].([]any)), 2)
 }
 
 func TestExamplesMultipleSubnetsPerAZDisabled(t *testing.T) {

@@ -10,4 +10,4 @@ name = "multiple-subnets-per-az-test"
 
 subnets_per_az_count = 3
 
-subnets_per_az_names = ["frontend", "backend", "db"]
+subnets_per_az_names = ["services", "backend", "db"]
