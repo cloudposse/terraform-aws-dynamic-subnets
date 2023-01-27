@@ -10,14 +10,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// Test the Terraform module in examples/complete using Terratest.
-func TestExamplesComplete(t *testing.T) {
+func TestExamplesMultipleSubnetsPerAZ(t *testing.T) {
 	t.Parallel()
 	randID := strings.ToLower(random.UniqueId())
 	attributes := []string{randID}
 
 	rootFolder := "../../"
-	terraformFolderRelativeToRoot := "examples/complete"
+	terraformFolderRelativeToRoot := "examples/multiple-subnets-per-az"
 	varFiles := []string{"fixtures.us-east-2.tfvars"}
 
 	tempTestFolder := teststructure.CopyTerraformFolderToTemp(t, rootFolder, terraformFolderRelativeToRoot)
@@ -41,26 +40,40 @@ func TestExamplesComplete(t *testing.T) {
 
 	// Run `terraform output` to get the value of an output variable
 	privateSubnetCidrs := terraform.OutputList(t, terraformOptions, "private_subnet_cidrs")
-
-	expectedPrivateSubnetCidrs := []string{"172.16.0.0/19", "172.16.32.0/19"}
+	expectedPrivateSubnetCidrs := []string{"172.16.0.0/21", "172.16.8.0/21", "172.16.16.0/21", "172.16.24.0/21", "172.16.32.0/21", "172.16.40.0/21"}
 	// Verify we're getting back the outputs we expect
 	assert.Equal(t, expectedPrivateSubnetCidrs, privateSubnetCidrs)
 
 	// Run `terraform output` to get the value of an output variable
 	publicSubnetCidrs := terraform.OutputList(t, terraformOptions, "public_subnet_cidrs")
-
-	expectedPublicSubnetCidrs := []string{"172.16.96.0/19", "172.16.128.0/19"}
+	expectedPublicSubnetCidrs := []string{"172.16.72.0/21", "172.16.80.0/21", "172.16.88.0/21", "172.16.96.0/21", "172.16.104.0/21", "172.16.112.0/21"}
 	// Verify we're getting back the outputs we expect
 	assert.Equal(t, expectedPublicSubnetCidrs, publicSubnetCidrs)
+
+	// Run `terraform output` to get the value of an output variable
+	namedPrivateSubnetsStatsMap := terraform.OutputMapOfObjects(t, terraformOptions, "named_private_subnets_stats_map")
+	// Verify we're getting back the outputs we expect
+	assert.Equal(t, len(namedPrivateSubnetsStatsMap), 3)
+	assert.Equal(t, len(namedPrivateSubnetsStatsMap["backend"].([]map[string]any)), 2)
+	assert.Equal(t, len(namedPrivateSubnetsStatsMap["services"].([]map[string]any)), 2)
+	assert.Equal(t, len(namedPrivateSubnetsStatsMap["db"].([]map[string]any)), 2)
+
+	// Run `terraform output` to get the value of an output variable
+	namedPublicSubnetsStatsMap := terraform.OutputMapOfObjects(t, terraformOptions, "named_public_subnets_stats_map")
+	// Verify we're getting back the outputs we expect
+	assert.Equal(t, len(namedPublicSubnetsStatsMap), 3)
+	assert.Equal(t, len(namedPublicSubnetsStatsMap["backend"].([]map[string]any)), 2)
+	assert.Equal(t, len(namedPublicSubnetsStatsMap["services"].([]map[string]any)), 2)
+	assert.Equal(t, len(namedPublicSubnetsStatsMap["db"].([]map[string]any)), 2)
 }
 
-func TestExamplesCompleteDisabled(t *testing.T) {
+func TestExamplesMultipleSubnetsPerAZDisabled(t *testing.T) {
 	t.Parallel()
 	randID := strings.ToLower(random.UniqueId())
 	attributes := []string{randID}
 
 	rootFolder := "../../"
-	terraformFolderRelativeToRoot := "examples/complete"
+	terraformFolderRelativeToRoot := "examples/multiple-subnets-per-az"
 	varFiles := []string{"fixtures.us-east-2.tfvars"}
 
 	tempTestFolder := teststructure.CopyTerraformFolderToTemp(t, rootFolder, terraformFolderRelativeToRoot)

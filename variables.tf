@@ -33,7 +33,7 @@ variable "max_subnet_count" {
   type        = number
   description = <<-EOT
     Sets the maximum number of each type (public or private) of subnet to deploy.
-    0 will reserve a CIDR for every Availability Zone (excluding Local Zones) in the region, and
+    `0` will reserve a CIDR for every Availability Zone (excluding Local Zones) in the region, and
     deploy a subnet in each availability zone specified in `availability_zones` or `availability_zone_ids`,
     or every zone if none are specified. We recommend setting this equal to the maximum number of AZs you anticipate using,
     to avoid causing subnets to be destroyed and recreated with smaller IPv4 CIDRs when AWS adds an availability zone.
@@ -73,7 +73,6 @@ variable "private_label" {
   description = "The string to use in IDs and elsewhere to identify resources for the private subnets and distinguish them from resources for the public subnets"
   default     = "private"
 }
-
 
 variable "public_label" {
   type        = string
@@ -149,7 +148,6 @@ variable "ipv6_cidrs" {
     condition     = length(var.ipv6_cidrs) < 2
     error_message = "Only 1 ipv6_cidrs object can be provided. Lists of CIDRs are passed via the `public` and `private` attributes of the single object."
   }
-
 }
 
 variable "availability_zones" {
@@ -364,8 +362,8 @@ variable "public_route_table_enabled" {
 variable "public_route_table_per_subnet_enabled" {
   type        = bool
   description = <<-EOT
-    If `true` (and `public_route_table_enabled` is `true), a separate network route table will be created for and associated with each public subnet.
-    If `false` (and `public_route_table_enabled` is `true), a single network route table will be created and it will be associated with every public subnet.
+    If `true` (and `public_route_table_enabled` is `true`), a separate network route table will be created for and associated with each public subnet.
+    If `false` (and `public_route_table_enabled` is `true`), a single network route table will be created and it will be associated with every public subnet.
     If not set, it will be set to the value of `public_dns64_nat64_enabled`.
     EOT
   default     = null
@@ -473,3 +471,30 @@ variable "nat_instance_root_block_device_encrypted" {
   default     = true
 }
 locals { nat_instance_root_block_device_encrypted = var.root_block_device_encrypted == null ? var.nat_instance_root_block_device_encrypted : var.root_block_device_encrypted }
+
+variable "subnets_per_az_count" {
+  type        = number
+  description = <<-EOT
+    The number of subnet of each type (public or private) to provision per Availability Zone.
+    EOT
+  default     = 1
+
+  validation {
+    condition = var.subnets_per_az_count > 0
+    # Validation error messages must be on a single line, among other restrictions.
+    # See https://github.com/hashicorp/terraform/issues/24123
+    error_message = "The `subnets_per_az` value must be greater than 0."
+  }
+}
+
+variable "subnets_per_az_names" {
+  type = list(string)
+
+  description = <<-EOT
+    The subnet names of each type (public or private) to provision per Availability Zone.
+    This variable is optional.
+    If a list of names is provided, the list items will be used as keys in the outputs `named_private_subnets_map`, `named_public_subnets_map`,
+    `named_private_route_table_ids_map` and `named_public_route_table_ids_map`
+    EOT
+  default     = ["common"]
+}
