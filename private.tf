@@ -1,5 +1,5 @@
 module "private_label" {
-  source     = "git::https://github.com/betterworks/terraform-null-label.git?ref=tf-upgrade"
+  source     = "git::https://github.com/betterworks/terraform-null-label.git?ref=tags/1.0.0-terraform-1"
   context    = module.label.context
   attributes = compact(concat(module.label.attributes, ["private"]))
   tags = merge(
