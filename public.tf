@@ -34,7 +34,6 @@ resource "aws_subnet" "public" {
 
   private_dns_hostname_type_on_launch = local.public4_enabled ? var.ipv4_public_instance_hostname_type : null
 
-
   tags = merge(
     module.public_label.tags,
     {
@@ -157,4 +156,22 @@ resource "aws_network_acl_rule" "public6_egress" {
   from_port       = 0
   to_port         = 0
   protocol        = "-1"
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/network_acl_rule
+resource "aws_network_acl_rule" "public_additional" {
+  for_each = { for k, v in var.public_network_acl_rules : k => v if local.public_open_network_acl_enabled }
+
+  network_acl_id = aws_network_acl.public[0].id
+  rule_action    = each.value.rule_action
+  rule_number    = each.value.rule_number
+
+  egress          = lookup(each.value, "egress", false)
+  cidr_block      = lookup(each.value, "cidr_block", null)
+  ipv6_cidr_block = lookup(each.value, "ipv6_cidr_block", null)
+  from_port       = lookup(each.value, "from_port", null)
+  to_port         = lookup(each.value, "to_port", null)
+  protocol        = each.value.protocol
+  icmp_type       = lookup(each.value, "icmp_type", null)
+  icmp_code       = lookup(each.value, "icmp_code", null)
 }

@@ -147,3 +147,21 @@ resource "aws_network_acl_rule" "private6_egress" {
   to_port         = 0
   protocol        = "-1"
 }
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/network_acl_rule
+resource "aws_network_acl_rule" "private_additional" {
+  for_each = { for k, v in var.private_network_acl_rules : k => v if local.private_open_network_acl_enabled }
+
+  network_acl_id = aws_network_acl.private[0].id
+  rule_action    = each.value.rule_action
+  rule_number    = each.value.rule_number
+
+  egress          = lookup(each.value, "egress", false)
+  cidr_block      = lookup(each.value, "cidr_block", null)
+  ipv6_cidr_block = lookup(each.value, "ipv6_cidr_block", null)
+  from_port       = lookup(each.value, "from_port", null)
+  to_port         = lookup(each.value, "to_port", null)
+  protocol        = each.value.protocol
+  icmp_type       = lookup(each.value, "icmp_type", null)
+  icmp_code       = lookup(each.value, "icmp_code", null)
+}
