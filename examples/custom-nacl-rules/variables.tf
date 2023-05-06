@@ -16,6 +16,13 @@ variable "availability_zones" {
   nullable    = false
 }
 
+variable "private_subnets_enabled" {
+  type        = bool
+  description = "If false, do not create private subnets (or NAT gateways or instances)"
+  default     = true
+  nullable    = false
+}
+
 variable "private_network_acl_enabled" {
   type        = bool
   description = <<-EOT
@@ -58,6 +65,16 @@ variable "private_network_acl_rules" {
     private subnets and a network ACL to associate the rules with.
     EOT
   default     = {}
+  nullable    = false
+}
+
+variable "public_subnets_enabled" {
+  type        = bool
+  description = <<-EOT
+    If false, do not create public subnets.
+    Since NAT gateways and instances must be created in public subnets, these will also not be created when `false`.
+    EOT
+  default     = true
   nullable    = false
 }
 

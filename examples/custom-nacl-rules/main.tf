@@ -31,10 +31,12 @@ module "subnets" {
 
   subnet_type_tag_key = "cpco.io/subnet/type"
 
+  private_subnets_enabled          = var.private_subnets_enabled
   private_network_acl_enabled      = var.private_network_acl_enabled
   private_open_network_acl_enabled = var.private_open_network_acl_enabled
   private_network_acl_rules        = var.private_network_acl_rules
 
+  public_subnets_enabled          = var.public_subnets_enabled
   public_network_acl_enabled      = var.public_network_acl_enabled
   public_open_network_acl_enabled = var.public_open_network_acl_enabled
   public_network_acl_rules        = var.public_network_acl_rules

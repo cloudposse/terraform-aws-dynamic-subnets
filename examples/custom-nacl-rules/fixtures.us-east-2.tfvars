@@ -8,7 +8,11 @@ stage = "test"
 
 name = "custom-nacl-rules"
 
+# VPC CIDR block
 ipv4_primary_cidr_block = "172.16.0.0/16"
+
+# Create private subnets
+private_subnets_enabled = true
 
 # Create a Network ACL for the private subnets
 private_network_acl_enabled = true
@@ -38,6 +42,9 @@ private_network_acl_rules = {
     to_port     = 22
   }
 }
+
+# Create public subnets
+public_subnets_enabled = true
 
 # Create a Network ACL for the public subnets
 public_network_acl_enabled = true
