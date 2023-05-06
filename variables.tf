@@ -1,6 +1,7 @@
 variable "vpc_id" {
   type        = string
   description = "VPC ID where subnets will be created (e.g. `vpc-aceb2723`)"
+  nullable    = false
 }
 
 variable "igw_id" {
@@ -14,6 +15,7 @@ variable "igw_id" {
     condition     = length(var.igw_id) < 2
     error_message = "Only 1 igw_id can be provided."
   }
+  nullable = false
 }
 
 variable "ipv6_egress_only_igw_id" {
@@ -27,6 +29,7 @@ variable "ipv6_egress_only_igw_id" {
     condition     = length(var.ipv6_egress_only_igw_id) < 2
     error_message = "Only 1 ipv6_egress_only_igw_id can be provided."
   }
+  nullable = false
 }
 
 variable "max_subnet_count" {
@@ -41,6 +44,7 @@ variable "max_subnet_count" {
     from an explicit constant. For most cases, `3` is a good choice.
     EOT
   default     = 0
+  nullable    = false
 }
 
 variable "max_nats" {
@@ -50,13 +54,15 @@ variable "max_nats" {
     Set to 1 or 2 for cost savings at the expense of availability.
     EOT
   # Default should be MAX_INT, but Terraform does not provide that. 999 is big enough.
-  default = 999
+  default  = 999
+  nullable = false
 }
 
 variable "private_subnets_enabled" {
   type        = bool
   description = "If false, do not create private subnets (or NAT gateways or instances)"
   default     = true
+  nullable    = false
 }
 
 variable "public_subnets_enabled" {
@@ -66,30 +72,35 @@ variable "public_subnets_enabled" {
     Since NAT gateways and instances must be created in public subnets, these will also not be created when `false`.
     EOT
   default     = true
+  nullable    = false
 }
 
 variable "private_label" {
   type        = string
   description = "The string to use in IDs and elsewhere to identify resources for the private subnets and distinguish them from resources for the public subnets"
   default     = "private"
+  nullable    = false
 }
 
 variable "public_label" {
   type        = string
   description = "The string to use in IDs and elsewhere to identify resources for the public subnets and distinguish them from resources for the private subnets"
   default     = "public"
+  nullable    = false
 }
 
 variable "ipv4_enabled" {
   type        = bool
   description = "Set `true` to enable IPv4 addresses in the subnets"
   default     = true
+  nullable    = false
 }
 
 variable "ipv6_enabled" {
   type        = bool
   description = "Set `true` to enable IPv6 addresses in the subnets"
   default     = false
+  nullable    = false
 }
 
 variable "ipv4_cidr_block" {
@@ -103,6 +114,7 @@ variable "ipv4_cidr_block" {
     condition     = length(var.ipv4_cidr_block) < 2
     error_message = "Only 1 ipv4_cidr_block can be provided. Use ipv4_cidrs to provide a CIDR per subnet."
   }
+  nullable = false
 }
 
 variable "ipv6_cidr_block" {
@@ -116,6 +128,7 @@ variable "ipv6_cidr_block" {
     condition     = length(var.ipv6_cidr_block) < 2
     error_message = "Only 1 ipv6_cidr_block can be provided. Use ipv6_cidrs to provide a CIDR per subnet."
   }
+  nullable = false
 }
 
 variable "ipv4_cidrs" {
@@ -132,6 +145,7 @@ variable "ipv4_cidrs" {
     condition     = length(var.ipv4_cidrs) < 2
     error_message = "Only 1 ipv4_cidrs object can be provided. Lists of CIDRs are passed via the `public` and `private` attributes of the single object."
   }
+  nullable = false
 }
 
 variable "ipv6_cidrs" {
@@ -148,6 +162,7 @@ variable "ipv6_cidrs" {
     condition     = length(var.ipv6_cidrs) < 2
     error_message = "Only 1 ipv6_cidrs object can be provided. Lists of CIDRs are passed via the `public` and `private` attributes of the single object."
   }
+  nullable = false
 }
 
 variable "availability_zones" {
@@ -161,6 +176,7 @@ variable "availability_zones" {
     (not computed) values for predictability, consistency, and stability.
     EOT
   default     = []
+  nullable    = false
 }
 
 variable "availability_zone_ids" {
@@ -170,6 +186,7 @@ variable "availability_zone_ids" {
     Useful in some regions when using only some AZs and you want to use the same ones across multiple accounts.
     EOT
   default     = []
+  nullable    = false
 }
 
 variable "availability_zone_attribute_style" {
@@ -179,6 +196,7 @@ variable "availability_zone_attribute_style" {
     The style of Availability Zone code to use in tags and names. One of `full`, `short`, or `fixed`.
     When using `availability_zone_ids`, IDs will first be translated into AZ names.
     EOT
+  nullable    = false
 }
 
 variable "nat_gateway_enabled" {
@@ -203,6 +221,7 @@ variable "nat_elastic_ips" {
   type        = list(string)
   description = "Existing Elastic IPs (not EIP IDs) to attach to the NAT Gateway(s) or Instance(s) instead of creating new ones."
   default     = []
+  nullable    = false
 }
 
 variable "map_public_ip_on_launch" {
@@ -252,12 +271,14 @@ variable "ipv4_private_instance_hostname_type" {
     `resource-name` to generate it from the instance ID.
     EOT
   default     = "ip-name"
+  nullable    = false
 }
 
 variable "ipv4_private_instance_hostnames_enabled" {
   type        = bool
   description = "If `true`, DNS queries for instance hostnames in the private subnets will be answered with A (IPv4) records."
   default     = false
+  nullable    = false
 }
 
 variable "ipv6_private_instance_hostnames_enabled" {
@@ -266,6 +287,7 @@ variable "ipv6_private_instance_hostnames_enabled" {
     If `true` (or if `ipv4_enabled` is `false`), DNS queries for instance hostnames in the private subnets will be answered with AAAA (IPv6) records.
     EOT
   default     = false
+  nullable    = false
 }
 
 variable "ipv4_public_instance_hostname_type" {
@@ -276,12 +298,14 @@ variable "ipv4_public_instance_hostname_type" {
     `resource-name` to generate it from the instance ID.
     EOT
   default     = "ip-name"
+  nullable    = false
 }
 
 variable "ipv4_public_instance_hostnames_enabled" {
   type        = bool
   description = "If `true`, DNS queries for instance hostnames in the public subnets will be answered with A (IPv4) records."
   default     = false
+  nullable    = false
 }
 
 variable "ipv6_public_instance_hostnames_enabled" {
@@ -290,6 +314,7 @@ variable "ipv6_public_instance_hostnames_enabled" {
     If `true` (or if `ipv4_enabled` is false), DNS queries for instance hostnames in the public subnets will be answered with AAAA (IPv6) records.
     EOT
   default     = false
+  nullable    = false
 }
 
 variable "private_open_network_acl_enabled" {
@@ -301,6 +326,7 @@ variable "private_open_network_acl_enabled" {
     If `false`, you will need to manage the network ACL outside of this module.
     EOT
   default     = true
+  nullable    = false
 }
 
 variable "public_open_network_acl_enabled" {
@@ -312,18 +338,21 @@ variable "public_open_network_acl_enabled" {
     If `false`, you will need to manage the network ACL outside of this module.
     EOT
   default     = true
+  nullable    = false
 }
 
 variable "open_network_acl_ipv4_rule_number" {
   type        = number
   description = "The `rule_no` assigned to the network ACL rules for IPv4 traffic generated by this module"
   default     = 100
+  nullable    = false
 }
 
 variable "open_network_acl_ipv6_rule_number" {
   type        = number
   description = "The `rule_no` assigned to the network ACL rules for IPv6 traffic generated by this module"
   default     = 111
+  nullable    = false
 }
 
 variable "private_route_table_enabled" {
@@ -333,6 +362,7 @@ variable "private_route_table_enabled" {
     will be created for each private subnet (1:1). If false, you will need to create your own route table(s) and route(s).
     EOT
   default     = true
+  nullable    = false
 }
 
 variable "public_route_table_ids" {
@@ -346,6 +376,7 @@ variable "public_route_table_ids" {
     according to the setting of `public_route_table_per_subnet_enabled`.
     EOT
   default     = []
+  nullable    = false
 }
 
 variable "public_route_table_enabled" {
@@ -357,6 +388,7 @@ variable "public_route_table_enabled" {
     Ignored if `public_route_table_ids` is non-empty.
     EOT
   default     = true
+  nullable    = false
 }
 
 variable "public_route_table_per_subnet_enabled" {
@@ -401,12 +433,14 @@ variable "private_subnets_additional_tags" {
   type        = map(string)
   description = "Additional tags to be added to private subnets"
   default     = {}
+  nullable    = false
 }
 
 variable "public_subnets_additional_tags" {
   type        = map(string)
   description = "Additional tags to be added to public subnets"
   default     = {}
+  nullable    = false
 }
 
 ############## NAT instance configuration ###################
@@ -414,6 +448,7 @@ variable "nat_instance_type" {
   type        = string
   description = "NAT Instance type"
   default     = "t3.micro"
+  nullable    = false
 }
 
 variable "nat_instance_ami_id" {
@@ -429,6 +464,7 @@ variable "nat_instance_ami_id" {
     condition     = length(var.nat_instance_ami_id) < 2
     error_message = "Only 1 NAT Instance AMI ID can be provided."
   }
+  nullable = false
 }
 
 variable "nat_instance_cpu_credits_override" {
@@ -445,12 +481,14 @@ variable "nat_instance_cpu_credits_override" {
     # See https://github.com/hashicorp/terraform/issues/24123
     error_message = "The `nat_instance_cpu_credits_override` value must be either \"standard\", \"unlimited\", or empty string."
   }
+  nullable = false
 }
 
 variable "metadata_http_endpoint_enabled" {
   type        = bool
   description = "Whether the metadata service is available on the created NAT instances"
   default     = true
+  nullable    = false
 }
 
 variable "metadata_http_put_response_hop_limit" {
@@ -463,12 +501,14 @@ variable "metadata_http_tokens_required" {
   type        = bool
   description = "Whether or not the metadata service requires session tokens, also referred to as Instance Metadata Service Version 2, on the created NAT instances"
   default     = true
+  nullable    = false
 }
 
 variable "nat_instance_root_block_device_encrypted" {
   type        = bool
   description = "Whether to encrypt the root block device on the created NAT instances"
   default     = true
+  nullable    = false
 }
 locals { nat_instance_root_block_device_encrypted = var.root_block_device_encrypted == null ? var.nat_instance_root_block_device_encrypted : var.root_block_device_encrypted }
 
@@ -485,6 +525,7 @@ variable "subnets_per_az_count" {
     # See https://github.com/hashicorp/terraform/issues/24123
     error_message = "The `subnets_per_az` value must be greater than 0."
   }
+  nullable = false
 }
 
 variable "subnets_per_az_names" {
@@ -497,4 +538,49 @@ variable "subnets_per_az_names" {
     `named_private_route_table_ids_map` and `named_public_route_table_ids_map`
     EOT
   default     = ["common"]
+  nullable    = false
+}
+
+variable "private_network_acl_rules" {
+  type = map(object({
+    rule_action     = string
+    rule_number     = number
+    egress          = optional(bool, false)
+    cidr_block      = optional(string)
+    ipv6_cidr_block = optional(string)
+    from_port       = optional(number)
+    to_port         = optional(number)
+    protocol        = string
+    icmp_type       = optional(string)
+    icmp_code       = optional(number)
+  }))
+  description = <<-EOT
+    Map of Network ACL rules to assign to private subnets.
+    Use the map keys as human-readable descriptions of the rules.
+    Refer to https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/network_acl_rule for more details.
+    EOT
+  default     = {}
+  nullable    = false
+}
+
+variable "public_network_acl_rules" {
+  type = map(object({
+    rule_action     = string
+    rule_number     = number
+    egress          = optional(bool, false)
+    cidr_block      = optional(string)
+    ipv6_cidr_block = optional(string)
+    from_port       = optional(number)
+    to_port         = optional(number)
+    protocol        = string
+    icmp_type       = optional(string)
+    icmp_code       = optional(number)
+  }))
+  description = <<-EOT
+    Map of Network ACL rules to assign to public subnets.
+    Use the map keys as human-readable descriptions of the rules.
+    Refer to https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/network_acl_rule for more details.
+    EOT
+  default     = {}
+  nullable    = false
 }
