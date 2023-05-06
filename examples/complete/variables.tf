@@ -1,11 +1,13 @@
 variable "region" {
   type        = string
   description = "AWS region"
+  nullable    = false
 }
 
 variable "availability_zones" {
   type        = list(string)
   description = "List of Availability Zones where subnets will be created"
+  nullable    = false
 }
 
 variable "subnets_per_az_count" {
@@ -21,6 +23,7 @@ variable "subnets_per_az_count" {
     # See https://github.com/hashicorp/terraform/issues/24123
     error_message = "The `subnets_per_az` value must be greater than 0."
   }
+  nullable = false
 }
 
 variable "subnets_per_az_names" {
@@ -33,4 +36,5 @@ variable "subnets_per_az_names" {
     `named_private_route_table_ids_map` and `named_public_route_table_ids_map`
     EOT
   default     = ["common"]
+  nullable    = false
 }
