@@ -320,7 +320,7 @@ variable "ipv6_public_instance_hostnames_enabled" {
 variable "private_open_network_acl_enabled" {
   type        = bool
   description = <<-EOT
-    If `true`, a single network ACL be created and it will be associated with every private subnet, and a rule (number 100)
+    If `true`, a single network ACL will be created and it will be associated with every private subnet, and a rule (number 100)
     will be created allowing all ingress and all egress. You can add additional rules to this network ACL
     using the `aws_network_acl_rule` resource.
     If `false`, you will need to manage the network ACL outside of this module.
@@ -332,7 +332,7 @@ variable "private_open_network_acl_enabled" {
 variable "public_open_network_acl_enabled" {
   type        = bool
   description = <<-EOT
-    If `true`, a single network ACL be created and it will be associated with every public subnet, and a rule
+    If `true`, a single network ACL will be created and it will be associated with every public subnet, and a rule
     will be created allowing all ingress and all egress. You can add additional rules to this network ACL
     using the `aws_network_acl_rule` resource.
     If `false`, you will need to manage the network ACL outside of this module.
