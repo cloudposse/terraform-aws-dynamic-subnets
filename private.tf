@@ -149,7 +149,7 @@ resource "aws_network_acl_rule" "private6_egress" {
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/network_acl_rule
-resource "aws_network_acl_rule" "private_additional" {
+resource "aws_network_acl_rule" "private_rules" {
   for_each = { for k, v in var.private_network_acl_rules : k => v if local.private_open_network_acl_enabled }
 
   network_acl_id = aws_network_acl.private[0].id
