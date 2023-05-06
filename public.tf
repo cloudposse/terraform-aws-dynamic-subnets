@@ -94,7 +94,7 @@ resource "aws_route_table_association" "public" {
 }
 
 resource "aws_network_acl" "public" {
-  count = local.public_open_network_acl_enabled ? 1 : 0
+  count = local.public_network_acl_enabled ? 1 : 0
 
   vpc_id     = local.vpc_id
   subnet_ids = aws_subnet.public.*.id
@@ -160,7 +160,7 @@ resource "aws_network_acl_rule" "public6_egress" {
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/network_acl_rule
 resource "aws_network_acl_rule" "public_rules" {
-  for_each = { for k, v in var.public_network_acl_rules : k => v if local.public_open_network_acl_enabled }
+  for_each = { for k, v in var.public_network_acl_rules : k => v if local.public_network_acl_enabled }
 
   network_acl_id = aws_network_acl.public[0].id
   rule_action    = each.value.rule_action

@@ -169,11 +169,11 @@ locals {
   private_route_table_count   = local.private_route_table_enabled ? local.subnet_az_count : 0
   private_route_table_ids     = local.private_route_table_enabled ? aws_route_table.private.*.id : []
 
-  # public and private network ACLs
-  # Support deprecated var.public_network_acl_id
-  public_open_network_acl_enabled = local.public_enabled && var.public_open_network_acl_enabled
-  # Support deprecated var.private_network_acl_id
-  private_open_network_acl_enabled = local.private_enabled && var.private_open_network_acl_enabled
+  # public and private network ACLs and rules
+  public_network_acl_enabled       = local.public_enabled && var.public_network_acl_enabled
+  public_open_network_acl_enabled  = local.public_network_acl_enabled && var.public_open_network_acl_enabled
+  private_network_acl_enabled      = local.private_enabled && var.private_network_acl_enabled
+  private_open_network_acl_enabled = local.private_network_acl_enabled && var.private_open_network_acl_enabled
 
   # A NAT device is needed to NAT from private IPv4 to public IPv4 or to perform NAT64 for IPv6.
   # An AWS NAT instance does not perform NAT64, and we choose not to try to support NAT64 via NAT instances at this time.
