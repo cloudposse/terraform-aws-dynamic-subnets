@@ -4,6 +4,12 @@ variable "region" {
   nullable    = false
 }
 
+variable "ipv4_primary_cidr_block" {
+  type        = string
+  description = "IPv4 primary CIDR block for the VPC"
+  nullable    = false
+}
+
 variable "availability_zones" {
   type        = list(string)
   description = "List of Availability Zones where subnets will be created"
@@ -36,12 +42,12 @@ variable "private_network_acl_rules" {
   type = map(object({
     rule_action     = string
     rule_number     = number
+    protocol        = string
     egress          = optional(bool, false)
     cidr_block      = optional(string)
     ipv6_cidr_block = optional(string)
     from_port       = optional(number)
     to_port         = optional(number)
-    protocol        = string
     icmp_type       = optional(string)
     icmp_code       = optional(number)
   }))
@@ -81,12 +87,12 @@ variable "public_network_acl_rules" {
   type = map(object({
     rule_action     = string
     rule_number     = number
+    protocol        = string
     egress          = optional(bool, false)
     cidr_block      = optional(string)
     ipv6_cidr_block = optional(string)
     from_port       = optional(number)
     to_port         = optional(number)
-    protocol        = string
     icmp_type       = optional(string)
     icmp_code       = optional(number)
   }))

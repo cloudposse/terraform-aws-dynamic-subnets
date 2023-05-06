@@ -516,7 +516,7 @@ variable "private_network_acl_enabled" {
 variable "private_open_network_acl_enabled" {
   type        = bool
   description = <<-EOT
-    If `true`, network ACL rules will be created and associated with the private network ACL
+    If `true`, network ACL rules will be created and associated with the private network ACL,
     allowing all ingress and all egress for the private subnets.
     The variables `private_subnets_enabled` and `private_network_acl_enabled` must also be set to `true` to create
     private subnets and a network ACL to associate the rules with.
@@ -529,12 +529,12 @@ variable "private_network_acl_rules" {
   type = map(object({
     rule_action     = string
     rule_number     = number
+    protocol        = string
     egress          = optional(bool, false)
     cidr_block      = optional(string)
     ipv6_cidr_block = optional(string)
     from_port       = optional(number)
     to_port         = optional(number)
-    protocol        = string
     icmp_type       = optional(string)
     icmp_code       = optional(number)
   }))
@@ -561,7 +561,7 @@ variable "public_network_acl_enabled" {
 variable "public_open_network_acl_enabled" {
   type        = bool
   description = <<-EOT
-    If `true`, network ACL rules will be created and associated with the public network ACL
+    If `true`, network ACL rules will be created and associated with the public network ACL,
     allowing all ingress and all egress for the public subnets.
     The variables `public_subnets_enabled` and `public_network_acl_enabled` must also be set to `true` to create
     public subnets and a network ACL to associate the rules with.
@@ -574,12 +574,12 @@ variable "public_network_acl_rules" {
   type = map(object({
     rule_action     = string
     rule_number     = number
+    protocol        = string
     egress          = optional(bool, false)
     cidr_block      = optional(string)
     ipv6_cidr_block = optional(string)
     from_port       = optional(number)
     to_port         = optional(number)
-    protocol        = string
     icmp_type       = optional(string)
     icmp_code       = optional(number)
   }))
