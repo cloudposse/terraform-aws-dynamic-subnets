@@ -1,10 +1,11 @@
 module github.com/cloudposse/terraform-aws-dynamic-subnets
 
-go 1.19
+go 1.20
 
 require (
 	github.com/gruntwork-io/terratest v0.41.23
 	github.com/stretchr/testify v1.8.2
+	k8s.io/apimachinery v0.20.6
 )
 
 require (
@@ -79,7 +80,6 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/api v0.20.6 // indirect
-	k8s.io/apimachinery v0.20.6 // indirect
 	k8s.io/client-go v0.20.6 // indirect
 	k8s.io/klog/v2 v2.4.0 // indirect
 	k8s.io/utils v0.0.0-20201110183641-67b214c5f920 // indirect
