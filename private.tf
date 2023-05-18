@@ -87,7 +87,7 @@ resource "aws_network_acl" "private" {
   count = local.private_open_network_acl_enabled ? 1 : 0
 
   vpc_id     = local.vpc_id
-  subnet_ids = aws_subnet.private.*.id
+  subnet_ids = aws_subnet.private[*].id
 
   tags = module.private_label.tags
 }

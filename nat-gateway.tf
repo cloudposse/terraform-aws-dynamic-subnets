@@ -29,7 +29,7 @@ resource "aws_route" "nat4" {
   count = local.nat_gateway_enabled && local.private4_enabled ? local.private_route_table_count : 0
 
   route_table_id         = local.private_route_table_ids[count.index]
-  nat_gateway_id         = element(aws_nat_gateway.default.*.id, count.index)
+  nat_gateway_id         = element(aws_nat_gateway.default[*].id, count.index)
   destination_cidr_block = "0.0.0.0/0"
   depends_on             = [aws_route_table.private]
 
@@ -45,7 +45,7 @@ resource "aws_route" "private_nat64" {
   count = local.nat_gateway_enabled && local.private_dns64_enabled ? local.private_route_table_count : 0
 
   route_table_id              = local.private_route_table_ids[count.index]
-  nat_gateway_id              = element(aws_nat_gateway.default.*.id, count.index)
+  nat_gateway_id              = element(aws_nat_gateway.default[*].id, count.index)
   destination_ipv6_cidr_block = local.nat64_cidr
   depends_on                  = [aws_route_table.private]
 
@@ -61,7 +61,7 @@ resource "aws_route" "public_nat64" {
   count = local.nat_gateway_enabled && local.public_dns64_enabled ? local.public_route_table_count : 0
 
   route_table_id              = local.public_route_table_ids[count.index]
-  nat_gateway_id              = element(aws_nat_gateway.default.*.id, count.index)
+  nat_gateway_id              = element(aws_nat_gateway.default[*].id, count.index)
   destination_ipv6_cidr_block = local.nat64_cidr
   depends_on                  = [aws_route_table.public]
 

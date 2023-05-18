@@ -34,7 +34,7 @@ resource "aws_security_group_rule" "nat_instance_egress" {
   to_port           = 0
   protocol          = "-1"
   cidr_blocks       = ["0.0.0.0/0"] #tfsec:ignore:aws-ec2-no-public-egress-sgr
-  security_group_id = join("", aws_security_group.nat_instance.*.id)
+  security_group_id = join("", aws_security_group.nat_instance[*].id)
   type              = "egress"
 }
 
@@ -46,7 +46,7 @@ resource "aws_security_group_rule" "nat_instance_ingress" {
   to_port           = 0
   protocol          = "-1"
   cidr_blocks       = [local.base_ipv4_cidr_block]
-  security_group_id = join("", aws_security_group.nat_instance.*.id)
+  security_group_id = join("", aws_security_group.nat_instance[*].id)
   type              = "ingress"
 }
 
@@ -130,7 +130,7 @@ resource "aws_route" "nat_instance" {
   count = local.nat_instance_enabled ? local.private_route_table_count : 0
 
   route_table_id         = local.private_route_table_ids[count.index]
-  network_interface_id   = element(aws_instance.nat_instance.*.primary_network_interface_id, count.index)
+  network_interface_id   = element(aws_instance.nat_instance[*].primary_network_interface_id, count.index)
   destination_cidr_block = "0.0.0.0/0"
   depends_on             = [aws_route_table.private]
 
