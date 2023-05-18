@@ -33,7 +33,7 @@ resource "aws_security_group_rule" "nat_instance_egress" {
   from_port         = 0
   to_port           = 0
   protocol          = "-1"
-  cidr_blocks       = ["0.0.0.0/0"] #tfsec:ignore:AWS007
+  cidr_blocks       = ["0.0.0.0/0"] #tfsec:ignore:aws-ec2-no-public-egress-sgr
   security_group_id = join("", aws_security_group.nat_instance[*].id)
   type              = "egress"
 }
