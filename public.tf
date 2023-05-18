@@ -98,7 +98,7 @@ resource "aws_network_acl" "public" {
   count = local.public_open_network_acl_enabled ? 1 : 0
 
   vpc_id     = local.vpc_id
-  subnet_ids = aws_subnet.public.*.id
+  subnet_ids = aws_subnet.public[*].id
 
   tags = module.public_label.tags
 }

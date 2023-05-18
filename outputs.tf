@@ -12,12 +12,12 @@ output "availability_zone_ids" {
 
 output "public_subnet_ids" {
   description = "IDs of the created public subnets"
-  value       = aws_subnet.public.*.id
+  value       = aws_subnet.public[*].id
 }
 
 output "private_subnet_ids" {
   description = "IDs of the created private subnets"
-  value       = aws_subnet.private.*.id
+  value       = aws_subnet.private[*].id
 }
 
 # Provide some consistency in CDIR outputs by always returning a list.
@@ -25,32 +25,32 @@ output "private_subnet_ids" {
 # value via configuration rather than computing it via `compact()`.
 output "public_subnet_cidrs" {
   description = "IPv4 CIDR blocks of the created public subnets"
-  value       = local.public4_enabled ? aws_subnet.public.*.cidr_block : []
+  value       = local.public4_enabled ? aws_subnet.public[*].cidr_block : []
 }
 
 output "public_subnet_ipv6_cidrs" {
   description = "IPv6 CIDR blocks of the created public subnets"
-  value       = local.public6_enabled ? aws_subnet.public.*.ipv6_cidr_block : []
+  value       = local.public6_enabled ? aws_subnet.public[*].ipv6_cidr_block : []
 }
 
 output "private_subnet_cidrs" {
   description = "IPv4 CIDR blocks of the created private subnets"
-  value       = local.private4_enabled ? aws_subnet.private.*.cidr_block : []
+  value       = local.private4_enabled ? aws_subnet.private[*].cidr_block : []
 }
 
 output "private_subnet_ipv6_cidrs" {
   description = "IPv6 CIDR blocks of the created private subnets"
-  value       = local.private6_enabled ? aws_subnet.private.*.ipv6_cidr_block : []
+  value       = local.private6_enabled ? aws_subnet.private[*].ipv6_cidr_block : []
 }
 
 output "public_route_table_ids" {
   description = "IDs of the created public route tables"
-  value       = aws_route_table.public.*.id
+  value       = aws_route_table.public[*].id
 }
 
 output "private_route_table_ids" {
   description = "IDs of the created private route tables"
-  value       = aws_route_table.private.*.id
+  value       = aws_route_table.private[*].id
 }
 
 output "public_network_acl_id" {
@@ -65,12 +65,12 @@ output "private_network_acl_id" {
 
 output "nat_gateway_ids" {
   description = "IDs of the NAT Gateways created"
-  value       = aws_nat_gateway.default.*.id
+  value       = aws_nat_gateway.default[*].id
 }
 
 output "nat_instance_ids" {
   description = "IDs of the NAT Instances created"
-  value       = aws_instance.nat_instance.*.id
+  value       = aws_instance.nat_instance[*].id
 }
 
 output "nat_instance_ami_id" {
@@ -80,7 +80,7 @@ output "nat_instance_ami_id" {
 
 output "nat_ips" {
   description = "Elastic IP Addresses in use by NAT"
-  value       = local.need_nat_eip_data ? var.nat_elastic_ips : aws_eip.default.*.public_ip
+  value       = local.need_nat_eip_data ? var.nat_elastic_ips : aws_eip.default[*].public_ip
 }
 
 output "nat_eip_allocation_ids" {

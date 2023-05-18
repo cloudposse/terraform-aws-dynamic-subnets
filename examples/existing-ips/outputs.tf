@@ -1,6 +1,6 @@
 output "existing_ips" {
   description = "Elastic IP Addresses created by this module for use by NAT"
-  value       = aws_eip.nat_ips.*.public_ip
+  value       = aws_eip.nat_ips[*].public_ip
 }
 
 output "nat_ips" {
