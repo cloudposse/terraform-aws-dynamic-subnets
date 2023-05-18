@@ -163,11 +163,11 @@ locals {
   )
 
   create_public_route_tables = local.public_route_table_enabled && length(var.public_route_table_ids) == 0
-  public_route_table_ids     = local.create_public_route_tables ? aws_route_table.public.*.id : var.public_route_table_ids
+  public_route_table_ids     = local.create_public_route_tables ? aws_route_table.public[*].id : var.public_route_table_ids
 
   private_route_table_enabled = local.private_enabled && var.private_route_table_enabled
   private_route_table_count   = local.private_route_table_enabled ? local.subnet_az_count : 0
-  private_route_table_ids     = local.private_route_table_enabled ? aws_route_table.private.*.id : []
+  private_route_table_ids     = local.private_route_table_enabled ? aws_route_table.private[*].id : []
 
   # public and private network ACLs
   # Support deprecated var.public_network_acl_id
@@ -199,7 +199,7 @@ locals {
   nat_enabled          = local.nat_gateway_enabled || local.nat_instance_enabled
   need_nat_eips        = local.nat_enabled && length(var.nat_elastic_ips) == 0
   need_nat_eip_data    = local.nat_enabled && length(var.nat_elastic_ips) > 0
-  nat_eip_allocations  = local.nat_enabled ? (local.need_nat_eips ? aws_eip.default.*.id : data.aws_eip.nat.*.id) : []
+  nat_eip_allocations  = local.nat_enabled ? (local.need_nat_eips ? aws_eip.default[*].id : data.aws_eip.nat[*].id) : []
 
   need_nat_ami_id     = local.nat_instance_enabled && length(var.nat_instance_ami_id) == 0
   nat_instance_ami_id = local.need_nat_ami_id ? data.aws_ami.nat_instance[0].id : try(var.nat_instance_ami_id[0], "")
