@@ -1,5 +1,5 @@
 module "nat_label" {
-  source     = "git::https://github.com/betterworks/terraform-null-label.git?ref=tags/1.0.0-terraform-1"
+  source     = "git::https://github.com/betterworks/terraform-null-label.git?ref=tags/0.13.0"
   context    = module.label.context
   attributes = distinct(compact(concat(module.label.attributes, ["nat"])))
 }
