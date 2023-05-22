@@ -1,5 +1,5 @@
 module "nat_instance_label" {
-  source  = "git::https://github.com/betterworks/terraform-null-label.git?ref=tags/0.12.0"
+  source  = "git::https://github.com/betterworks/terraform-null-label.git?ref=tags/0.13.0"
   context = module.label.context
   attributes = distinct(
     compact(concat(module.label.attributes, ["nat", "instance"])),
@@ -32,11 +32,11 @@ resource "aws_security_group_rule" "nat_instance_egress" {
 }
 
 resource "aws_security_group_rule" "nat_instance_ingress" {
-  count       = local.nat_instance_enabled ? 1 : 0
-  description = "Allow ingress traffic from the VPC CIDR block"
-  from_port   = 0
-  to_port     = 0
-  protocol    = "-1"
+  count             = local.nat_instance_enabled ? 1 : 0
+  description       = "Allow ingress traffic from the VPC CIDR block"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
   cidr_blocks       = [local.cidr_block]
   security_group_id = join("", aws_security_group.nat_instance.*.id)
   type              = "ingress"
