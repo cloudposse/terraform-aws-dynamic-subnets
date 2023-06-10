@@ -23,9 +23,9 @@ locals {
   #  - availability_zones
   #  - data.aws_availability_zones.default
 
-  use_az_ids      = local.e && length(var.availability_zone_ids) > 0
-  use_az_var      = local.e && length(var.availability_zones) > 0
-  use_default_azs = local.e && !(local.use_az_ids || local.use_az_var)
+  use_az_ids = local.e && length(var.availability_zone_ids) > 0
+  use_az_var = local.e && length(var.availability_zones) > 0
+  # otherwise use_default_azs = local.e && !(local.use_az_ids || local.use_az_var)
 
   # Create a map of AZ IDs to AZ names (and the reverse),
   # but fail safely, because AZ IDs are not always available.
@@ -283,7 +283,13 @@ data "aws_eip" "nat" {
 resource "aws_eip" "default" {
   count = local.need_nat_eips ? local.nat_count : 0
 
-  vpc = true
+  # `vpc` is deprecated in favor of `domain = "vpc"` in version 5 of the AWS provider.
+  # However, the `domain` attribute is not available in version 4.
+  # In order to support both version 4 and 5, we leave both out, which is valid for both versions,
+  # but will break in accounts and regions where EC2-Classic is enabled.
+  # Given that EC2-Classic was deprecated in 2013, this is unlikely to be a problem.
+  # vpc = true     # provider version 4
+  # domain = "vpc" # provider version 5
 
   tags = merge(
     module.nat_label.tags,
@@ -300,5 +306,5 @@ resource "aws_eip" "default" {
 
 module "utils" {
   source  = "cloudposse/utils/aws"
-  version = "1.1.0"
+  version = "1.3.0"
 }
