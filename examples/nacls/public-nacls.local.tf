@@ -7,7 +7,7 @@ resource "aws_network_acl" "custom_public" {
   count = local.custom_public_nacls_enabled ? 1 : 0
 
   vpc_id = module.vpc.vpc_id
-  #bridgecrew:skip=BC_AWS_NETWORKING_50: Ensure NACLs are attached to subnets, because we have.
+  #bridgecrew:skip=BC_AWS_NETWORKING_50:Ensure NACLs are attached to subnets, because we have.
   subnet_ids = module.subnets.public_subnet_ids
 
   tags = module.this.tags
@@ -59,6 +59,7 @@ resource "aws_network_acl_rule" "custom_public_ingress_443" {
 resource "aws_network_acl_rule" "custom_public_ingress_ephemeral" {
   count = local.custom_public_nacls_enabled ? 1 : 0
 
+  #bridgecrew:skip=BC_AWS_NETWORKING_72:Ensure AWS NACL does not allow ingress from 0.0.0.0/0 to port 3389, because we have denied it above.
   network_acl_id = one(aws_network_acl.custom_public[*].id)
   rule_action    = "allow"
   rule_number    = 60
