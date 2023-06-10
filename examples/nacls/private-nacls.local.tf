@@ -18,7 +18,7 @@ variable "alternate_region_cidr" {
 }
 
 locals {
-  custom_private_nacls_enabled = local.enabled && !var.default_nacls_enabled
+  custom_private_nacls_enabled = local.enabled && !var.default_nacls_enabled && length(module.subnets.private_subnet_ids) > 0
 
   private_open_cidrs = concat(
     module.subnets.private_subnet_cidrs,
@@ -29,10 +29,26 @@ locals {
 resource "aws_network_acl" "custom_private" {
   count = local.custom_private_nacls_enabled ? 1 : 0
 
-  vpc_id     = module.vpc.vpc_id
+  vpc_id = module.vpc.vpc_id
+  #bridgecrew:skip=BC_AWS_NETWORKING_50: Ensure NACLs are attached to subnets, because we have.
   subnet_ids = module.subnets.private_subnet_ids
 
   tags = module.this.tags
+}
+
+# See https://www.cisecurity.org/insights/white-papers/security-primer-remote-desktop-protocol
+resource "aws_network_acl_rule" "custom_private_ingress_deny_rdp" {
+  count = local.custom_private_nacls_enabled ? 1 : 0
+
+  network_acl_id = one(aws_network_acl.custom_private[*].id)
+  rule_action    = "deny"
+  rule_number    = 10
+
+  egress     = false
+  cidr_block = "0.0.0.0/0"
+  from_port  = 3389
+  to_port    = 3389
+  protocol   = "tcp"
 }
 
 resource "aws_network_acl_rule" "custom_private_ingress_80" {
