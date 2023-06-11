@@ -80,7 +80,7 @@ func TestExamplesMultipleSubnetsPerAZDisabled(t *testing.T) {
 	attributes := []string{randID}
 
 	rootFolder := "../../"
-	terraformFolderRelativeToRoot := "examples/complete"
+	terraformFolderRelativeToRoot := "examples/multiple-subnets-per-az"
 	varFiles := []string{"fixtures.us-east-2.tfvars"}
 
 	tempTestFolder := testStructure.CopyTerraformFolderToTemp(t, rootFolder, terraformFolderRelativeToRoot)
