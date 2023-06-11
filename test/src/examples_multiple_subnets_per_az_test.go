@@ -1,13 +1,15 @@
 package test
 
 import (
-	"github.com/gruntwork-io/terratest/modules/random"
-	teststructure "github.com/gruntwork-io/terratest/modules/test-structure"
+	"regexp"
 	"strings"
 	"testing"
 
+	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
+	testStructure "github.com/gruntwork-io/terratest/modules/test-structure"
 	"github.com/stretchr/testify/assert"
+	"k8s.io/apimachinery/pkg/util/runtime"
 )
 
 func TestExamplesMultipleSubnetsPerAZ(t *testing.T) {
@@ -19,7 +21,7 @@ func TestExamplesMultipleSubnetsPerAZ(t *testing.T) {
 	terraformFolderRelativeToRoot := "examples/multiple-subnets-per-az"
 	varFiles := []string{"fixtures.us-east-2.tfvars"}
 
-	tempTestFolder := teststructure.CopyTerraformFolderToTemp(t, rootFolder, terraformFolderRelativeToRoot)
+	tempTestFolder := testStructure.CopyTerraformFolderToTemp(t, rootFolder, terraformFolderRelativeToRoot)
 
 	terraformOptions := &terraform.Options{
 		// The path to where our Terraform code is located
@@ -34,6 +36,11 @@ func TestExamplesMultipleSubnetsPerAZ(t *testing.T) {
 
 	// At the end of the test, run `terraform destroy` to clean up any resources that were created
 	defer cleanup(t, terraformOptions, tempTestFolder)
+
+	// If Go runtime crushes, run `terraform destroy` to clean up any resources that were created
+	defer runtime.HandleCrash(func(i interface{}) {
+		cleanup(t, terraformOptions, tempTestFolder)
+	})
 
 	// This will run `terraform init` and `terraform apply` and fail the test if there are any errors
 	terraform.InitAndApply(t, terraformOptions)
@@ -76,7 +83,7 @@ func TestExamplesMultipleSubnetsPerAZDisabled(t *testing.T) {
 	terraformFolderRelativeToRoot := "examples/multiple-subnets-per-az"
 	varFiles := []string{"fixtures.us-east-2.tfvars"}
 
-	tempTestFolder := teststructure.CopyTerraformFolderToTemp(t, rootFolder, terraformFolderRelativeToRoot)
+	tempTestFolder := testStructure.CopyTerraformFolderToTemp(t, rootFolder, terraformFolderRelativeToRoot)
 
 	terraformOptions := &terraform.Options{
 		// The path to where our Terraform code is located
@@ -96,6 +103,9 @@ func TestExamplesMultipleSubnetsPerAZDisabled(t *testing.T) {
 	// This will run `terraform init` and `terraform apply` and fail the test if there are any errors
 	results := terraform.InitAndApply(t, terraformOptions)
 
-	// Should complete successfully without creating or changing any resources
-	assert.Contains(t, results, "Resources: 0 added, 0 changed, 0 destroyed.")
+	// Should complete successfully without creating or changing any resources.
+	// Extract the "Resources:" section of the output to make the error message more readable.
+	re := regexp.MustCompile(`Resources: [^.]+\.`)
+	match := re.FindString(results)
+	assert.Equal(t, "Resources: 0 added, 0 changed, 0 destroyed.", match, "Applying with enabled=false should not create any resources")
 }

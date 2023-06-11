@@ -159,6 +159,10 @@ usage: |-
   }
   ```
 
+  See [examples](examples) for working examples. In particular, see [examples/nacls](examples/nacls) 
+  for an example of how to create custom Network Access Control Lists (NACLs) outside of
+  but in conjunction with this module.
+
 include:
   - "docs/design.md"
   - "docs/targets.md"
