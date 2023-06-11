@@ -15,12 +15,22 @@ output "public_subnet_ids" {
   value       = aws_subnet.public[*].id
 }
 
+output "public_subnet_arns" {
+  description = "ARNs of the created public subnets"
+  value       = aws_subnet.public[*].arn
+}
+
 output "private_subnet_ids" {
   description = "IDs of the created private subnets"
   value       = aws_subnet.private[*].id
 }
 
-# Provide some consistency in CDIR outputs by always returning a list.
+output "private_subnet_arns" {
+  description = "ARNs of the created private subnets"
+  value       = aws_subnet.private[*].arn
+}
+
+# Provide some consistency in CIDR outputs by always returning a list.
 # Avoid (or at least reduce) `count` problems by toggling the return
 # value via configuration rather than computing it via `compact()`.
 output "public_subnet_cidrs" {
