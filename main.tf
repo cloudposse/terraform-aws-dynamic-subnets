@@ -306,5 +306,5 @@ resource "aws_eip" "default" {
 
 module "utils" {
   source  = "cloudposse/utils/aws"
-  version = "1.3.0"
+  version = "1.4.0"
 }
