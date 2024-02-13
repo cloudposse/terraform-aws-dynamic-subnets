@@ -75,8 +75,18 @@ variable "map_public_ip_on_launch" {
 }
 
 
+variable "extra_private_subnet_tags" {
+  type    = map(string)
+  default = {}
+}
+
+variable "extra_public_subnet_tags" {
+  type    = map(string)
+  default = {}
+}
+
 variable "private_ingress_acl_rules" {
-  default = [{    
+  default = [{
     rule_no    = 100
     action     = "allow"
     cidr_block = "0.0.0.0/0"
@@ -87,7 +97,7 @@ variable "private_ingress_acl_rules" {
 }
 
 variable "private_egress_acl_rules" {
-  default = [{    
+  default = [{
     rule_no    = 100
     action     = "allow"
     cidr_block = "0.0.0.0/0"
@@ -98,7 +108,7 @@ variable "private_egress_acl_rules" {
 }
 
 variable "public_ingress_acl_rules" {
-  default = [{    
+  default = [{
     rule_no    = 100
     action     = "allow"
     cidr_block = "0.0.0.0/0"
@@ -109,7 +119,7 @@ variable "public_ingress_acl_rules" {
 }
 
 variable "public_egress_acl_rules" {
-  default = [{    
+  default = [{
     rule_no    = 100
     action     = "allow"
     cidr_block = "0.0.0.0/0"
