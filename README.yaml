@@ -26,12 +26,17 @@ license: "APACHE2"
 github_repo: cloudposse/terraform-aws-dynamic-subnets
 # Badges to display
 badges:
-  - name: "Latest Release"
-    image: "https://img.shields.io/github/release/cloudposse/terraform-aws-dynamic-subnets.svg"
-    url: "https://github.com/cloudposse/terraform-aws-dynamic-subnets/releases/latest"
-  - name: "Slack Community"
-    image: "https://slack.cloudposse.com/badge.svg"
-    url: "https://slack.cloudposse.com"
+  - name: Latest Release
+    image: https://img.shields.io/github/release/cloudposse/terraform-aws-dynamic-subnets.svg?style=for-the-badge
+    url: https://github.com/cloudposse/terraform-aws-dynamic-subnets/releases/latest
+  - name: Last Updated
+    image: https://img.shields.io/github/last-commit/cloudposse/terraform-aws-dynamic-subnets.svg?style=for-the-badge
+    url: https://github.com/cloudposse/terraform-aws-dynamic-subnets/commits
+  - name: Slack Community
+    image: https://slack.cloudposse.com/for-the-badge.svg
+    url: https://slack.cloudposse.com
+
+# List any related terraform modules that this module may be used with or that this module depends on.
 related:
   - name: "terraform-aws-vpc"
     description: "Terraform Module that defines a VPC with public/private subnets across multiple AZs with Internet Gateways"
@@ -49,15 +54,15 @@ related:
 description: |-
   Terraform module to provision public and private [`subnets`](https://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_Subnets.html) in an existing [`VPC`](https://aws.amazon.com/vpc)
 
-  
+
   __Note:__ This module is intended for use with an existing VPC and existing Internet Gateway.
   To create a new VPC, use [terraform-aws-vpc](https://github.com/cloudposse/terraform-aws-vpc) module.
-  
+
   __Note:__ Due to Terraform [limitations](https://github.com/hashicorp/terraform/issues/26755#issuecomment-719103775),
   many optional inputs to this module are specified as a `list(string)` that can have zero or one element, rather than
   as a `string` that could be empty or `null`. The designation of an input as a `list` type does not necessarily
   mean that you can supply more than one value in the list, so check the input's description before supplying more than one value.
-  
+
   The core function of this module is to create 2 sets of subnets, a "public" set with bidirectional access to the
   public internet, and a "private" set behind a firewall with egress-only access to the public internet. This 
   includes dividing up a given CIDR range so that a each subnet gets its own 
@@ -71,18 +76,18 @@ description: |-
   you to create and configure them as you like from outside this module. For example, rather than give you the
   option to customize the Network ACL, the module gives you the option to create a completely open one (and control
   access via Security Groups and other means) or not create one at all, allowing you to create and configure one yourself.
-  
+
   ### Public subnets
-  
+
   This module defines a public subnet as one that has direct access to an internet gateway and can accept incoming connection requests. 
   In the simplest configuration, the module creates a single route table with a default route targeted to the
   VPC's internet gateway, and associates all the public subnets with that single route table. 
-  
+
   Likewise it creates a single Network ACL with associated rules allowing all ingress and all egress, 
   and associates that ACL with all the public subnets. 
 
   ### Private subnets
-  
+
   A private subnet may be able to initiate traffic to the public internet through a NAT gateway,
   a NAT instance, or an egress-only internet gateway, or it might only have direct access to other
   private subnets. In the simple configuration, for IPv4 and/or IPv6 with NAT64 enabled via `public_dns64_enabled`
@@ -93,22 +98,22 @@ description: |-
 
   As with the Public subnets, the module creates a single Network ACL with associated rules allowing all ingress and 
   all egress, and associates that ACL with all the private subnets. 
-  
+
   ### Customization for special use cases
-  
+
   Various features are controlled by `bool` inputs with names ending in `_enabled`. By changing the default
   values, you can enable or disable creation of public subnets, private subnets, route tables, 
   NAT gateways, NAT instances, or Network ACLs. So for example, you could use this module to create only
   private subnets and the open Network ACL, and then add your own route table associations to the subnets
   and route all non-local traffic to a Transit Gateway or VPN.
-  
+
   ### CIDR allocation
-  
+
   For IPv4, you provide a CIDR and the module divides the address space into the largest CIDRs possible that are still
   small enough to accommodate `max_subnet_count` subnets of each enabled type (public or private). When `max_subnet_count`
   is left at the default `0`, it is set to the total number of availability zones in the region. Private subnets
   are allocated out of the first half of the reserved range, and public subnets are allocated out of the second half.
-  
+
   For IPv6, you provide a `/56` CIDR and the module assigns `/64` subnets of that CIDR in consecutive order starting
   at zero. (You have the option of specifying a list of CIDRs instead.) As with IPv4, enough CIDRs are allocated to 
   cover `max_subnet_count` private and public subnets (when both are enabled, which is the default), with the private
@@ -130,7 +135,7 @@ usage: |-
     availability_zones  = ["us-east-1a", "us-east-1b"]
   }
   ```
-  
+
   Create only private subnets, route to transit gateway:
 
   ```hcl
@@ -145,11 +150,11 @@ usage: |-
     igw_id              = ["igw-XXXXXXXX"]
     ipv4_cidr_block     = ["10.0.0.0/16"]
     availability_zones  = ["us-east-1a", "us-east-1b"]
-  
+
     nat_gateway_enabled    = false
     public_subnets_enabled = false
   }
-  
+
   resource "aws_route" "private" {
     count = length(module.private_tgw_subnets.private_route_table_ids)
 
@@ -168,24 +173,4 @@ include:
   - "docs/targets.md"
   - "docs/terraform.md"
 # Contributors to this project
-contributors:
-  - name: "Erik Osterman"
-    github: "osterman"
-  - name: "Andriy Knysh"
-    github: "aknysh"
-  - name: "Nuru"
-    github: "Nuru"
-  - name: "Sergey Vasilyev"
-    github: "s2504s"
-  - name: "Vladimir"
-    github: "SweetOps"
-  - name: "Konstantin B"
-    github: "comeanother"
-  - name: "dcowan-vestmark"
-    github: "dcowan-vestmark"
-  - name: "Ivan Pinatti"
-    github: "ivan-pinatti"
-  - name: "Oscar Sullivan"
-    github: "osulli"
-  - name: "Joe Niland"
-    github: "joe-niland"
+contributors: []
