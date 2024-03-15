@@ -1,0 +1,7 @@
+# Upstream changes from _extends are only recognized when modifications are made to this file in the default branch.
+_extends: .github
+repository:
+  name: terraform-aws-dynamic-subnets
+  description: Terraform module for public and private subnets provisioning in existing VPC
+  homepage: https://cloudposse.com/accelerate
+  topics: terraform, terraform-modules, aws, subnet, vpc, vpc-resources, hcl2
