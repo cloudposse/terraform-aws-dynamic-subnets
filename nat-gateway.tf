@@ -11,7 +11,7 @@ resource "aws_nat_gateway" "default" {
   count = local.nat_gateway_enabled ? local.nat_count : 0
 
   allocation_id = local.nat_eip_allocations[count.index]
-  subnet_id     = aws_subnet.public[count.index].id
+  subnet_id     = local.public_enabled ? aws_subnet.public[count.index].id : aws_subnet.private[count.index].id
 
   tags = merge(
     module.nat_label.tags,
