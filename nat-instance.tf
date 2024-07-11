@@ -114,7 +114,7 @@ resource "aws_instance" "nat_instance" {
     }
   }
 
-  ebs_optimized = true
+  ebs_optimized = var.nat_instance_ebs_optimized
 }
 
 resource "aws_eip_association" "nat_instance" {

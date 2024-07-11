@@ -542,6 +542,13 @@ variable "nat_instance_root_block_device_encrypted" {
   default     = true
   nullable    = false
 }
+variable "nat_instance_ebs_optimized" {
+  type        = bool
+  description = "Whether the launched NAT instance will be EBS-optimized"
+  default     = true
+  nullable    = false
+}
+
 locals { nat_instance_root_block_device_encrypted = var.root_block_device_encrypted == null ? var.nat_instance_root_block_device_encrypted : var.root_block_device_encrypted }
 
 ############## END of NAT instance configuration ########################
