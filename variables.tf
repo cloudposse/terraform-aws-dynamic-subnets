@@ -549,6 +549,12 @@ variable "nat_instance_ebs_optimized" {
   nullable    = false
 }
 
+variable "nat_instance_key_name" {
+  type        = string
+  description = "The SSH key name that should be used for the NAT instance"
+  default     = ""
+}
+
 locals { nat_instance_root_block_device_encrypted = var.root_block_device_encrypted == null ? var.nat_instance_root_block_device_encrypted : var.root_block_device_encrypted }
 
 ############## END of NAT instance configuration ########################

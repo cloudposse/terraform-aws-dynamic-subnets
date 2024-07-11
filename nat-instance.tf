@@ -104,6 +104,7 @@ resource "aws_instance" "nat_instance" {
 
   root_block_device {
     encrypted = local.nat_instance_root_block_device_encrypted
+    volume_size = "8"
   }
 
   dynamic "credit_specification" {
@@ -113,7 +114,7 @@ resource "aws_instance" "nat_instance" {
       cpu_credits = var.nat_instance_cpu_credits_override
     }
   }
-
+  key_name = var.nat_instance_key_name
   ebs_optimized = var.nat_instance_ebs_optimized
 }
 
