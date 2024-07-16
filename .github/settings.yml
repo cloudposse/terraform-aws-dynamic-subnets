@@ -5,3 +5,4 @@ repository:
   description: Terraform module for public and private subnets provisioning in existing VPC
   homepage: https://cloudposse.com/accelerate
   topics: terraform, terraform-modules, aws, subnet, vpc, vpc-resources, hcl2
+
