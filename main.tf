@@ -137,7 +137,7 @@ locals {
   public4_enabled  = local.public_enabled && local.ipv4_enabled
   public6_enabled  = local.public_enabled && local.ipv6_enabled
   private4_enabled = local.private_enabled && local.ipv4_enabled
-  private6_enabled = local.private_enabled && local.ipv6_enabled
+  private6_enabled = local.private_enabled && local.ipv6_enabled && ! var.disable_private_ipv6
 
   public_dns64_enabled = local.public6_enabled && var.public_dns64_nat64_enabled
   # Set the default for private_dns64_enabled to true unless there is no IPv4 egress to enable it.
