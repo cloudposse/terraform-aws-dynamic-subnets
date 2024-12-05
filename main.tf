@@ -135,7 +135,7 @@ locals {
   ipv6_egress_only_configured = local.ipv6_enabled && length(var.ipv6_egress_only_igw_id) > 0
 
   public4_enabled  = local.public_enabled && local.ipv4_enabled
-  public6_enabled  = local.public_enabled && local.ipv6_enabled
+  public6_enabled  = local.public_enabled && local.ipv6_enabled && ! var.disable_public_ipv6
   private4_enabled = local.private_enabled && local.ipv4_enabled
   private6_enabled = local.private_enabled && local.ipv6_enabled && ! var.disable_private_ipv6
 
