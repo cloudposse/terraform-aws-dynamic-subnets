@@ -111,7 +111,7 @@ variable "enable_private_ipv6" {
 
 variable "enable_public_ipv6" {
   type        = bool
-  description = "Set `true` to disable IPv6 addresses in public subnets"
+  description = "Set `false` to disable IPv6 addresses in public subnets"
   default     = true
   nullable    = false
 }
