@@ -135,9 +135,9 @@ locals {
   ipv6_egress_only_configured = local.ipv6_enabled && length(var.ipv6_egress_only_igw_id) > 0
 
   public4_enabled  = local.public_enabled && local.ipv4_enabled
-  public6_enabled  = local.public_enabled && local.ipv6_enabled && var.enable_public_ipv6
+  public6_enabled  = local.public_enabled && local.ipv6_enabled && var.public_ipv6_enabled
   private4_enabled = local.private_enabled && local.ipv4_enabled
-  private6_enabled = local.private_enabled && local.ipv6_enabled && var.enable_private_ipv6
+  private6_enabled = local.private_enabled && local.ipv6_enabled && var.private_ipv6_enabled
 
   public_dns64_enabled = local.public6_enabled && var.public_dns64_nat64_enabled
   # Set the default for private_dns64_enabled to true unless there is no IPv4 egress to enable it.
