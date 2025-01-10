@@ -271,9 +271,9 @@ data "aws_availability_zones" "default" {
 data "aws_vpc" "default" {
   count = local.need_vpc_data ? 1 : 0
 
-  tags = var.vpc_id
-
   id = var.vpc_id
+
+  tags = var.vpc_id
 }
 
 data "aws_eip" "nat" {
