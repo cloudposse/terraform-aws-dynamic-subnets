@@ -13,7 +13,6 @@ locals {
   # The RFC 6052 "well known" NAT64 CIDR
   nat64_cidr = "64:ff9b::/96"
 
-  # In case we later decide to compute it
   vpc_id = one(data.aws_vpc.default[*].id)
 
   #####################################################################
