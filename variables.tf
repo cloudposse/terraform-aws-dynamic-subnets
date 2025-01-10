@@ -4,6 +4,12 @@ variable "vpc_id" {
   default     = null
 }
 
+variable "vpc_tags" {
+  type        = map(string)
+  description = "VPC tags to get the VPC ID where subnets will be created"
+  default     = null
+}
+
 variable "igw_id" {
   type        = list(string)
   description = <<-EOT
