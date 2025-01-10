@@ -14,7 +14,7 @@ locals {
   nat64_cidr = "64:ff9b::/96"
 
   # In case we later decide to compute it
-  vpc_id = var.vpc_id
+  vpc_id = one(data.aws_vpc.default[*].id)
 
   #####################################################################
   ## Determine the set of availability zones in which to deploy subnets
@@ -273,7 +273,7 @@ data "aws_vpc" "default" {
 
   tags = var.vpc_id
 
-  id = local.vpc_id
+  id = var.vpc_id
 }
 
 data "aws_eip" "nat" {
