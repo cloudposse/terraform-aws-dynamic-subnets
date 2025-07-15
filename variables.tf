@@ -88,6 +88,13 @@ variable "public_label" {
   nullable    = false
 }
 
+variable "nat_routes_enabled" {
+  type        = bool
+  description = "Set `true` to enable creating the default routes from private subnet to NAT Gateways and Instance"
+  default     = true
+  nullable    = false
+}
+
 variable "ipv4_enabled" {
   type        = bool
   description = "Set `true` to enable IPv4 addresses in the subnets"

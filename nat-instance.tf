@@ -127,7 +127,7 @@ resource "aws_eip_association" "nat_instance" {
 # If private IPv4 subnets and NAT Instance are both enabled, create a
 # default route from private subnet to NAT Instance in each subnet
 resource "aws_route" "nat_instance" {
-  count = local.nat_instance_enabled ? local.private_route_table_count : 0
+  count = local.nat_instance_enabled && var.nat_routes_enabled ? local.private_route_table_count : 0
 
   route_table_id         = local.private_route_table_ids[count.index]
   network_interface_id   = element(aws_instance.nat_instance[*].primary_network_interface_id, count.index)
