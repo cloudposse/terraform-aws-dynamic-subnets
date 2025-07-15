@@ -237,8 +237,8 @@ locals {
     compact([for k, v in local.az_public_route_table_ids_map : try(v[i], "")]))
   }
 
-  az_nat_gateway_ids_map = { for k, v in local.az_private_subnets_map : k => (
-    [for ng in aws_nat_gateway.default : ng.id if contains(v, ng.subnet_id)])
+  az_nat_gateway_ids_map = { for k, v in local.az_public_subnets_map : k => (
+    [for t in aws_nat_gateway.default : t.id if contains(v, t.subnet_id)])
   }
 
   named_private_subnets_stats_map = { for i, s in var.subnets_per_az_names : s => (
