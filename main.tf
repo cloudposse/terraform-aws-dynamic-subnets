@@ -258,6 +258,7 @@ locals {
         az             = k
         route_table_id = try(v[i], "")
         subnet_id      = try(local.az_public_subnets_map[k][i], "")
+        nat_gateway_id = try(local.az_nat_gateway_ids_map[k][i], "")
       }
     ])
   }

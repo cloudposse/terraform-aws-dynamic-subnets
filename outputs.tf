@@ -139,12 +139,12 @@ output "named_public_route_table_ids_map" {
 }
 
 output "named_private_subnets_stats_map" {
-  description = "Map of subnet names (specified in `subnets_per_az_names` variable) to lists of objects with each object having these items: AZ, private subnet ID, private route table ID, NAT gateway ID"
+  description = "Map of subnet names (specified in `subnets_per_az_names` variable) to lists of objects with each object having these items: AZ, private subnet ID, private route table ID, NAT Gateway ID"
   value       = local.named_private_subnets_stats_map
 }
 
 output "named_public_subnets_stats_map" {
-  description = "Map of subnet names (specified in `subnets_per_az_names` variable) to lists of objects with each object having three items: AZ, public subnet ID, public route table ID"
+  description = "Map of subnet names (specified in `subnets_per_az_names` variable) to lists of objects with each object having these items: AZ, public subnet ID, public route table ID, NAT Gateway ID"
   value       = local.named_public_subnets_stats_map
 }
 
