@@ -198,6 +198,15 @@ allows you to tailor the subnet architecture to your specific use case.
 - The module distributes NAT devices across the first N availability zones
 - Example: With 3 AZs and `max_nats = 1`, only the first AZ gets a NAT Gateway
 
+**`nat_gateway_public_subnet_indices`** - Control which public subnet gets the NAT Gateway:
+- Default: `[0]` (place NAT in the first public subnet of each AZ)
+- When you have multiple public subnets per AZ, this determines which one hosts the NAT Gateway
+- NAT Gateways are shared - one NAT per AZ serves all private subnets in that AZ
+- **Important**: Each subnet index must be less than `public_subnets_per_az_count`
+- Example: With `public_subnets_per_az_count = 2` and `nat_gateway_public_subnet_indices = [0]`, the NAT goes in the first public subnet
+- Advanced: Set to `[0, 1]` to create redundant NATs within each AZ (rarely needed, increases cost)
+- Example: If you have public subnets named `["lb", "bastion"]`, use `[0]` to place NAT in "lb" subnet or `[1]` to place it in "bastion" subnet
+
 ### Common Deployment Patterns
 
 **Standard HA deployment** (default):
@@ -248,11 +257,77 @@ public_subnets_per_az_count  = 1
 public_subnets_per_az_names  = ["public-lb"]
 private_subnets_per_az_count = 3
 private_subnets_per_az_names = ["web", "app", "data"]
+# NAT Gateway automatically goes in the first (and only) public subnet
+nat_gateway_public_subnet_indices = [0]  # Default, can be omitted
 # Access subnets via:
 #   named_public_subnets_map["public-lb"]
 #   named_private_subnets_map["web"]
 #   named_private_subnets_map["app"]
 #   named_private_subnets_map["data"]
+```
+
+**Multiple public subnets with controlled NAT placement**:
+```hcl
+# 2 public subnets per AZ: one for ALB, one for bastion hosts
+# Place NAT Gateway in the ALB subnet (index 0)
+public_subnets_per_az_count       = 2
+public_subnets_per_az_names       = ["alb", "bastion"]
+nat_gateway_public_subnet_indices = [0]  # NAT in "alb" subnet
+# Result: 1 NAT per AZ in the "alb" subnet, shared by all private subnets
+```
+
+**Multiple private + multiple public with one NAT in specific subnet**:
+```hcl
+# Real-world example: Database, app tiers + load balancer and web frontends
+# 3 private subnets per AZ (database, app1, app2)
+# 2 public subnets per AZ (loadbalancer, web)
+# 1 NAT Gateway per AZ in the "loadbalancer" subnet
+
+availability_zones = ["us-east-1a", "us-east-1b", "us-east-1c"]
+
+private_subnets_per_az_count = 3
+private_subnets_per_az_names = ["database", "app1", "app2"]
+
+public_subnets_per_az_count  = 2
+public_subnets_per_az_names  = ["loadbalancer", "web"]
+
+nat_gateway_public_subnet_indices = [0]  # NAT in "loadbalancer" subnet
+
+# Result per AZ:
+# - 3 private subnets: database, app1, app2
+# - 2 public subnets: loadbalancer, web
+# - 1 NAT Gateway in "loadbalancer" subnet
+# - All 3 private subnets route to the same NAT
+# Total: 3 NAT Gateways (one per AZ) = ~$96/month
+```
+
+**Multiple private + multiple public with NAT in EACH public subnet** (high availability):
+```hcl
+# Advanced: Redundant NAT Gateways within each AZ for maximum availability
+# 3 private subnets per AZ (database, app1, app2)
+# 2 public subnets per AZ (loadbalancer, web)
+# 2 NAT Gateways per AZ (one in each public subnet)
+
+availability_zones = ["us-east-1a", "us-east-1b", "us-east-1c"]
+
+private_subnets_per_az_count = 3
+private_subnets_per_az_names = ["database", "app1", "app2"]
+
+public_subnets_per_az_count  = 2
+public_subnets_per_az_names  = ["loadbalancer", "web"]
+
+nat_gateway_public_subnet_indices = [0, 1]  # NAT in BOTH subnets
+
+# Result per AZ:
+# - 3 private subnets: database, app1, app2
+# - 2 public subnets: loadbalancer, web
+# - 2 NAT Gateways: one in "loadbalancer", one in "web"
+# - Private subnets distributed across NATs:
+#   - "database" → NAT in "loadbalancer"
+#   - "app1" → NAT in "web"
+#   - "app2" → NAT in "loadbalancer"
+# Total: 6 NAT Gateways (2 per AZ × 3 AZs) = ~$192/month
+# WARNING: This is expensive. Use only if you need intra-AZ NAT redundancy.
 ```
 
 **Multi-account with consistent AZs**:
@@ -449,6 +524,7 @@ but in conjunction with this module.
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | ID element. Usually an abbreviation of your organization name, e.g. 'eg' or 'cp', to help ensure generated IDs are globally unique | `string` | `null` | no |
 | <a name="input_nat_elastic_ips"></a> [nat\_elastic\_ips](#input\_nat\_elastic\_ips) | Existing Elastic IPs (not EIP IDs) to attach to the NAT Gateway(s) or Instance(s) instead of creating new ones. | `list(string)` | `[]` | no |
 | <a name="input_nat_gateway_enabled"></a> [nat\_gateway\_enabled](#input\_nat\_gateway\_enabled) | Set `true` to create NAT Gateways to perform IPv4 NAT and NAT64 as needed.<br/>Defaults to `true` unless `nat_instance_enabled` is `true`. | `bool` | `null` | no |
+| <a name="input_nat_gateway_public_subnet_indices"></a> [nat\_gateway\_public\_subnet\_indices](#input\_nat\_gateway\_public\_subnet\_indices) | The index (starting from 0) of the public subnet in each AZ to place the NAT Gateway.<br/>If you have multiple public subnets per AZ (via `public_subnets_per_az_count`), this determines which one gets the NAT Gateway.<br/>Default: `[0]` (use the first public subnet in each AZ).<br/>You can specify multiple indices if you want redundant NATs within an AZ, but this is rarely needed and increases cost.<br/>Example: `[0]` creates 1 NAT per AZ in the first public subnet.<br/>Example: `[0, 1]` creates 2 NATs per AZ in the first and second public subnets (expensive). | `list(number)` | <pre>[<br/>  0<br/>]</pre> | no |
 | <a name="input_nat_instance_ami_id"></a> [nat\_instance\_ami\_id](#input\_nat\_instance\_ami\_id) | A list optionally containing the ID of the AMI to use for the NAT instance.<br/>If the list is empty (the default), the latest official AWS NAT instance AMI<br/>will be used. NOTE: The Official NAT instance AMI is being phased out and<br/>does not support NAT64. Use of a NAT gateway is recommended instead. | `list(string)` | `[]` | no |
 | <a name="input_nat_instance_cpu_credits_override"></a> [nat\_instance\_cpu\_credits\_override](#input\_nat\_instance\_cpu\_credits\_override) | NAT Instance credit option for CPU usage. Valid values are "standard" or "unlimited".<br/>T3 and later instances are launched as unlimited by default. T2 instances are launched as standard by default. | `string` | `""` | no |
 | <a name="input_nat_instance_enabled"></a> [nat\_instance\_enabled](#input\_nat\_instance\_enabled) | Set `true` to create NAT Instances to perform IPv4 NAT.<br/>Defaults to `false`. | `bool` | `null` | no |

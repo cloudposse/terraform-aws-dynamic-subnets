@@ -223,6 +223,24 @@ variable "nat_elastic_ips" {
   nullable    = false
 }
 
+variable "nat_gateway_public_subnet_indices" {
+  type        = list(number)
+  description = <<-EOT
+    The index (starting from 0) of the public subnet in each AZ to place the NAT Gateway.
+    If you have multiple public subnets per AZ (via `public_subnets_per_az_count`), this determines which one gets the NAT Gateway.
+    Default: `[0]` (use the first public subnet in each AZ).
+    You can specify multiple indices if you want redundant NATs within an AZ, but this is rarely needed and increases cost.
+    Example: `[0]` creates 1 NAT per AZ in the first public subnet.
+    Example: `[0, 1]` creates 2 NATs per AZ in the first and second public subnets (expensive).
+    EOT
+  default     = [0]
+  nullable    = false
+  validation {
+    condition     = length(var.nat_gateway_public_subnet_indices) > 0
+    error_message = "The `nat_gateway_public_subnet_indices` must contain at least one index."
+  }
+}
+
 variable "map_public_ip_on_launch" {
   type        = bool
   description = "If `true`, instances launched into a public subnet will be assigned a public IPv4 address"

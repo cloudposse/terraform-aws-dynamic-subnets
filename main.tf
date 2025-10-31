@@ -203,8 +203,57 @@ locals {
   # An AWS NAT instance does not perform NAT64, and we choose not to try to support NAT64 via NAT instances at this time.
   nat_instance_useful = local.private4_enabled
   nat_gateway_useful  = local.nat_instance_useful || local.public_dns64_enabled || local.private_dns64_enabled
-  # NAT gateways are created one per AZ, not one per subnet
-  nat_count = min(local.vpc_az_count, var.max_nats)
+
+  # Calculate which public subnet indices to use for NAT placement
+  # For each AZ (up to max_nats), and for each requested subnet index within that AZ,
+  # calculate the global subnet index in the flattened aws_subnet.public list
+  nat_gateway_public_subnet_indices = local.nat_gateway_useful ? flatten([
+    for az_idx in range(min(local.vpc_az_count, var.max_nats)) : [
+      for subnet_idx in var.nat_gateway_public_subnet_indices :
+        az_idx * local.public_subnets_per_az_count + subnet_idx
+        if subnet_idx < local.public_subnets_per_az_count
+    ]
+  ]) : []
+
+  # NAT count is the number of NAT devices to create (based on AZs and indices requested)
+  nat_count = length(local.nat_gateway_public_subnet_indices)
+
+  # How many NATs are created per AZ
+  nats_per_az = local.nat_count > 0 ? length(var.nat_gateway_public_subnet_indices) : 0
+
+  # For each private route table, calculate which NAT device it should route to
+  # This ensures each private subnet routes to a NAT in its own AZ
+  # Used by both NAT Gateways and NAT Instances
+  #
+  # Example 1: 3 AZs, 3 private subnets per AZ, 1 NAT per AZ
+  #   Route tables 0,1,2 (AZ0) → NAT 0
+  #   Route tables 3,4,5 (AZ1) → NAT 1
+  #   Route tables 6,7,8 (AZ2) → NAT 2
+  #
+  # Example 2: 3 AZs, 3 private subnets per AZ, 2 NATs per AZ
+  #   Route tables 0,2 (AZ0, database & app2) → NAT 0
+  #   Route table 1 (AZ0, app1) → NAT 1
+  #   Route tables 3,5 (AZ1, database & app2) → NAT 2
+  #   Route table 4 (AZ1, app1) → NAT 3
+  #   Route tables 6,8 (AZ2, database & app2) → NAT 4
+  #   Route table 7 (AZ2, app1) → NAT 5
+  private_route_table_to_nat_map = local.nat_enabled && local.private4_enabled ? [
+    for i in range(local.private_route_table_count) :
+    # Calculate AZ index for this route table
+    floor(i / local.private_subnets_per_az_count) * local.nats_per_az +
+    # Distribute private subnets within the AZ across available NATs
+    (i % local.private_subnets_per_az_count) % local.nats_per_az
+  ] : []
+
+  # For each public route table, calculate which NAT gateway it should route to (for NAT64)
+  # This ensures each public subnet routes to a NAT in its own AZ
+  public_route_table_to_nat_map = local.nat_gateway_enabled && local.public_dns64_enabled ? [
+    for i in range(local.public_route_table_count) :
+    # Calculate AZ index for this route table
+    floor(i / local.public_subnets_per_az_count) * local.nats_per_az +
+    # Distribute public subnets within the AZ across available NATs
+    (i % local.public_subnets_per_az_count) % local.nats_per_az
+  ] : []
 
   # It does not make sense to create both a NAT Gateway and a NAT instance, since they perform the same function
   # and occupy the same slot in a network routing table. Rather than try to create both,

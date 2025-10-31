@@ -220,6 +220,15 @@ description: |-
   - The module distributes NAT devices across the first N availability zones
   - Example: With 3 AZs and `max_nats = 1`, only the first AZ gets a NAT Gateway
 
+  **`nat_gateway_public_subnet_indices`** - Control which public subnet gets the NAT Gateway:
+  - Default: `[0]` (place NAT in the first public subnet of each AZ)
+  - When you have multiple public subnets per AZ, this determines which one hosts the NAT Gateway
+  - NAT Gateways are shared - one NAT per AZ serves all private subnets in that AZ
+  - **Important**: Each subnet index must be less than `public_subnets_per_az_count`
+  - Example: With `public_subnets_per_az_count = 2` and `nat_gateway_public_subnet_indices = [0]`, the NAT goes in the first public subnet
+  - Advanced: Set to `[0, 1]` to create redundant NATs within each AZ (rarely needed, increases cost)
+  - Example: If you have public subnets named `["lb", "bastion"]`, use `[0]` to place NAT in "lb" subnet or `[1]` to place it in "bastion" subnet
+
   ### Common Deployment Patterns
 
   **Standard HA deployment** (default):
@@ -270,11 +279,77 @@ description: |-
   public_subnets_per_az_names  = ["public-lb"]
   private_subnets_per_az_count = 3
   private_subnets_per_az_names = ["web", "app", "data"]
+  # NAT Gateway automatically goes in the first (and only) public subnet
+  nat_gateway_public_subnet_indices = [0]  # Default, can be omitted
   # Access subnets via:
   #   named_public_subnets_map["public-lb"]
   #   named_private_subnets_map["web"]
   #   named_private_subnets_map["app"]
   #   named_private_subnets_map["data"]
+  ```
+
+  **Multiple public subnets with controlled NAT placement**:
+  ```hcl
+  # 2 public subnets per AZ: one for ALB, one for bastion hosts
+  # Place NAT Gateway in the ALB subnet (index 0)
+  public_subnets_per_az_count       = 2
+  public_subnets_per_az_names       = ["alb", "bastion"]
+  nat_gateway_public_subnet_indices = [0]  # NAT in "alb" subnet
+  # Result: 1 NAT per AZ in the "alb" subnet, shared by all private subnets
+  ```
+
+  **Multiple private + multiple public with one NAT in specific subnet**:
+  ```hcl
+  # Real-world example: Database, app tiers + load balancer and web frontends
+  # 3 private subnets per AZ (database, app1, app2)
+  # 2 public subnets per AZ (loadbalancer, web)
+  # 1 NAT Gateway per AZ in the "loadbalancer" subnet
+
+  availability_zones = ["us-east-1a", "us-east-1b", "us-east-1c"]
+
+  private_subnets_per_az_count = 3
+  private_subnets_per_az_names = ["database", "app1", "app2"]
+
+  public_subnets_per_az_count  = 2
+  public_subnets_per_az_names  = ["loadbalancer", "web"]
+
+  nat_gateway_public_subnet_indices = [0]  # NAT in "loadbalancer" subnet
+
+  # Result per AZ:
+  # - 3 private subnets: database, app1, app2
+  # - 2 public subnets: loadbalancer, web
+  # - 1 NAT Gateway in "loadbalancer" subnet
+  # - All 3 private subnets route to the same NAT
+  # Total: 3 NAT Gateways (one per AZ) = ~$96/month
+  ```
+
+  **Multiple private + multiple public with NAT in EACH public subnet** (high availability):
+  ```hcl
+  # Advanced: Redundant NAT Gateways within each AZ for maximum availability
+  # 3 private subnets per AZ (database, app1, app2)
+  # 2 public subnets per AZ (loadbalancer, web)
+  # 2 NAT Gateways per AZ (one in each public subnet)
+
+  availability_zones = ["us-east-1a", "us-east-1b", "us-east-1c"]
+
+  private_subnets_per_az_count = 3
+  private_subnets_per_az_names = ["database", "app1", "app2"]
+
+  public_subnets_per_az_count  = 2
+  public_subnets_per_az_names  = ["loadbalancer", "web"]
+
+  nat_gateway_public_subnet_indices = [0, 1]  # NAT in BOTH subnets
+
+  # Result per AZ:
+  # - 3 private subnets: database, app1, app2
+  # - 2 public subnets: loadbalancer, web
+  # - 2 NAT Gateways: one in "loadbalancer", one in "web"
+  # - Private subnets distributed across NATs:
+  #   - "database" → NAT in "loadbalancer"
+  #   - "app1" → NAT in "web"
+  #   - "app2" → NAT in "loadbalancer"
+  # Total: 6 NAT Gateways (2 per AZ × 3 AZs) = ~$192/month
+  # WARNING: This is expensive. Use only if you need intra-AZ NAT redundancy.
   ```
 
   **Multi-account with consistent AZs**:
