@@ -64,15 +64,22 @@ description: |-
   mean that you can supply more than one value in the list, so check the input's description before supplying more than one value.
 
   The core function of this module is to create 2 sets of subnets, a "public" set with bidirectional access to the
-  public internet, and a "private" set behind a firewall with egress-only access to the public internet. This 
-  includes dividing up a given CIDR range so that a each subnet gets its own 
+  public internet, and a "private" set behind a firewall with egress-only access to the public internet. This
+  includes dividing up a given CIDR range so that a each subnet gets its own
   distinct CIDR range within that range, and then creating those subnets in the appropriate availability zones.
-  The intention is to keep this module relatively simple and easy to use for the most popular use cases. 
+  The intention is to keep this module relatively simple and easy to use for the most popular use cases.
   In its default configuration, this module creates 1 public subnet and 1 private subnet in each
   of the specified availability zones. The public subnets are configured for bi-directional traffic to the
   public internet, while the private subnets are configured for egress-only traffic to the public internet.
-  Rather than provide a wealth of configuration options allowing for numerous special cases, this module 
-  provides some common options and further provides the ability to suppress the creation of resources, allowing 
+
+  The module supports creating different numbers of public and private subnets per availability zone. This is useful
+  for common architectures where you need a single public subnet for load balancers but multiple private subnets
+  for different application tiers (web, app, data). You can specify the number and names of public and private
+  subnets independently using `public_subnets_per_az_count`/`public_subnets_per_az_names` and
+  `private_subnets_per_az_count`/`private_subnets_per_az_names` variables.
+
+  Rather than provide a wealth of configuration options allowing for numerous special cases, this module
+  provides some common options and further provides the ability to suppress the creation of resources, allowing
   you to create and configure them as you like from outside this module. For example, rather than give you the
   option to customize the Network ACL, the module gives you the option to create a completely open one (and control
   access via Security Groups and other means) or not create one at all, allowing you to create and configure one yourself.
@@ -150,6 +157,7 @@ description: |-
   **`subnets_per_az_count`** - Create multiple subnets of each type per AZ:
   - Default: `1` (one public and one private subnet per AZ)
   - Set to `2` or higher to create multiple subnets per AZ
+  - Creates the **same number** of public and private subnets
   - Useful for segmenting workloads within the same AZ (e.g., separate subnets for web tier, app tier, data tier)
   - Each subnet gets its own CIDR from the allocated range
   - Works with `subnets_per_az_names` for organized outputs
@@ -160,6 +168,32 @@ description: |-
   - Names are used as keys in the `named_private_subnets_map` and `named_public_subnets_map` outputs
   - Makes it easy to reference specific subnet groups in other modules
   - Example: `module.subnets.named_private_subnets_map["web"]` returns all web-tier private subnet IDs
+
+  **`public_subnets_per_az_count`** - Set a different number of public subnets per AZ:
+  - Default: `null` (uses `subnets_per_az_count` for backward compatibility)
+  - Set this when you need a different number of public vs private subnets
+  - Common pattern: Set to `1` for a single public subnet (for load balancers) while having multiple private subnets
+  - Must be greater than 0 if specified
+  - Works independently from `private_subnets_per_az_count`
+
+  **`public_subnets_per_az_names`** - Assign names specifically to public subnets:
+  - Default: `null` (uses `subnets_per_az_names` for backward compatibility)
+  - Provide a list of names matching `public_subnets_per_az_count`
+  - Names are used as keys in the `named_public_subnets_map` output
+  - Example: `["public-lb"]` for a single load balancer subnet per AZ
+
+  **`private_subnets_per_az_count`** - Set a different number of private subnets per AZ:
+  - Default: `null` (uses `subnets_per_az_count` for backward compatibility)
+  - Set this when you need a different number of private vs public subnets
+  - Common pattern: Set to `3` for multi-tier architecture (web, app, data) while having only 1 public subnet
+  - Must be greater than 0 if specified
+  - Works independently from `public_subnets_per_az_count`
+
+  **`private_subnets_per_az_names`** - Assign names specifically to private subnets:
+  - Default: `null` (uses `subnets_per_az_names` for backward compatibility)
+  - Provide a list of names matching `private_subnets_per_az_count`
+  - Names are used as keys in the `named_private_subnets_map` output
+  - Example: `["web", "app", "data"]` for a three-tier architecture
 
   ### Subnet Type Selection
 
@@ -220,12 +254,27 @@ description: |-
   private_subnets_enabled = false
   ```
 
-  **Multi-tier architecture per AZ**:
+  **Multi-tier architecture per AZ** (legacy approach - same number of public and private):
   ```hcl
-  # 3 private subnets per AZ (web, app, data)
+  # 3 private AND 3 public subnets per AZ (web, app, data)
   subnets_per_az_count = 3
   subnets_per_az_names = ["web", "app", "data"]
   # Access subnets via: named_private_subnets_map["web"]
+  ```
+
+  **Multi-tier with separate public/private counts** (recommended):
+  ```hcl
+  # 1 public subnet per AZ for load balancers
+  # 3 private subnets per AZ for web, app, and data tiers
+  public_subnets_per_az_count  = 1
+  public_subnets_per_az_names  = ["public-lb"]
+  private_subnets_per_az_count = 3
+  private_subnets_per_az_names = ["web", "app", "data"]
+  # Access subnets via:
+  #   named_public_subnets_map["public-lb"]
+  #   named_private_subnets_map["web"]
+  #   named_private_subnets_map["app"]
+  #   named_private_subnets_map["data"]
   ```
 
   **Multi-account with consistent AZs**:

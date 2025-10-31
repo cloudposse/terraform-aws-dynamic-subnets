@@ -12,10 +12,10 @@ module "public_label" {
 }
 
 resource "aws_subnet" "public" {
-  count = local.public_enabled ? local.subnet_az_count : 0
+  count = local.public_enabled ? local.public_subnet_az_count : 0
 
   vpc_id            = local.vpc_id
-  availability_zone = local.subnet_availability_zones[count.index]
+  availability_zone = local.public_subnet_availability_zones[count.index]
 
   # When provisioning both public and private subnets, the public subnets get the second set of CIDRs.
   # Use element()'s wrap-around behavior to handle the case where we are only provisioning public subnets.
@@ -38,7 +38,7 @@ resource "aws_subnet" "public" {
   tags = merge(
     module.public_label.tags,
     {
-      "Name" = format("%s%s%s", module.public_label.id, local.delimiter, local.subnet_az_abbreviations[count.index])
+      "Name" = format("%s%s%s", module.public_label.id, local.delimiter, local.public_subnet_az_abbreviations[count.index])
     }
   )
 
@@ -88,7 +88,7 @@ resource "aws_route" "public6" {
 }
 
 resource "aws_route_table_association" "public" {
-  count = local.public_route_table_enabled ? local.subnet_az_count : 0
+  count = local.public_route_table_enabled ? local.public_subnet_az_count : 0
 
   subnet_id      = aws_subnet.public[count.index].id
   route_table_id = element(local.public_route_table_ids, count.index)

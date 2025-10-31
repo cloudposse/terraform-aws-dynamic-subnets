@@ -474,6 +474,58 @@ variable "subnets_per_az_names" {
   nullable    = false
 }
 
+variable "public_subnets_per_az_count" {
+  type        = number
+  description = <<-EOT
+    The number of public subnets to provision per Availability Zone.
+    If not provided, defaults to the value of `subnets_per_az_count` for backward compatibility.
+    Set this to create a different number of public subnets than private subnets.
+    EOT
+  default     = null
+  validation {
+    condition     = var.public_subnets_per_az_count == null || var.public_subnets_per_az_count > 0
+    error_message = "The `public_subnets_per_az_count` value must be greater than 0 or null."
+  }
+}
+
+variable "public_subnets_per_az_names" {
+  type        = list(string)
+  description = <<-EOT
+    The names to assign to the public subnets per Availability Zone.
+    If not provided, defaults to the value of `subnets_per_az_names` for backward compatibility.
+    If provided, the length must match `public_subnets_per_az_count`.
+    The names will be used as keys in the outputs `named_public_subnets_map` and `named_public_route_table_ids_map`.
+    EOT
+  default     = null
+  nullable    = true
+}
+
+variable "private_subnets_per_az_count" {
+  type        = number
+  description = <<-EOT
+    The number of private subnets to provision per Availability Zone.
+    If not provided, defaults to the value of `subnets_per_az_count` for backward compatibility.
+    Set this to create a different number of private subnets than public subnets.
+    EOT
+  default     = null
+  validation {
+    condition     = var.private_subnets_per_az_count == null || var.private_subnets_per_az_count > 0
+    error_message = "The `private_subnets_per_az_count` value must be greater than 0 or null."
+  }
+}
+
+variable "private_subnets_per_az_names" {
+  type        = list(string)
+  description = <<-EOT
+    The names to assign to the private subnets per Availability Zone.
+    If not provided, defaults to the value of `subnets_per_az_names` for backward compatibility.
+    If provided, the length must match `private_subnets_per_az_count`.
+    The names will be used as keys in the outputs `named_private_subnets_map` and `named_private_route_table_ids_map`.
+    EOT
+  default     = null
+  nullable    = true
+}
+
 #############################################################
 ############## NAT instance configuration ###################
 variable "nat_instance_type" {
