@@ -93,9 +93,125 @@ is left at the default `0`, it is set to the total number of availability zones 
 are allocated out of the first half of the reserved range, and public subnets are allocated out of the second half.
 
 For IPv6, you provide a `/56` CIDR and the module assigns `/64` subnets of that CIDR in consecutive order starting
-at zero. (You have the option of specifying a list of CIDRs instead.) As with IPv4, enough CIDRs are allocated to 
+at zero. (You have the option of specifying a list of CIDRs instead.) As with IPv4, enough CIDRs are allocated to
 cover `max_subnet_count` private and public subnets (when both are enabled, which is the default), with the private
 subnets being allocated out of the lower half of the reservation and the public subnets allocated out of the upper half.
+
+## Deployment Modes and Configuration
+
+This module supports various deployment modes through flexible configuration variables. Understanding these options
+allows you to tailor the subnet architecture to your specific use case.
+
+### Availability Zone Selection
+
+**`availability_zones`** - Explicitly specify which AZs to use:
+- Provide a list of AZ names (e.g., `["us-east-1a", "us-east-1b", "us-east-1c"]`)
+- The list order **must be stable** - do not reorder or Terraform will recreate subnets
+- If empty, the module uses all available AZs in the region (sorted alphabetically)
+- Can be truncated by `max_subnet_count` if you specify more AZs than the limit
+
+**`availability_zone_ids`** - Use AZ IDs instead of names:
+- Provide a list of AZ IDs (e.g., `["use1-az1", "use1-az2"]`)
+- Overrides `availability_zones` when set
+- Useful for multi-account consistency (AZ names like "us-east-1a" map to different physical locations across accounts, but AZ IDs are consistent)
+- The module automatically translates IDs to names for resource creation
+
+### Subnet Count and CIDR Reservation
+
+**`max_subnet_count`** - Controls CIDR reservation for future growth:
+- Default: `0` (reserves CIDRs for all AZs in the region)
+- Recommended: Set to `3` or the maximum number of AZs you anticipate using
+- The module reserves CIDR space for this many subnets of **each type** (public and private)
+- Example: If a region has 4 AZs but you set `max_subnet_count = 3`, only 3 subnets will be created, but you can later expand to the 4th without changing existing subnet CIDRs
+- **Important**: This must be a constant value, not computed, due to Terraform limitations
+
+**`subnets_per_az_count`** - Create multiple subnets of each type per AZ:
+- Default: `1` (one public and one private subnet per AZ)
+- Set to `2` or higher to create multiple subnets per AZ
+- Useful for segmenting workloads within the same AZ (e.g., separate subnets for web tier, app tier, data tier)
+- Each subnet gets its own CIDR from the allocated range
+- Works with `subnets_per_az_names` for organized outputs
+
+**`subnets_per_az_names`** - Assign names to subnets for better organization:
+- Default: `["common"]`
+- Provide a list of names matching `subnets_per_az_count` (e.g., `["web", "app", "data"]`)
+- Names are used as keys in the `named_private_subnets_map` and `named_public_subnets_map` outputs
+- Makes it easy to reference specific subnet groups in other modules
+- Example: `module.subnets.named_private_subnets_map["web"]` returns all web-tier private subnet IDs
+
+### Subnet Type Selection
+
+**`public_subnets_enabled`** - Enable/disable public subnet creation:
+- Default: `true`
+- Set to `false` to create only private subnets
+- When disabled, NAT Gateways/Instances are also disabled (since they require public subnets)
+- Use case: Internal-only VPCs that route through Transit Gateway or VPN
+
+**`private_subnets_enabled`** - Enable/disable private subnet creation:
+- Default: `true`
+- Set to `false` to create only public subnets
+- When disabled, NAT Gateways/Instances are also disabled (since private subnets don't need them)
+- Use case: DMZ or edge VPCs with only internet-facing resources
+
+### NAT Configuration and Cost Optimization
+
+**`max_nats`** - Limit the number of NAT devices for cost savings:
+- Default: `999` (creates one NAT per AZ for high availability)
+- Set to `1` for cost savings (single NAT, reduced availability)
+- Set to `2` for balance between cost and availability (two NATs across AZs)
+- **Cost impact**: Each NAT Gateway costs ~$32/month plus data transfer fees
+- **Availability impact**: If the NAT fails (or its AZ fails), private subnets lose internet access
+- The module distributes NAT devices across the first N availability zones
+- Example: With 3 AZs and `max_nats = 1`, only the first AZ gets a NAT Gateway
+
+### Common Deployment Patterns
+
+**Standard HA deployment** (default):
+```hcl
+# 1 public + 1 private subnet per AZ, with NAT Gateway per AZ
+public_subnets_enabled  = true
+private_subnets_enabled = true
+max_subnet_count        = 3  # Reserve space for 3 AZs
+max_nats                = 999 # One NAT per AZ
+```
+
+**Cost-optimized deployment**:
+```hcl
+# Single NAT Gateway shared across all private subnets
+max_nats = 1
+# Everything else default
+```
+
+**Private-only with Transit Gateway**:
+```hcl
+# Private subnets only, routing through TGW
+public_subnets_enabled  = false
+private_subnets_enabled = true
+nat_gateway_enabled     = false
+# Add custom routes to TGW externally
+```
+
+**Public-only (DMZ) deployment**:
+```hcl
+# Public subnets only for internet-facing resources
+public_subnets_enabled  = true
+private_subnets_enabled = false
+```
+
+**Multi-tier architecture per AZ**:
+```hcl
+# 3 private subnets per AZ (web, app, data)
+subnets_per_az_count = 3
+subnets_per_az_names = ["web", "app", "data"]
+# Access subnets via: named_private_subnets_map["web"]
+```
+
+**Multi-account with consistent AZs**:
+```hcl
+# Use AZ IDs for consistency across accounts
+availability_zone_ids = ["use1-az1", "use1-az2", "use1-az4"]
+# These map to the same physical locations across all accounts
+```
 
 
 > [!TIP]
