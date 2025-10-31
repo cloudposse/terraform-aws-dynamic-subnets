@@ -230,6 +230,7 @@ variable "nat_gateway_public_subnet_indices" {
     If you have multiple public subnets per AZ (via `public_subnets_per_az_count`), this determines which one gets the NAT Gateway.
     Default: `[0]` (use the first public subnet in each AZ).
     You can specify multiple indices if you want redundant NATs within an AZ, but this is rarely needed and increases cost.
+    Cannot be used together with `nat_gateway_public_subnet_names`.
     Example: `[0]` creates 1 NAT per AZ in the first public subnet.
     Example: `[0, 1]` creates 2 NATs per AZ in the first and second public subnets (expensive).
     EOT
@@ -238,6 +239,28 @@ variable "nat_gateway_public_subnet_indices" {
   validation {
     condition     = length(var.nat_gateway_public_subnet_indices) > 0
     error_message = "The `nat_gateway_public_subnet_indices` must contain at least one index."
+  }
+}
+
+variable "nat_gateway_public_subnet_names" {
+  type        = list(string)
+  description = <<-EOT
+    The names of the public subnets in each AZ where NAT Gateways should be placed.
+    Uses the names from `public_subnets_per_az_names` to determine placement.
+    This is more intuitive than using indices - specify the subnet by name instead of position.
+    Cannot be used together with `nat_gateway_public_subnet_indices` (only use indices OR names, not both).
+    If not specified, defaults to using `nat_gateway_public_subnet_indices`.
+    Example: `["loadbalancer"]` creates 1 NAT per AZ in the "loadbalancer" subnet.
+    Example: `["loadbalancer", "web"]` creates 2 NATs per AZ in "loadbalancer" and "web" subnets (expensive).
+    EOT
+  default     = null
+  nullable    = true
+  validation {
+    condition = (
+      var.nat_gateway_public_subnet_names == null ||
+      var.nat_gateway_public_subnet_indices == [0]
+    )
+    error_message = "Cannot specify both `nat_gateway_public_subnet_names` and `nat_gateway_public_subnet_indices`. Use one or the other. If using names, leave indices at default [0]."
   }
 }
 

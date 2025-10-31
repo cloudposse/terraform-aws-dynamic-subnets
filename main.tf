@@ -204,14 +204,26 @@ locals {
   nat_instance_useful = local.private4_enabled
   nat_gateway_useful  = local.nat_instance_useful || local.public_dns64_enabled || local.private_dns64_enabled
 
+  # Convert subnet names to indices if names were specified
+  # Creates a map of subnet name -> index for easy lookup
+  public_subnet_name_to_index_map = {
+    for idx, name in local.public_subnets_per_az_names : name => idx
+  }
+
+  # Resolve NAT Gateway placement: use names if provided, otherwise use indices
+  nat_gateway_resolved_indices = var.nat_gateway_public_subnet_names != null ? [
+    for name in var.nat_gateway_public_subnet_names :
+    lookup(local.public_subnet_name_to_index_map, name, -1)
+  ] : var.nat_gateway_public_subnet_indices
+
   # Calculate which public subnet indices to use for NAT placement
   # For each AZ (up to max_nats), and for each requested subnet index within that AZ,
   # calculate the global subnet index in the flattened aws_subnet.public list
   nat_gateway_public_subnet_indices = local.nat_gateway_useful ? flatten([
     for az_idx in range(min(local.vpc_az_count, var.max_nats)) : [
-      for subnet_idx in var.nat_gateway_public_subnet_indices :
+      for subnet_idx in local.nat_gateway_resolved_indices :
         az_idx * local.public_subnets_per_az_count + subnet_idx
-        if subnet_idx < local.public_subnets_per_az_count
+        if subnet_idx >= 0 && subnet_idx < local.public_subnets_per_az_count
     ]
   ]) : []
 
@@ -219,7 +231,7 @@ locals {
   nat_count = length(local.nat_gateway_public_subnet_indices)
 
   # How many NATs are created per AZ
-  nats_per_az = local.nat_count > 0 ? length(var.nat_gateway_public_subnet_indices) : 0
+  nats_per_az = local.nat_count > 0 ? length(local.nat_gateway_resolved_indices) : 0
 
   # For each private route table, calculate which NAT device it should route to
   # This ensures each private subnet routes to a NAT in its own AZ

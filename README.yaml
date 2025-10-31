@@ -220,14 +220,23 @@ description: |-
   - The module distributes NAT devices across the first N availability zones
   - Example: With 3 AZs and `max_nats = 1`, only the first AZ gets a NAT Gateway
 
-  **`nat_gateway_public_subnet_indices`** - Control which public subnet gets the NAT Gateway:
+  **`nat_gateway_public_subnet_indices`** - Control which public subnet gets the NAT Gateway (by index):
   - Default: `[0]` (place NAT in the first public subnet of each AZ)
   - When you have multiple public subnets per AZ, this determines which one hosts the NAT Gateway
   - NAT Gateways are shared - one NAT per AZ serves all private subnets in that AZ
   - **Important**: Each subnet index must be less than `public_subnets_per_az_count`
   - Example: With `public_subnets_per_az_count = 2` and `nat_gateway_public_subnet_indices = [0]`, the NAT goes in the first public subnet
   - Advanced: Set to `[0, 1]` to create redundant NATs within each AZ (rarely needed, increases cost)
-  - Example: If you have public subnets named `["lb", "bastion"]`, use `[0]` to place NAT in "lb" subnet or `[1]` to place it in "bastion" subnet
+  - Cannot be used with `nat_gateway_public_subnet_names` (choose indices OR names, not both)
+
+  **`nat_gateway_public_subnet_names`** - Control which public subnet gets the NAT Gateway (by name):
+  - Default: `null` (uses `nat_gateway_public_subnet_indices` instead)
+  - **More intuitive alternative** to using indices - specify subnets by name
+  - References the names from `public_subnets_per_az_names`
+  - Example: `["loadbalancer"]` places NAT in the "loadbalancer" subnet
+  - Example: `["loadbalancer", "web"]` creates 2 NATs per AZ in both named subnets (expensive)
+  - Cannot be used with `nat_gateway_public_subnet_indices` (choose indices OR names, not both)
+  - **Recommended approach** for clarity and maintainability
 
   ### Common Deployment Patterns
 
@@ -280,7 +289,7 @@ description: |-
   private_subnets_per_az_count = 3
   private_subnets_per_az_names = ["web", "app", "data"]
   # NAT Gateway automatically goes in the first (and only) public subnet
-  nat_gateway_public_subnet_indices = [0]  # Default, can be omitted
+  # Can omit nat_gateway config since there's only one public subnet
   # Access subnets via:
   #   named_public_subnets_map["public-lb"]
   #   named_private_subnets_map["web"]
@@ -291,10 +300,16 @@ description: |-
   **Multiple public subnets with controlled NAT placement**:
   ```hcl
   # 2 public subnets per AZ: one for ALB, one for bastion hosts
-  # Place NAT Gateway in the ALB subnet (index 0)
-  public_subnets_per_az_count       = 2
-  public_subnets_per_az_names       = ["alb", "bastion"]
-  nat_gateway_public_subnet_indices = [0]  # NAT in "alb" subnet
+  # Place NAT Gateway in the ALB subnet
+  public_subnets_per_az_count = 2
+  public_subnets_per_az_names = ["alb", "bastion"]
+
+  # OPTION 1: Use subnet name (recommended - more readable)
+  nat_gateway_public_subnet_names = ["alb"]
+
+  # OPTION 2: Use subnet index (alternative)
+  # nat_gateway_public_subnet_indices = [0]  # 0 = first subnet = "alb"
+
   # Result: 1 NAT per AZ in the "alb" subnet, shared by all private subnets
   ```
 
@@ -313,7 +328,8 @@ description: |-
   public_subnets_per_az_count  = 2
   public_subnets_per_az_names  = ["loadbalancer", "web"]
 
-  nat_gateway_public_subnet_indices = [0]  # NAT in "loadbalancer" subnet
+  # Place NAT Gateway in the "loadbalancer" subnet (by name)
+  nat_gateway_public_subnet_names = ["loadbalancer"]
 
   # Result per AZ:
   # - 3 private subnets: database, app1, app2
@@ -338,7 +354,11 @@ description: |-
   public_subnets_per_az_count  = 2
   public_subnets_per_az_names  = ["loadbalancer", "web"]
 
-  nat_gateway_public_subnet_indices = [0, 1]  # NAT in BOTH subnets
+  # Place NAT Gateways in BOTH public subnets (by name)
+  nat_gateway_public_subnet_names = ["loadbalancer", "web"]
+
+  # Alternative using indices:
+  # nat_gateway_public_subnet_indices = [0, 1]
 
   # Result per AZ:
   # - 3 private subnets: database, app1, app2
