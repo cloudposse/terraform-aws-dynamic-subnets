@@ -127,3 +127,64 @@ func TestExamplesSeparatePublicPrivateSubnetsDisabled(t *testing.T) {
 	match := re.FindString(results)
 	assert.Equal(t, "Resources: 0 added, 0 changed, 0 destroyed.", match, "Applying with enabled=false should not create any resources")
 }
+
+// Test with index-based NAT placement instead of name-based
+// This ensures both code paths (indices and names) work correctly
+func TestExamplesSeparatePublicPrivateSubnetsWithIndices(t *testing.T) {
+	t.Parallel()
+	randID := strings.ToLower(random.UniqueId())
+	attributes := []string{randID}
+
+	rootFolder := "../../"
+	terraformFolderRelativeToRoot := "examples/separate-public-private-subnets"
+	varFiles := []string{"fixtures.us-east-2.tfvars"}
+
+	tempTestFolder := testStructure.CopyTerraformFolderToTemp(t, rootFolder, terraformFolderRelativeToRoot)
+
+	terraformOptions := &terraform.Options{
+		// The path to where our Terraform code is located
+		TerraformDir: tempTestFolder,
+		Upgrade:      true,
+		// Variables to pass to our Terraform code using -var-file options
+		VarFiles: varFiles,
+		Vars: map[string]interface{}{
+			"attributes": attributes,
+			// Override to use index-based placement instead of name-based
+			// Index 0 = first public subnet = "loadbalancer"
+			"nat_gateway_public_subnet_indices": []int{0},
+			// Set names to null to disable name-based placement
+			"nat_gateway_public_subnet_names": nil,
+		},
+	}
+
+	// At the end of the test, run `terraform destroy` to clean up any resources that were created
+	defer cleanup(t, terraformOptions, tempTestFolder)
+
+	// If Go runtime crushes, run `terraform destroy` to clean up any resources that were created
+	defer runtime.HandleCrash(func(i interface{}) {
+		cleanup(t, terraformOptions, tempTestFolder)
+	})
+
+	// This will run `terraform init` and `terraform apply` and fail the test if there are any errors
+	terraform.InitAndApply(t, terraformOptions)
+
+	// Verify the same results as name-based test
+	// 3 AZs × 3 private subnets per AZ = 9 private subnets
+	privateSubnetCidrs := terraform.OutputList(t, terraformOptions, "private_subnet_cidrs")
+	assert.Equal(t, 9, len(privateSubnetCidrs), "Should have 9 private subnets (3 per AZ × 3 AZs)")
+
+	// 3 AZs × 2 public subnets per AZ = 6 public subnets
+	publicSubnetCidrs := terraform.OutputList(t, terraformOptions, "public_subnet_cidrs")
+	assert.Equal(t, 6, len(publicSubnetCidrs), "Should have 6 public subnets (2 per AZ × 3 AZs)")
+
+	// 1 NAT per AZ × 3 AZs = 3 NAT Gateways (using index 0, which is "loadbalancer")
+	natGatewayIds := terraform.OutputList(t, terraformOptions, "nat_gateway_ids")
+	assert.Equal(t, 3, len(natGatewayIds), "Should have 3 NAT Gateways (1 per AZ using index-based placement)")
+
+	// Verify named subnet maps still work correctly
+	namedPrivateSubnetsMap := terraform.OutputMapOfObjects(t, terraformOptions, "named_private_subnets_map")
+	assert.Equal(t, 3, len(namedPrivateSubnetsMap), "Should have 3 named private subnet groups")
+
+	namedPublicSubnetsMap := terraform.OutputMapOfObjects(t, terraformOptions, "named_public_subnets_map")
+	assert.Equal(t, 2, len(namedPublicSubnetsMap), "Should have 2 named public subnet groups")
+}

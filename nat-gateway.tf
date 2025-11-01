@@ -21,6 +21,13 @@ resource "aws_nat_gateway" "default" {
   )
 
   depends_on = [aws_eip_association.nat_instance]
+
+  lifecycle {
+    precondition {
+      condition     = local.nat_gateway_names_valid
+      error_message = "Invalid subnet names specified in `nat_gateway_public_subnet_names`: ${join(", ", local.nat_gateway_invalid_names)}. Valid names from `public_subnets_per_az_names` are: ${join(", ", local.public_subnets_per_az_names)}."
+    }
+  }
 }
 
 # If private IPv4 subnets and NAT Gateway are both enabled, create a

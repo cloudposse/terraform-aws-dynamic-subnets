@@ -210,6 +210,16 @@ locals {
     for idx, name in local.public_subnets_per_az_names : name => idx
   }
 
+  # Validate that all NAT gateway subnet names exist in public_subnets_per_az_names
+  # Creates a list of invalid names for error messaging
+  nat_gateway_invalid_names = var.nat_gateway_public_subnet_names != null ? [
+    for name in var.nat_gateway_public_subnet_names :
+    name if !contains(local.public_subnets_per_az_names, name)
+  ] : []
+
+  # Check will fail at plan time if invalid names are provided
+  nat_gateway_names_valid = length(local.nat_gateway_invalid_names) == 0
+
   # Resolve NAT Gateway placement: use names if provided, otherwise use indices
   nat_gateway_resolved_indices = var.nat_gateway_public_subnet_names != null ? [
     for name in var.nat_gateway_public_subnet_names :
