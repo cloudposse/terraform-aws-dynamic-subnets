@@ -222,8 +222,8 @@ locals {
   nat_gateway_public_subnet_indices = local.nat_gateway_useful ? flatten([
     for az_idx in range(min(local.vpc_az_count, var.max_nats)) : [
       for subnet_idx in local.nat_gateway_resolved_indices :
-        az_idx * local.public_subnets_per_az_count + subnet_idx
-        if subnet_idx >= 0 && subnet_idx < local.public_subnets_per_az_count
+      az_idx * local.public_subnets_per_az_count + subnet_idx
+      if subnet_idx >= 0 && subnet_idx < local.public_subnets_per_az_count
     ]
   ]) : []
 
@@ -380,7 +380,7 @@ resource "aws_eip" "default" {
   tags = merge(
     module.nat_label.tags,
     {
-      "Name" = format("%s%s%s", module.nat_label.id, local.delimiter, local.subnet_az_abbreviations[count.index])
+      "Name" = format("%s%s%s", module.nat_label.id, local.delimiter, local.public_subnet_az_abbreviations[local.nat_gateway_public_subnet_indices[count.index]])
     }
   )
 
