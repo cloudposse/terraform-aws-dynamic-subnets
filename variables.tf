@@ -255,13 +255,6 @@ variable "nat_gateway_public_subnet_names" {
     EOT
   default     = null
   nullable    = true
-  validation {
-    condition = (
-      var.nat_gateway_public_subnet_names == null ||
-      var.nat_gateway_public_subnet_indices == [0]
-    )
-    error_message = "Cannot specify both `nat_gateway_public_subnet_names` and `nat_gateway_public_subnet_indices`. Use one or the other. If using names, leave indices at default [0]."
-  }
 }
 
 variable "map_public_ip_on_launch" {
@@ -539,14 +532,6 @@ variable "public_subnets_per_az_names" {
     EOT
   default     = null
   nullable    = true
-  validation {
-    condition = (
-      var.public_subnets_per_az_names == null ||
-      var.public_subnets_per_az_count == null ||
-      length(var.public_subnets_per_az_names) == var.public_subnets_per_az_count
-    )
-    error_message = "The length of `public_subnets_per_az_names` must match `public_subnets_per_az_count`. If you specify ${try(length(var.public_subnets_per_az_names), 0)} names, you must also set public_subnets_per_az_count to ${try(length(var.public_subnets_per_az_names), 0)}."
-  }
 }
 
 variable "private_subnets_per_az_count" {
@@ -573,14 +558,6 @@ variable "private_subnets_per_az_names" {
     EOT
   default     = null
   nullable    = true
-  validation {
-    condition = (
-      var.private_subnets_per_az_names == null ||
-      var.private_subnets_per_az_count == null ||
-      length(var.private_subnets_per_az_names) == var.private_subnets_per_az_count
-    )
-    error_message = "The length of `private_subnets_per_az_names` must match `private_subnets_per_az_count`. If you specify ${try(length(var.private_subnets_per_az_names), 0)} names, you must also set private_subnets_per_az_count to ${try(length(var.private_subnets_per_az_names), 0)}."
-  }
 }
 
 #############################################################
