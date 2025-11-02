@@ -63,17 +63,17 @@ func TestExamplesMultipleSubnetsPerAZ(t *testing.T) {
 	namedPrivateSubnetsStatsMap := terraform.OutputMapOfObjects(t, terraformOptions, "named_private_subnets_stats_map")
 	// Verify we're getting back the outputs we expect
 	assert.Equal(t, len(namedPrivateSubnetsStatsMap), 3)
-	assert.Equal(t, len(namedPrivateSubnetsStatsMap["backend"].([]map[string]any)), 2)
-	assert.Equal(t, len(namedPrivateSubnetsStatsMap["services"].([]map[string]any)), 2)
-	assert.Equal(t, len(namedPrivateSubnetsStatsMap["db"].([]map[string]any)), 2)
+	assert.Equal(t, len(namedPrivateSubnetsStatsMap["backend"].([]interface{})), 2)
+	assert.Equal(t, len(namedPrivateSubnetsStatsMap["services"].([]interface{})), 2)
+	assert.Equal(t, len(namedPrivateSubnetsStatsMap["db"].([]interface{})), 2)
 
 	// Run `terraform output` to get the value of an output variable
 	namedPublicSubnetsStatsMap := terraform.OutputMapOfObjects(t, terraformOptions, "named_public_subnets_stats_map")
 	// Verify we're getting back the outputs we expect
 	assert.Equal(t, len(namedPublicSubnetsStatsMap), 3)
-	assert.Equal(t, len(namedPublicSubnetsStatsMap["backend"].([]map[string]any)), 2)
-	assert.Equal(t, len(namedPublicSubnetsStatsMap["services"].([]map[string]any)), 2)
-	assert.Equal(t, len(namedPublicSubnetsStatsMap["db"].([]map[string]any)), 2)
+	assert.Equal(t, len(namedPublicSubnetsStatsMap["backend"].([]interface{})), 2)
+	assert.Equal(t, len(namedPublicSubnetsStatsMap["services"].([]interface{})), 2)
+	assert.Equal(t, len(namedPublicSubnetsStatsMap["db"].([]interface{})), 2)
 }
 
 func TestExamplesMultipleSubnetsPerAZDisabled(t *testing.T) {
