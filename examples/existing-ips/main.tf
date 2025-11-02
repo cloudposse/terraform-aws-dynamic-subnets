@@ -15,7 +15,7 @@ module "vpc" {
 resource "aws_eip" "nat_ips" {
   count = length(var.availability_zones)
 
-  vpc = true
+  domain = "vpc"
 
   depends_on = [
     module.vpc
