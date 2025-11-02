@@ -9,7 +9,7 @@
 
 ## Executive Summary
 
-This PRD documents three major enhancements to the `terraform-aws-dynamic-subnets` module that provide users with
+This PRD documents four major enhancements to the `terraform-aws-dynamic-subnets` module that provide users with
 fine-grained control over subnet configuration and NAT Gateway placement:
 
 1. **Separate Public/Private Subnet Counts**: Allow different numbers of public and private subnets per Availability
@@ -17,6 +17,8 @@ fine-grained control over subnet configuration and NAT Gateway placement:
 2. **Controlled NAT Gateway Placement by Index**: Specify which subnet position(s) in each AZ should receive NAT
    Gateways
 3. **Named NAT Gateway Placement**: Place NAT Gateways in specific subnets by name for better usability
+4. **NAT Gateway ID Exposure**: Enhanced subnet stats outputs to include NAT Gateway IDs for downstream component
+   integration
 
 These features address critical user feedback about cost optimization, flexibility, and usability while maintaining 100%
 backward compatibility with existing configurations.
@@ -27,8 +29,8 @@ backward compatibility with existing configurations.
 
 ### What Was Implemented
 
-This implementation added three major features to the `terraform-aws-dynamic-subnets` module to address critical user
-feedback about cost optimization and flexibility.
+This implementation added four major features to the `terraform-aws-dynamic-subnets` module to address critical user
+feedback about cost optimization, flexibility, and downstream integration.
 
 ### Features Implemented
 
@@ -90,6 +92,54 @@ nat_gateway_public_subnet_names = ["loadbalancer"]  # ✓ Clear intent!
 
 **Validation:** Cannot specify both names and indices - mutual exclusion enforced.
 
+#### 4. NAT Gateway ID Exposure in Subnet Stats ✅
+
+**Problem:** Downstream components (e.g., network firewalls) needed to reference NAT Gateway IDs but had no way to map subnets to their associated NAT Gateways.
+
+**Solution:** Enhanced `named_private_subnets_stats_map` and `named_public_subnets_stats_map` outputs to include NAT Gateway IDs.
+
+**Implementation:**
+
+- **Private Subnet Stats**: Each private subnet now includes the NAT Gateway ID it routes to for egress traffic
+- **Public Subnet Stats**: Each public subnet now includes the NAT Gateway ID if one exists in that subnet
+
+**Example Output:**
+
+```hcl
+# Private subnet stats (4 fields: AZ, subnet ID, route table ID, NAT Gateway ID)
+named_private_subnets_stats_map = {
+  "database" = [
+    {
+      az             = "us-east-2a"
+      subnet_id      = "subnet-abc123"
+      route_table_id = "rtb-def456"
+      nat_gateway_id = "nat-xyz789"  # NAT this subnet routes to for egress
+    },
+    # ... more AZs
+  ]
+}
+
+# Public subnet stats (4 fields: AZ, subnet ID, route table ID, NAT Gateway ID)
+named_public_subnets_stats_map = {
+  "loadbalancer" = [
+    {
+      az             = "us-east-2a"
+      subnet_id      = "subnet-ghi789"
+      route_table_id = "rtb-jkl012"
+      nat_gateway_id = "nat-xyz789"  # NAT Gateway in this public subnet
+    },
+    # ... more AZs
+  ]
+}
+```
+
+**Benefits:**
+
+- Enables network firewall routing configurations to reference NAT Gateway IDs
+- Provides complete subnet topology information in a single output
+- Works correctly with flexible NAT placement (indices or names)
+- Handles all NAT placement scenarios (single NAT per AZ, multiple NATs per AZ)
+
 ### Critical Bug Fixes
 
 #### Bug 1: NAT Gateway Wrong AZ Placement ✅
@@ -112,6 +162,34 @@ nat_gateway_public_subnet_names = ["loadbalancer"]  # ✓ Clear intent!
 
 - Formula: `floor(rt_idx / subnets_per_az) * nats_per_az + (rt_idx % subnets_per_az) % nats_per_az`
 - Result: Each private subnet routes to NAT in same AZ ✓
+
+#### Bug 3: AWS Provider v5+ Compatibility ✅
+
+**Issue:** EIP resource using deprecated `vpc = true` argument failed with AWS Provider v6.
+
+- Error: `Unsupported argument - An argument named "vpc" is not expected here`
+- Affected: `examples/existing-ips/main.tf`
+- Root cause: AWS Provider v5 deprecated `vpc` argument in favor of `domain`
+
+**Fix:** Updated EIP syntax for AWS Provider v5+ compatibility
+
+```hcl
+# Before (deprecated):
+resource "aws_eip" "nat_ips" {
+  vpc = true  # ❌ Deprecated in v5, removed in v6
+}
+
+# After (correct):
+resource "aws_eip" "nat_ips" {
+  domain = "vpc"  # ✅ AWS Provider v5+ syntax
+}
+```
+
+**Additional Updates:**
+
+- Updated all VPC module dependencies from v2.0.0 to v3.0.0
+- VPC module v3.0.0 includes full AWS Provider v6 support
+- All 6 example configurations updated for compatibility
 
 ### Examples Created
 

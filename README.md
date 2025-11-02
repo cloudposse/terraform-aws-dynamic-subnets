@@ -350,6 +350,62 @@ nat_gateway_public_subnet_names = ["loadbalancer", "web"]
 # WARNING: This is expensive. Use only if you need intra-AZ NAT redundancy.
 ```
 
+### NAT Gateway ID References in Outputs
+
+The module exposes NAT Gateway IDs in the subnet stats outputs, enabling downstream components like network
+firewalls to reference the NAT Gateways associated with each subnet.
+
+**`named_private_subnets_stats_map`** - Each private subnet includes the NAT Gateway ID it routes to:
+```hcl
+# Output structure (4 fields per subnet):
+named_private_subnets_stats_map = {
+  "database" = [
+    {
+      az             = "us-east-2a"
+      subnet_id      = "subnet-abc123"
+      route_table_id = "rtb-def456"
+      nat_gateway_id = "nat-xyz789"  # NAT Gateway this subnet routes to for egress
+    },
+    # ... one entry per AZ
+  ]
+  "app1" = [ ... ]
+  "app2" = [ ... ]
+}
+```
+
+**`named_public_subnets_stats_map`** - Each public subnet includes the NAT Gateway ID if one exists in that subnet:
+```hcl
+# Output structure (4 fields per subnet):
+named_public_subnets_stats_map = {
+  "loadbalancer" = [
+    {
+      az             = "us-east-2a"
+      subnet_id      = "subnet-ghi789"
+      route_table_id = "rtb-jkl012"
+      nat_gateway_id = "nat-xyz789"  # NAT Gateway in this public subnet (if any)
+    },
+    # ... one entry per AZ
+  ]
+  "web" = [ ... ]
+}
+```
+
+**Use case example** - Network firewall routing:
+```hcl
+# Reference NAT Gateway IDs from subnet stats
+locals {
+  database_nat_gateways = [
+    for stats in module.subnets.named_private_subnets_stats_map["database"] :
+    stats.nat_gateway_id if stats.nat_gateway_id != ""
+  ]
+}
+
+# Use in network firewall route configuration
+resource "aws_networkfirewall_firewall_policy" "example" {
+  # ... configuration that needs NAT Gateway IDs
+}
+```
+
 **Multi-account with consistent AZs**:
 ```hcl
 # Use AZ IDs for consistency across accounts
@@ -600,10 +656,10 @@ but in conjunction with this module.
 | <a name="output_az_public_subnets_map"></a> [az\_public\_subnets\_map](#output\_az\_public\_subnets\_map) | Map of AZ names to list of public subnet IDs in the AZs |
 | <a name="output_named_private_route_table_ids_map"></a> [named\_private\_route\_table\_ids\_map](#output\_named\_private\_route\_table\_ids\_map) | Map of subnet names (specified in `private_subnets_per_az_names` or `subnets_per_az_names` variable) to lists of private route table IDs |
 | <a name="output_named_private_subnets_map"></a> [named\_private\_subnets\_map](#output\_named\_private\_subnets\_map) | Map of subnet names (specified in `private_subnets_per_az_names` or `subnets_per_az_names` variable) to lists of private subnet IDs |
-| <a name="output_named_private_subnets_stats_map"></a> [named\_private\_subnets\_stats\_map](#output\_named\_private\_subnets\_stats\_map) | Map of subnet names (specified in `private_subnets_per_az_names` or `subnets_per_az_names` variable) to lists of objects with each object having three items: AZ, private subnet ID, private route table ID |
+| <a name="output_named_private_subnets_stats_map"></a> [named\_private\_subnets\_stats\_map](#output\_named\_private\_subnets\_stats\_map) | Map of subnet names (specified in `private_subnets_per_az_names` or `subnets_per_az_names` variable) to lists of objects with each object having four items: AZ, private subnet ID, private route table ID, NAT Gateway ID (the NAT Gateway that this private subnet routes to for egress) |
 | <a name="output_named_public_route_table_ids_map"></a> [named\_public\_route\_table\_ids\_map](#output\_named\_public\_route\_table\_ids\_map) | Map of subnet names (specified in `public_subnets_per_az_names` or `subnets_per_az_names` variable) to lists of public route table IDs |
 | <a name="output_named_public_subnets_map"></a> [named\_public\_subnets\_map](#output\_named\_public\_subnets\_map) | Map of subnet names (specified in `public_subnets_per_az_names` or `subnets_per_az_names` variable) to lists of public subnet IDs |
-| <a name="output_named_public_subnets_stats_map"></a> [named\_public\_subnets\_stats\_map](#output\_named\_public\_subnets\_stats\_map) | Map of subnet names (specified in `public_subnets_per_az_names` or `subnets_per_az_names` variable) to lists of objects with each object having three items: AZ, public subnet ID, public route table ID |
+| <a name="output_named_public_subnets_stats_map"></a> [named\_public\_subnets\_stats\_map](#output\_named\_public\_subnets\_stats\_map) | Map of subnet names (specified in `public_subnets_per_az_names` or `subnets_per_az_names` variable) to lists of objects with each object having four items: AZ, public subnet ID, public route table ID, NAT Gateway ID (the NAT Gateway in this public subnet, if any) |
 | <a name="output_nat_eip_allocation_ids"></a> [nat\_eip\_allocation\_ids](#output\_nat\_eip\_allocation\_ids) | Elastic IP allocations in use by NAT |
 | <a name="output_nat_gateway_ids"></a> [nat\_gateway\_ids](#output\_nat\_gateway\_ids) | IDs of the NAT Gateways created |
 | <a name="output_nat_gateway_public_ips"></a> [nat\_gateway\_public\_ips](#output\_nat\_gateway\_public\_ips) | DEPRECATED: use `nat_ips` instead. Public IPv4 IP addresses in use by NAT. |

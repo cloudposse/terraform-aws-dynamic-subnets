@@ -372,6 +372,62 @@ description: |-
   # WARNING: This is expensive. Use only if you need intra-AZ NAT redundancy.
   ```
 
+  ### NAT Gateway ID References in Outputs
+
+  The module exposes NAT Gateway IDs in the subnet stats outputs, enabling downstream components like network
+  firewalls to reference the NAT Gateways associated with each subnet.
+
+  **`named_private_subnets_stats_map`** - Each private subnet includes the NAT Gateway ID it routes to:
+  ```hcl
+  # Output structure (4 fields per subnet):
+  named_private_subnets_stats_map = {
+    "database" = [
+      {
+        az             = "us-east-2a"
+        subnet_id      = "subnet-abc123"
+        route_table_id = "rtb-def456"
+        nat_gateway_id = "nat-xyz789"  # NAT Gateway this subnet routes to for egress
+      },
+      # ... one entry per AZ
+    ]
+    "app1" = [ ... ]
+    "app2" = [ ... ]
+  }
+  ```
+
+  **`named_public_subnets_stats_map`** - Each public subnet includes the NAT Gateway ID if one exists in that subnet:
+  ```hcl
+  # Output structure (4 fields per subnet):
+  named_public_subnets_stats_map = {
+    "loadbalancer" = [
+      {
+        az             = "us-east-2a"
+        subnet_id      = "subnet-ghi789"
+        route_table_id = "rtb-jkl012"
+        nat_gateway_id = "nat-xyz789"  # NAT Gateway in this public subnet (if any)
+      },
+      # ... one entry per AZ
+    ]
+    "web" = [ ... ]
+  }
+  ```
+
+  **Use case example** - Network firewall routing:
+  ```hcl
+  # Reference NAT Gateway IDs from subnet stats
+  locals {
+    database_nat_gateways = [
+      for stats in module.subnets.named_private_subnets_stats_map["database"] :
+      stats.nat_gateway_id if stats.nat_gateway_id != ""
+    ]
+  }
+
+  # Use in network firewall route configuration
+  resource "aws_networkfirewall_firewall_policy" "example" {
+    # ... configuration that needs NAT Gateway IDs
+  }
+  ```
+
   **Multi-account with consistent AZs**:
   ```hcl
   # Use AZ IDs for consistency across accounts
