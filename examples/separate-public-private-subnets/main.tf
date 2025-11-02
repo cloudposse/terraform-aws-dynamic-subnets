@@ -26,10 +26,11 @@ module "subnets" {
   public_subnets_per_az_count = var.public_subnets_per_az_count
   public_subnets_per_az_names = var.public_subnets_per_az_names
 
-  # Enable NAT Gateway and place it in a specific public subnet by name
-  nat_gateway_enabled             = true
-  nat_instance_enabled            = false
-  nat_gateway_public_subnet_names = var.nat_gateway_public_subnet_names
+  # Enable NAT Gateway and place it in a specific public subnet
+  nat_gateway_enabled               = true
+  nat_instance_enabled              = false
+  nat_gateway_public_subnet_indices = var.nat_gateway_public_subnet_indices
+  nat_gateway_public_subnet_names   = var.nat_gateway_public_subnet_names
 
   context = module.this.context
 }

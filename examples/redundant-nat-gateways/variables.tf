@@ -32,8 +32,15 @@ variable "public_subnets_per_az_names" {
   default     = ["loadbalancer", "web"]
 }
 
+variable "nat_gateway_public_subnet_indices" {
+  type        = list(number)
+  description = "Indices of public subnets where NAT Gateways should be placed (alternative to nat_gateway_public_subnet_names)"
+  default     = [0, 1]
+}
+
 variable "nat_gateway_public_subnet_names" {
   type        = list(string)
   description = "Names of public subnets where NAT Gateways should be placed"
   default     = ["loadbalancer", "web"]
+  nullable    = true
 }

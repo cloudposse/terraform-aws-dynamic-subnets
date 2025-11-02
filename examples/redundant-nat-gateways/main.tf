@@ -27,9 +27,10 @@ module "subnets" {
   public_subnets_per_az_names = var.public_subnets_per_az_names
 
   # Enable NAT Gateway in EACH public subnet for redundancy
-  nat_gateway_enabled             = true
-  nat_instance_enabled            = false
-  nat_gateway_public_subnet_names = var.nat_gateway_public_subnet_names
+  nat_gateway_enabled               = true
+  nat_instance_enabled              = false
+  nat_gateway_public_subnet_indices = var.nat_gateway_public_subnet_indices
+  nat_gateway_public_subnet_names   = var.nat_gateway_public_subnet_names
 
   context = module.this.context
 }
