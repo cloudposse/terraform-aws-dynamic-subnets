@@ -81,10 +81,6 @@ locals {
   public_subnet_az_count  = local.public_enabled ? length(local.public_subnet_availability_zones) : 0
   private_subnet_az_count = local.private_enabled ? length(local.private_subnet_availability_zones) : 0
 
-  # For backward compatibility, subnet_az_count is the maximum of public and private counts
-  # However, for NAT gateways and route tables, we need the count based on availability zones
-  subnet_az_count = max(local.public_subnet_az_count, local.private_subnet_az_count)
-
   # Number of availability zones being used (for NAT gateways, one per AZ)
   vpc_az_count = length(local.vpc_availability_zones)
 
