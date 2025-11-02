@@ -8,12 +8,12 @@ import (
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	testStructure "github.com/gruntwork-io/terratest/modules/test-structure"
 	"github.com/stretchr/testify/assert"
-	"k8s.io/apimachinery/pkg/util/runtime"
 )
 
 // Test the Terraform module in examples/existing-ips using Terratest.
+// NOTE: This test creates NAT Gateways/EIPs and runs sequentially to avoid AWS quota limits
 func TestExamplesExistingIps(t *testing.T) {
-	t.Parallel()
+	// Removed t.Parallel() to run sequentially and avoid EIP quota exhaustion
 	randID := strings.ToLower(random.UniqueId())
 	attributes := []string{randID}
 
@@ -37,10 +37,13 @@ func TestExamplesExistingIps(t *testing.T) {
 	// At the end of the test, run `terraform destroy` to clean up any resources that were created
 	defer cleanup(t, terraformOptions, tempTestFolder)
 
-	// If Go runtime crushes, run `terraform destroy` to clean up any resources that were created
-	defer runtime.HandleCrash(func(i interface{}) {
-		cleanup(t, terraformOptions, tempTestFolder)
-	})
+	// If Go runtime panics, run `terraform destroy` to clean up any resources that were created
+	defer func() {
+		if r := recover(); r != nil {
+			cleanup(t, terraformOptions, tempTestFolder)
+			panic(r) // Re-panic after cleanup
+		}
+	}()
 
 	// This will run `terraform init` and `terraform apply` and fail the test if there are any errors
 	terraform.InitAndApply(t, terraformOptions)
