@@ -333,12 +333,22 @@ locals {
     compact([for k, v in local.az_public_route_table_ids_map : try(v[i], "")]))
   }
 
+  # Create a map from public subnet ID to NAT Gateway ID (for public subnets that have NAT Gateways)
+  public_subnet_to_nat_gateway_map = { for nat in aws_nat_gateway.default : nat.subnet_id => nat.id }
+
+  # Create a map from private subnet ID to NAT Gateway ID (the NAT that the private subnet routes to)
+  private_subnet_to_nat_gateway_map = local.nat_gateway_enabled && local.private4_enabled ? {
+    for idx, subnet in aws_subnet.private :
+    subnet.id => aws_nat_gateway.default[local.private_route_table_to_nat_map[idx]].id
+  } : {}
+
   named_private_subnets_stats_map = { for i, s in local.private_subnets_per_az_names : s => (
     [
       for k, v in local.az_private_route_table_ids_map : {
         az             = k
         route_table_id = try(v[i], "")
         subnet_id      = try(local.az_private_subnets_map[k][i], "")
+        nat_gateway_id = try(local.private_subnet_to_nat_gateway_map[local.az_private_subnets_map[k][i]], "")
       }
     ])
   }
@@ -349,6 +359,7 @@ locals {
         az             = k
         route_table_id = try(v[i], "")
         subnet_id      = try(local.az_public_subnets_map[k][i], "")
+        nat_gateway_id = try(local.public_subnet_to_nat_gateway_map[local.az_public_subnets_map[k][i]], "")
       }
     ])
   }
