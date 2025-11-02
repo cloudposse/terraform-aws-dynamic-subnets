@@ -223,6 +223,40 @@ variable "nat_elastic_ips" {
   nullable    = false
 }
 
+variable "nat_gateway_public_subnet_indices" {
+  type        = list(number)
+  description = <<-EOT
+    The index (starting from 0) of the public subnet in each AZ to place the NAT Gateway.
+    If you have multiple public subnets per AZ (via `public_subnets_per_az_count`), this determines which one gets the NAT Gateway.
+    Default: `[0]` (use the first public subnet in each AZ).
+    You can specify multiple indices if you want redundant NATs within an AZ, but this is rarely needed and increases cost.
+    Cannot be used together with `nat_gateway_public_subnet_names`.
+    Example: `[0]` creates 1 NAT per AZ in the first public subnet.
+    Example: `[0, 1]` creates 2 NATs per AZ in the first and second public subnets (expensive).
+    EOT
+  default     = [0]
+  nullable    = false
+  validation {
+    condition     = length(var.nat_gateway_public_subnet_indices) > 0
+    error_message = "The `nat_gateway_public_subnet_indices` must contain at least one index."
+  }
+}
+
+variable "nat_gateway_public_subnet_names" {
+  type        = list(string)
+  description = <<-EOT
+    The names of the public subnets in each AZ where NAT Gateways should be placed.
+    Uses the names from `public_subnets_per_az_names` to determine placement.
+    This is more intuitive than using indices - specify the subnet by name instead of position.
+    Cannot be used together with `nat_gateway_public_subnet_indices` (only use indices OR names, not both).
+    If not specified, defaults to using `nat_gateway_public_subnet_indices`.
+    Example: `["loadbalancer"]` creates 1 NAT per AZ in the "loadbalancer" subnet.
+    Example: `["loadbalancer", "web"]` creates 2 NATs per AZ in "loadbalancer" and "web" subnets (expensive).
+    EOT
+  default     = null
+  nullable    = true
+}
+
 variable "map_public_ip_on_launch" {
   type        = bool
   description = "If `true`, instances launched into a public subnet will be assigned a public IPv4 address"
@@ -472,6 +506,58 @@ variable "subnets_per_az_names" {
     EOT
   default     = ["common"]
   nullable    = false
+}
+
+variable "public_subnets_per_az_count" {
+  type        = number
+  description = <<-EOT
+    The number of public subnets to provision per Availability Zone.
+    If not provided, defaults to the value of `subnets_per_az_count` for backward compatibility.
+    Set this to create a different number of public subnets than private subnets.
+    EOT
+  default     = null
+  validation {
+    condition     = var.public_subnets_per_az_count == null || var.public_subnets_per_az_count > 0
+    error_message = "The `public_subnets_per_az_count` value must be greater than 0 or null."
+  }
+}
+
+variable "public_subnets_per_az_names" {
+  type        = list(string)
+  description = <<-EOT
+    The names to assign to the public subnets per Availability Zone.
+    If not provided, defaults to the value of `subnets_per_az_names` for backward compatibility.
+    If provided, the length must match `public_subnets_per_az_count`.
+    The names will be used as keys in the outputs `named_public_subnets_map` and `named_public_route_table_ids_map`.
+    EOT
+  default     = null
+  nullable    = true
+}
+
+variable "private_subnets_per_az_count" {
+  type        = number
+  description = <<-EOT
+    The number of private subnets to provision per Availability Zone.
+    If not provided, defaults to the value of `subnets_per_az_count` for backward compatibility.
+    Set this to create a different number of private subnets than public subnets.
+    EOT
+  default     = null
+  validation {
+    condition     = var.private_subnets_per_az_count == null || var.private_subnets_per_az_count > 0
+    error_message = "The `private_subnets_per_az_count` value must be greater than 0 or null."
+  }
+}
+
+variable "private_subnets_per_az_names" {
+  type        = list(string)
+  description = <<-EOT
+    The names to assign to the private subnets per Availability Zone.
+    If not provided, defaults to the value of `subnets_per_az_names` for backward compatibility.
+    If provided, the length must match `private_subnets_per_az_count`.
+    The names will be used as keys in the outputs `named_private_subnets_map` and `named_private_route_table_ids_map`.
+    EOT
+  default     = null
+  nullable    = true
 }
 
 #############################################################

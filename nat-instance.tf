@@ -77,13 +77,13 @@ resource "aws_instance" "nat_instance" {
 
   ami                    = local.nat_instance_ami_id
   instance_type          = var.nat_instance_type
-  subnet_id              = aws_subnet.public[count.index].id
+  subnet_id              = aws_subnet.public[local.nat_gateway_public_subnet_indices[count.index]].id
   vpc_security_group_ids = [aws_security_group.nat_instance[0].id]
 
   tags = merge(
     module.nat_instance_label.tags,
     {
-      "Name" = format("%s%s%s", module.nat_instance_label.id, local.delimiter, local.subnet_az_abbreviations[count.index])
+      "Name" = format("%s%s%s", module.nat_instance_label.id, local.delimiter, local.public_subnet_az_abbreviations[local.nat_gateway_public_subnet_indices[count.index]])
     }
   )
 
@@ -126,11 +126,12 @@ resource "aws_eip_association" "nat_instance" {
 
 # If private IPv4 subnets and NAT Instance are both enabled, create a
 # default route from private subnet to NAT Instance in each subnet
+# Each private subnet routes to a NAT in its own AZ
 resource "aws_route" "nat_instance" {
   count = local.nat_instance_enabled ? local.private_route_table_count : 0
 
   route_table_id         = local.private_route_table_ids[count.index]
-  network_interface_id   = element(aws_instance.nat_instance[*].primary_network_interface_id, count.index)
+  network_interface_id   = aws_instance.nat_instance[local.private_route_table_to_nat_map[count.index]].primary_network_interface_id
   destination_cidr_block = "0.0.0.0/0"
   depends_on             = [aws_route_table.private]
 

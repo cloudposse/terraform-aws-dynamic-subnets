@@ -42,15 +42,22 @@ as a `string` that could be empty or `null`. The designation of an input as a `l
 mean that you can supply more than one value in the list, so check the input's description before supplying more than one value.
 
 The core function of this module is to create 2 sets of subnets, a "public" set with bidirectional access to the
-public internet, and a "private" set behind a firewall with egress-only access to the public internet. This 
-includes dividing up a given CIDR range so that a each subnet gets its own 
+public internet, and a "private" set behind a firewall with egress-only access to the public internet. This
+includes dividing up a given CIDR range so that a each subnet gets its own
 distinct CIDR range within that range, and then creating those subnets in the appropriate availability zones.
-The intention is to keep this module relatively simple and easy to use for the most popular use cases. 
+The intention is to keep this module relatively simple and easy to use for the most popular use cases.
 In its default configuration, this module creates 1 public subnet and 1 private subnet in each
 of the specified availability zones. The public subnets are configured for bi-directional traffic to the
 public internet, while the private subnets are configured for egress-only traffic to the public internet.
-Rather than provide a wealth of configuration options allowing for numerous special cases, this module 
-provides some common options and further provides the ability to suppress the creation of resources, allowing 
+
+The module supports creating different numbers of public and private subnets per availability zone. This is useful
+for common architectures where you need a single public subnet for load balancers but multiple private subnets
+for different application tiers (web, app, data). You can specify the number and names of public and private
+subnets independently using `public_subnets_per_az_count`/`public_subnets_per_az_names` and
+`private_subnets_per_az_count`/`private_subnets_per_az_names` variables.
+
+Rather than provide a wealth of configuration options allowing for numerous special cases, this module
+provides some common options and further provides the ability to suppress the creation of resources, allowing
 you to create and configure them as you like from outside this module. For example, rather than give you the
 option to customize the Network ACL, the module gives you the option to create a completely open one (and control
 access via Security Groups and other means) or not create one at all, allowing you to create and configure one yourself.
@@ -93,9 +100,318 @@ is left at the default `0`, it is set to the total number of availability zones 
 are allocated out of the first half of the reserved range, and public subnets are allocated out of the second half.
 
 For IPv6, you provide a `/56` CIDR and the module assigns `/64` subnets of that CIDR in consecutive order starting
-at zero. (You have the option of specifying a list of CIDRs instead.) As with IPv4, enough CIDRs are allocated to 
+at zero. (You have the option of specifying a list of CIDRs instead.) As with IPv4, enough CIDRs are allocated to
 cover `max_subnet_count` private and public subnets (when both are enabled, which is the default), with the private
 subnets being allocated out of the lower half of the reservation and the public subnets allocated out of the upper half.
+
+## Deployment Modes and Configuration
+
+This module supports various deployment modes through flexible configuration variables. Understanding these options
+allows you to tailor the subnet architecture to your specific use case.
+
+### Availability Zone Selection
+
+**`availability_zones`** - Explicitly specify which AZs to use:
+- Provide a list of AZ names (e.g., `["us-east-1a", "us-east-1b", "us-east-1c"]`)
+- The list order **must be stable** - do not reorder or Terraform will recreate subnets
+- If empty, the module uses all available AZs in the region (sorted alphabetically)
+- Can be truncated by `max_subnet_count` if you specify more AZs than the limit
+
+**`availability_zone_ids`** - Use AZ IDs instead of names:
+- Provide a list of AZ IDs (e.g., `["use1-az1", "use1-az2"]`)
+- Overrides `availability_zones` when set
+- Useful for multi-account consistency (AZ names like "us-east-1a" map to different physical locations across accounts, but AZ IDs are consistent)
+- The module automatically translates IDs to names for resource creation
+
+### Subnet Count and CIDR Reservation
+
+**`max_subnet_count`** - Controls CIDR reservation for future growth:
+- Default: `0` (reserves CIDRs for all AZs in the region)
+- Recommended: Set to `3` or the maximum number of AZs you anticipate using
+- The module reserves CIDR space for this many subnets of **each type** (public and private)
+- Example: If a region has 4 AZs but you set `max_subnet_count = 3`, only 3 subnets will be created, but you can later expand to the 4th without changing existing subnet CIDRs
+- **Important**: This must be a constant value, not computed, due to Terraform limitations
+
+**`subnets_per_az_count`** - Create multiple subnets of each type per AZ:
+- Default: `1` (one public and one private subnet per AZ)
+- Set to `2` or higher to create multiple subnets per AZ
+- Creates the **same number** of public and private subnets
+- Useful for segmenting workloads within the same AZ (e.g., separate subnets for web tier, app tier, data tier)
+- Each subnet gets its own CIDR from the allocated range
+- Works with `subnets_per_az_names` for organized outputs
+
+**`subnets_per_az_names`** - Assign names to subnets for better organization:
+- Default: `["common"]`
+- Provide a list of names matching `subnets_per_az_count` (e.g., `["web", "app", "data"]`)
+- Names are used as keys in the `named_private_subnets_map` and `named_public_subnets_map` outputs
+- Makes it easy to reference specific subnet groups in other modules
+- Example: `module.subnets.named_private_subnets_map["web"]` returns all web-tier private subnet IDs
+
+**`public_subnets_per_az_count`** - Set a different number of public subnets per AZ:
+- Default: `null` (uses `subnets_per_az_count` for backward compatibility)
+- Set this when you need a different number of public vs private subnets
+- Common pattern: Set to `1` for a single public subnet (for load balancers) while having multiple private subnets
+- Must be greater than 0 if specified
+- Works independently from `private_subnets_per_az_count`
+
+**`public_subnets_per_az_names`** - Assign names specifically to public subnets:
+- Default: `null` (uses `subnets_per_az_names` for backward compatibility)
+- Provide a list of names matching `public_subnets_per_az_count`
+- Names are used as keys in the `named_public_subnets_map` output
+- Example: `["public-lb"]` for a single load balancer subnet per AZ
+
+**`private_subnets_per_az_count`** - Set a different number of private subnets per AZ:
+- Default: `null` (uses `subnets_per_az_count` for backward compatibility)
+- Set this when you need a different number of private vs public subnets
+- Common pattern: Set to `3` for multi-tier architecture (web, app, data) while having only 1 public subnet
+- Must be greater than 0 if specified
+- Works independently from `public_subnets_per_az_count`
+
+**`private_subnets_per_az_names`** - Assign names specifically to private subnets:
+- Default: `null` (uses `subnets_per_az_names` for backward compatibility)
+- Provide a list of names matching `private_subnets_per_az_count`
+- Names are used as keys in the `named_private_subnets_map` output
+- Example: `["web", "app", "data"]` for a three-tier architecture
+
+### Subnet Type Selection
+
+**`public_subnets_enabled`** - Enable/disable public subnet creation:
+- Default: `true`
+- Set to `false` to create only private subnets
+- When disabled, NAT Gateways/Instances are also disabled (since they require public subnets)
+- Use case: Internal-only VPCs that route through Transit Gateway or VPN
+
+**`private_subnets_enabled`** - Enable/disable private subnet creation:
+- Default: `true`
+- Set to `false` to create only public subnets
+- When disabled, NAT Gateways/Instances are also disabled (since private subnets don't need them)
+- Use case: DMZ or edge VPCs with only internet-facing resources
+
+### NAT Configuration and Cost Optimization
+
+**`max_nats`** - Limit the number of NAT devices for cost savings:
+- Default: `999` (creates one NAT per AZ for high availability)
+- Set to `1` for cost savings (single NAT, reduced availability)
+- Set to `2` for balance between cost and availability (two NATs across AZs)
+- **Cost impact**: Each NAT Gateway costs ~$32/month plus data transfer fees
+- **Availability impact**: If the NAT fails (or its AZ fails), private subnets lose internet access
+- The module distributes NAT devices across the first N availability zones
+- Example: With 3 AZs and `max_nats = 1`, only the first AZ gets a NAT Gateway
+
+**`nat_gateway_public_subnet_indices`** - Control which public subnet gets the NAT Gateway (by index):
+- Default: `[0]` (place NAT in the first public subnet of each AZ)
+- When you have multiple public subnets per AZ, this determines which one hosts the NAT Gateway
+- NAT Gateways are shared - one NAT per AZ serves all private subnets in that AZ
+- **Important**: Each subnet index must be less than `public_subnets_per_az_count`
+- Example: With `public_subnets_per_az_count = 2` and `nat_gateway_public_subnet_indices = [0]`, the NAT goes in the first public subnet
+- Advanced: Set to `[0, 1]` to create redundant NATs within each AZ (rarely needed, increases cost)
+- Cannot be used with `nat_gateway_public_subnet_names` (choose indices OR names, not both)
+
+**`nat_gateway_public_subnet_names`** - Control which public subnet gets the NAT Gateway (by name):
+- Default: `null` (uses `nat_gateway_public_subnet_indices` instead)
+- **More intuitive alternative** to using indices - specify subnets by name
+- References the names from `public_subnets_per_az_names`
+- Example: `["loadbalancer"]` places NAT in the "loadbalancer" subnet
+- Example: `["loadbalancer", "web"]` creates 2 NATs per AZ in both named subnets (expensive)
+- Cannot be used with `nat_gateway_public_subnet_indices` (choose indices OR names, not both)
+- **Recommended approach** for clarity and maintainability
+
+### Common Deployment Patterns
+
+**Standard HA deployment** (default):
+```hcl
+# 1 public + 1 private subnet per AZ, with NAT Gateway per AZ
+public_subnets_enabled  = true
+private_subnets_enabled = true
+max_subnet_count        = 3  # Reserve space for 3 AZs
+max_nats                = 999 # One NAT per AZ
+```
+
+**Cost-optimized deployment**:
+```hcl
+# Single NAT Gateway shared across all private subnets
+max_nats = 1
+# Everything else default
+```
+
+**Private-only with Transit Gateway**:
+```hcl
+# Private subnets only, routing through TGW
+public_subnets_enabled  = false
+private_subnets_enabled = true
+nat_gateway_enabled     = false
+# Add custom routes to TGW externally
+```
+
+**Public-only (DMZ) deployment**:
+```hcl
+# Public subnets only for internet-facing resources
+public_subnets_enabled  = true
+private_subnets_enabled = false
+```
+
+**Multi-tier architecture per AZ** (legacy approach - same number of public and private):
+```hcl
+# 3 private AND 3 public subnets per AZ (web, app, data)
+subnets_per_az_count = 3
+subnets_per_az_names = ["web", "app", "data"]
+# Access subnets via: named_private_subnets_map["web"]
+```
+
+**Multi-tier with separate public/private counts** (recommended):
+```hcl
+# 1 public subnet per AZ for load balancers
+# 3 private subnets per AZ for web, app, and data tiers
+public_subnets_per_az_count  = 1
+public_subnets_per_az_names  = ["public-lb"]
+private_subnets_per_az_count = 3
+private_subnets_per_az_names = ["web", "app", "data"]
+# NAT Gateway automatically goes in the first (and only) public subnet
+# Can omit nat_gateway config since there's only one public subnet
+# Access subnets via:
+#   named_public_subnets_map["public-lb"]
+#   named_private_subnets_map["web"]
+#   named_private_subnets_map["app"]
+#   named_private_subnets_map["data"]
+```
+
+**Multiple public subnets with controlled NAT placement**:
+```hcl
+# 2 public subnets per AZ: one for ALB, one for bastion hosts
+# Place NAT Gateway in the ALB subnet
+public_subnets_per_az_count = 2
+public_subnets_per_az_names = ["alb", "bastion"]
+
+# OPTION 1: Use subnet name (recommended - more readable)
+nat_gateway_public_subnet_names = ["alb"]
+
+# OPTION 2: Use subnet index (alternative)
+# nat_gateway_public_subnet_indices = [0]  # 0 = first subnet = "alb"
+
+# Result: 1 NAT per AZ in the "alb" subnet, shared by all private subnets
+```
+
+**Multiple private + multiple public with one NAT in specific subnet**:
+```hcl
+# Real-world example: Database, app tiers + load balancer and web frontends
+# 3 private subnets per AZ (database, app1, app2)
+# 2 public subnets per AZ (loadbalancer, web)
+# 1 NAT Gateway per AZ in the "loadbalancer" subnet
+
+availability_zones = ["us-east-1a", "us-east-1b", "us-east-1c"]
+
+private_subnets_per_az_count = 3
+private_subnets_per_az_names = ["database", "app1", "app2"]
+
+public_subnets_per_az_count  = 2
+public_subnets_per_az_names  = ["loadbalancer", "web"]
+
+# Place NAT Gateway in the "loadbalancer" subnet (by name)
+nat_gateway_public_subnet_names = ["loadbalancer"]
+
+# Result per AZ:
+# - 3 private subnets: database, app1, app2
+# - 2 public subnets: loadbalancer, web
+# - 1 NAT Gateway in "loadbalancer" subnet
+# - All 3 private subnets route to the same NAT
+# Total: 3 NAT Gateways (one per AZ) = ~$96/month
+```
+
+**Multiple private + multiple public with NAT in EACH public subnet** (high availability):
+```hcl
+# Advanced: Redundant NAT Gateways within each AZ for maximum availability
+# 3 private subnets per AZ (database, app1, app2)
+# 2 public subnets per AZ (loadbalancer, web)
+# 2 NAT Gateways per AZ (one in each public subnet)
+
+availability_zones = ["us-east-1a", "us-east-1b", "us-east-1c"]
+
+private_subnets_per_az_count = 3
+private_subnets_per_az_names = ["database", "app1", "app2"]
+
+public_subnets_per_az_count  = 2
+public_subnets_per_az_names  = ["loadbalancer", "web"]
+
+# Place NAT Gateways in BOTH public subnets (by name)
+nat_gateway_public_subnet_names = ["loadbalancer", "web"]
+
+# Alternative using indices:
+# nat_gateway_public_subnet_indices = [0, 1]
+
+# Result per AZ:
+# - 3 private subnets: database, app1, app2
+# - 2 public subnets: loadbalancer, web
+# - 2 NAT Gateways: one in "loadbalancer", one in "web"
+# - Private subnets distributed across NATs:
+#   - "database" → NAT in "loadbalancer"
+#   - "app1" → NAT in "web"
+#   - "app2" → NAT in "loadbalancer"
+# Total: 6 NAT Gateways (2 per AZ × 3 AZs) = ~$192/month
+# WARNING: This is expensive. Use only if you need intra-AZ NAT redundancy.
+```
+
+### NAT Gateway ID References in Outputs
+
+The module exposes NAT Gateway IDs in the subnet stats outputs, enabling downstream components like network
+firewalls to reference the NAT Gateways associated with each subnet.
+
+**`named_private_subnets_stats_map`** - Each private subnet includes the NAT Gateway ID it routes to:
+```hcl
+# Output structure (4 fields per subnet):
+named_private_subnets_stats_map = {
+  "database" = [
+    {
+      az             = "us-east-2a"
+      subnet_id      = "subnet-abc123"
+      route_table_id = "rtb-def456"
+      nat_gateway_id = "nat-xyz789"  # NAT Gateway this subnet routes to for egress
+    },
+    # ... one entry per AZ
+  ]
+  "app1" = [ ... ]
+  "app2" = [ ... ]
+}
+```
+
+**`named_public_subnets_stats_map`** - Each public subnet includes the NAT Gateway ID if one exists in that subnet:
+```hcl
+# Output structure (4 fields per subnet):
+named_public_subnets_stats_map = {
+  "loadbalancer" = [
+    {
+      az             = "us-east-2a"
+      subnet_id      = "subnet-ghi789"
+      route_table_id = "rtb-jkl012"
+      nat_gateway_id = "nat-xyz789"  # NAT Gateway in this public subnet (if any)
+    },
+    # ... one entry per AZ
+  ]
+  "web" = [ ... ]
+}
+```
+
+**Use case example** - Network firewall routing:
+```hcl
+# Reference NAT Gateway IDs from subnet stats
+locals {
+  database_nat_gateways = [
+    for stats in module.subnets.named_private_subnets_stats_map["database"] :
+    stats.nat_gateway_id if stats.nat_gateway_id != ""
+  ]
+}
+
+# Use in network firewall route configuration
+resource "aws_networkfirewall_firewall_policy" "example" {
+  # ... configuration that needs NAT Gateway IDs
+}
+```
+
+**Multi-account with consistent AZs**:
+```hcl
+# Use AZ IDs for consistency across accounts
+availability_zone_ids = ["use1-az1", "use1-az2", "use1-az4"]
+# These map to the same physical locations across all accounts
+```
 
 
 > [!TIP]
@@ -187,7 +503,7 @@ but in conjunction with this module.
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 3.71.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.19.0 |
 
 ## Modules
 
@@ -284,6 +600,8 @@ but in conjunction with this module.
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | ID element. Usually an abbreviation of your organization name, e.g. 'eg' or 'cp', to help ensure generated IDs are globally unique | `string` | `null` | no |
 | <a name="input_nat_elastic_ips"></a> [nat\_elastic\_ips](#input\_nat\_elastic\_ips) | Existing Elastic IPs (not EIP IDs) to attach to the NAT Gateway(s) or Instance(s) instead of creating new ones. | `list(string)` | `[]` | no |
 | <a name="input_nat_gateway_enabled"></a> [nat\_gateway\_enabled](#input\_nat\_gateway\_enabled) | Set `true` to create NAT Gateways to perform IPv4 NAT and NAT64 as needed.<br/>Defaults to `true` unless `nat_instance_enabled` is `true`. | `bool` | `null` | no |
+| <a name="input_nat_gateway_public_subnet_indices"></a> [nat\_gateway\_public\_subnet\_indices](#input\_nat\_gateway\_public\_subnet\_indices) | The index (starting from 0) of the public subnet in each AZ to place the NAT Gateway.<br/>If you have multiple public subnets per AZ (via `public_subnets_per_az_count`), this determines which one gets the NAT Gateway.<br/>Default: `[0]` (use the first public subnet in each AZ).<br/>You can specify multiple indices if you want redundant NATs within an AZ, but this is rarely needed and increases cost.<br/>Cannot be used together with `nat_gateway_public_subnet_names`.<br/>Example: `[0]` creates 1 NAT per AZ in the first public subnet.<br/>Example: `[0, 1]` creates 2 NATs per AZ in the first and second public subnets (expensive). | `list(number)` | <pre>[<br/>  0<br/>]</pre> | no |
+| <a name="input_nat_gateway_public_subnet_names"></a> [nat\_gateway\_public\_subnet\_names](#input\_nat\_gateway\_public\_subnet\_names) | The names of the public subnets in each AZ where NAT Gateways should be placed.<br/>Uses the names from `public_subnets_per_az_names` to determine placement.<br/>This is more intuitive than using indices - specify the subnet by name instead of position.<br/>Cannot be used together with `nat_gateway_public_subnet_indices` (only use indices OR names, not both).<br/>If not specified, defaults to using `nat_gateway_public_subnet_indices`.<br/>Example: `["loadbalancer"]` creates 1 NAT per AZ in the "loadbalancer" subnet.<br/>Example: `["loadbalancer", "web"]` creates 2 NATs per AZ in "loadbalancer" and "web" subnets (expensive). | `list(string)` | `null` | no |
 | <a name="input_nat_instance_ami_id"></a> [nat\_instance\_ami\_id](#input\_nat\_instance\_ami\_id) | A list optionally containing the ID of the AMI to use for the NAT instance.<br/>If the list is empty (the default), the latest official AWS NAT instance AMI<br/>will be used. NOTE: The Official NAT instance AMI is being phased out and<br/>does not support NAT64. Use of a NAT gateway is recommended instead. | `list(string)` | `[]` | no |
 | <a name="input_nat_instance_cpu_credits_override"></a> [nat\_instance\_cpu\_credits\_override](#input\_nat\_instance\_cpu\_credits\_override) | NAT Instance credit option for CPU usage. Valid values are "standard" or "unlimited".<br/>T3 and later instances are launched as unlimited by default. T2 instances are launched as standard by default. | `string` | `""` | no |
 | <a name="input_nat_instance_enabled"></a> [nat\_instance\_enabled](#input\_nat\_instance\_enabled) | Set `true` to create NAT Instances to perform IPv4 NAT.<br/>Defaults to `false`. | `bool` | `null` | no |
@@ -298,6 +616,8 @@ but in conjunction with this module.
 | <a name="input_private_route_table_enabled"></a> [private\_route\_table\_enabled](#input\_private\_route\_table\_enabled) | If `true`, a network route table and default route to the NAT gateway, NAT instance, or egress-only gateway<br/>will be created for each private subnet (1:1). If false, you will need to create your own route table(s) and route(s). | `bool` | `true` | no |
 | <a name="input_private_subnets_additional_tags"></a> [private\_subnets\_additional\_tags](#input\_private\_subnets\_additional\_tags) | Additional tags to be added to private subnets | `map(string)` | `{}` | no |
 | <a name="input_private_subnets_enabled"></a> [private\_subnets\_enabled](#input\_private\_subnets\_enabled) | If false, do not create private subnets (or NAT gateways or instances) | `bool` | `true` | no |
+| <a name="input_private_subnets_per_az_count"></a> [private\_subnets\_per\_az\_count](#input\_private\_subnets\_per\_az\_count) | The number of private subnets to provision per Availability Zone.<br/>If not provided, defaults to the value of `subnets_per_az_count` for backward compatibility.<br/>Set this to create a different number of private subnets than public subnets. | `number` | `null` | no |
+| <a name="input_private_subnets_per_az_names"></a> [private\_subnets\_per\_az\_names](#input\_private\_subnets\_per\_az\_names) | The names to assign to the private subnets per Availability Zone.<br/>If not provided, defaults to the value of `subnets_per_az_names` for backward compatibility.<br/>If provided, the length must match `private_subnets_per_az_count`.<br/>The names will be used as keys in the outputs `named_private_subnets_map` and `named_private_route_table_ids_map`. | `list(string)` | `null` | no |
 | <a name="input_public_assign_ipv6_address_on_creation"></a> [public\_assign\_ipv6\_address\_on\_creation](#input\_public\_assign\_ipv6\_address\_on\_creation) | If `true`, network interfaces created in a public subnet will be assigned an IPv6 address | `bool` | `true` | no |
 | <a name="input_public_dns64_nat64_enabled"></a> [public\_dns64\_nat64\_enabled](#input\_public\_dns64\_nat64\_enabled) | If `true` and IPv6 is enabled, DNS queries made to the Amazon-provided DNS Resolver in public subnets will return synthetic<br/>IPv6 addresses for IPv4-only destinations, and these addresses will be routed to the NAT Gateway.<br/>Requires `nat_gateway_enabled` and `public_route_table_enabled` to be `true` to be fully operational. | `bool` | `false` | no |
 | <a name="input_public_label"></a> [public\_label](#input\_public\_label) | The string to use in IDs and elsewhere to identify resources for the public subnets and distinguish them from resources for the private subnets | `string` | `"public"` | no |
@@ -307,6 +627,8 @@ but in conjunction with this module.
 | <a name="input_public_route_table_per_subnet_enabled"></a> [public\_route\_table\_per\_subnet\_enabled](#input\_public\_route\_table\_per\_subnet\_enabled) | If `true` (and `public_route_table_enabled` is `true`), a separate network route table will be created for and associated with each public subnet.<br/>If `false` (and `public_route_table_enabled` is `true`), a single network route table will be created and it will be associated with every public subnet.<br/>If not set, it will be set to the value of `public_dns64_nat64_enabled`. | `bool` | `null` | no |
 | <a name="input_public_subnets_additional_tags"></a> [public\_subnets\_additional\_tags](#input\_public\_subnets\_additional\_tags) | Additional tags to be added to public subnets | `map(string)` | `{}` | no |
 | <a name="input_public_subnets_enabled"></a> [public\_subnets\_enabled](#input\_public\_subnets\_enabled) | If false, do not create public subnets.<br/>Since NAT gateways and instances must be created in public subnets, these will also not be created when `false`. | `bool` | `true` | no |
+| <a name="input_public_subnets_per_az_count"></a> [public\_subnets\_per\_az\_count](#input\_public\_subnets\_per\_az\_count) | The number of public subnets to provision per Availability Zone.<br/>If not provided, defaults to the value of `subnets_per_az_count` for backward compatibility.<br/>Set this to create a different number of public subnets than private subnets. | `number` | `null` | no |
+| <a name="input_public_subnets_per_az_names"></a> [public\_subnets\_per\_az\_names](#input\_public\_subnets\_per\_az\_names) | The names to assign to the public subnets per Availability Zone.<br/>If not provided, defaults to the value of `subnets_per_az_names` for backward compatibility.<br/>If provided, the length must match `public_subnets_per_az_count`.<br/>The names will be used as keys in the outputs `named_public_subnets_map` and `named_public_route_table_ids_map`. | `list(string)` | `null` | no |
 | <a name="input_regex_replace_chars"></a> [regex\_replace\_chars](#input\_regex\_replace\_chars) | Terraform regular expression (regex) string.<br/>Characters matching the regex will be removed from the ID elements.<br/>If not set, `"/[^a-zA-Z0-9-]/"` is used to remove all characters other than hyphens, letters and digits. | `string` | `null` | no |
 | <a name="input_root_block_device_encrypted"></a> [root\_block\_device\_encrypted](#input\_root\_block\_device\_encrypted) | DEPRECATED: use `nat_instance_root_block_device_encrypted` instead.<br/>Whether to encrypt the root block device on the created NAT instances | `bool` | `null` | no |
 | <a name="input_route_create_timeout"></a> [route\_create\_timeout](#input\_route\_create\_timeout) | Time to wait for a network routing table entry to be created, specified as a Go Duration, e.g. `2m`. Use `null` for proivder default. | `string` | `null` | no |
@@ -332,12 +654,12 @@ but in conjunction with this module.
 | <a name="output_az_private_subnets_map"></a> [az\_private\_subnets\_map](#output\_az\_private\_subnets\_map) | Map of AZ names to list of private subnet IDs in the AZs |
 | <a name="output_az_public_route_table_ids_map"></a> [az\_public\_route\_table\_ids\_map](#output\_az\_public\_route\_table\_ids\_map) | Map of AZ names to list of public route table IDs in the AZs |
 | <a name="output_az_public_subnets_map"></a> [az\_public\_subnets\_map](#output\_az\_public\_subnets\_map) | Map of AZ names to list of public subnet IDs in the AZs |
-| <a name="output_named_private_route_table_ids_map"></a> [named\_private\_route\_table\_ids\_map](#output\_named\_private\_route\_table\_ids\_map) | Map of subnet names (specified in `subnets_per_az_names` variable) to lists of private route table IDs |
-| <a name="output_named_private_subnets_map"></a> [named\_private\_subnets\_map](#output\_named\_private\_subnets\_map) | Map of subnet names (specified in `subnets_per_az_names` variable) to lists of private subnet IDs |
-| <a name="output_named_private_subnets_stats_map"></a> [named\_private\_subnets\_stats\_map](#output\_named\_private\_subnets\_stats\_map) | Map of subnet names (specified in `subnets_per_az_names` variable) to lists of objects with each object having three items: AZ, private subnet ID, private route table ID |
-| <a name="output_named_public_route_table_ids_map"></a> [named\_public\_route\_table\_ids\_map](#output\_named\_public\_route\_table\_ids\_map) | Map of subnet names (specified in `subnets_per_az_names` variable) to lists of public route table IDs |
-| <a name="output_named_public_subnets_map"></a> [named\_public\_subnets\_map](#output\_named\_public\_subnets\_map) | Map of subnet names (specified in `subnets_per_az_names` variable) to lists of public subnet IDs |
-| <a name="output_named_public_subnets_stats_map"></a> [named\_public\_subnets\_stats\_map](#output\_named\_public\_subnets\_stats\_map) | Map of subnet names (specified in `subnets_per_az_names` variable) to lists of objects with each object having three items: AZ, public subnet ID, public route table ID |
+| <a name="output_named_private_route_table_ids_map"></a> [named\_private\_route\_table\_ids\_map](#output\_named\_private\_route\_table\_ids\_map) | Map of subnet names (specified in `private_subnets_per_az_names` or `subnets_per_az_names` variable) to lists of private route table IDs |
+| <a name="output_named_private_subnets_map"></a> [named\_private\_subnets\_map](#output\_named\_private\_subnets\_map) | Map of subnet names (specified in `private_subnets_per_az_names` or `subnets_per_az_names` variable) to lists of private subnet IDs |
+| <a name="output_named_private_subnets_stats_map"></a> [named\_private\_subnets\_stats\_map](#output\_named\_private\_subnets\_stats\_map) | Map of subnet names (specified in `private_subnets_per_az_names` or `subnets_per_az_names` variable) to lists of objects with each object having four items: AZ, private subnet ID, private route table ID, NAT Gateway ID (the NAT Gateway that this private subnet routes to for egress) |
+| <a name="output_named_public_route_table_ids_map"></a> [named\_public\_route\_table\_ids\_map](#output\_named\_public\_route\_table\_ids\_map) | Map of subnet names (specified in `public_subnets_per_az_names` or `subnets_per_az_names` variable) to lists of public route table IDs |
+| <a name="output_named_public_subnets_map"></a> [named\_public\_subnets\_map](#output\_named\_public\_subnets\_map) | Map of subnet names (specified in `public_subnets_per_az_names` or `subnets_per_az_names` variable) to lists of public subnet IDs |
+| <a name="output_named_public_subnets_stats_map"></a> [named\_public\_subnets\_stats\_map](#output\_named\_public\_subnets\_stats\_map) | Map of subnet names (specified in `public_subnets_per_az_names` or `subnets_per_az_names` variable) to lists of objects with each object having four items: AZ, public subnet ID, public route table ID, NAT Gateway ID (the NAT Gateway in this public subnet, if any) |
 | <a name="output_nat_eip_allocation_ids"></a> [nat\_eip\_allocation\_ids](#output\_nat\_eip\_allocation\_ids) | Elastic IP allocations in use by NAT |
 | <a name="output_nat_gateway_ids"></a> [nat\_gateway\_ids](#output\_nat\_gateway\_ids) | IDs of the NAT Gateways created |
 | <a name="output_nat_gateway_public_ips"></a> [nat\_gateway\_public\_ips](#output\_nat\_gateway\_public\_ips) | DEPRECATED: use `nat_ips` instead. Public IPv4 IP addresses in use by NAT. |
