@@ -1,4 +1,4 @@
-# Product Requirements Document: Separate Public/Private Subnet Configuration and Enhanced NAT Gateway Placement
+# Product Requirements Document: Separate Public/Private Subnet Configuration and Enhance NAT Gateway Placement
 
 **Version:** 1.0
 **Date:** 2025-11-01
