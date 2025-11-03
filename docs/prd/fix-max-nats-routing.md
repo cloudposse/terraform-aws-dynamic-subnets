@@ -143,6 +143,270 @@ The modulo operation ensures the calculated index wraps around to valid NAT indi
 
 ---
 
+## NAT Gateway Placement Behavior
+
+### Understanding the Two Configuration Dimensions
+
+NAT Gateway placement is controlled by **two independent variables**:
+
+1. **`nat_gateway_public_subnet_names`** (or `nat_gateway_public_subnet_indices`)
+   - Controls **WHICH subnet types** get NAT Gateways within each AZ
+   - Determines **NATs per AZ**
+
+2. **`max_nats`**
+   - Controls **HOW MANY AZs** get NAT Gateways
+   - Limits total NAT count for cost optimization
+
+**Key Insight:** These multiply together to determine total NAT count:
+```
+Total NATs = min(num_azs, max_nats) × num_subnet_names
+```
+
+### Placement Strategy Examples
+
+#### Strategy 1: Standard (1 NAT per AZ)
+```hcl
+availability_zones              = ["us-east-2a", "us-east-2b", "us-east-2c"]  # 3 AZs
+public_subnets_per_az_names     = ["loadbalancer", "web"]                     # 2 types
+nat_gateway_public_subnet_names = ["loadbalancer"]                            # ← 1 name
+max_nats                        = 3                                            # Default: all AZs
+```
+
+**Result:** **3 NAT Gateways** (1 per AZ, only in "loadbalancer" subnets)
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ Availability Zone us-east-2a                                │
+├──────────────────────────┬──────────────────────────────────┤
+│ loadbalancer subnet      │ web subnet                       │
+│ [NAT Gateway 0] 🟢       │ [No NAT]                         │
+└──────────────────────────┴──────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│ Availability Zone us-east-2b                                │
+├──────────────────────────┬──────────────────────────────────┤
+│ loadbalancer subnet      │ web subnet                       │
+│ [NAT Gateway 1] 🟢       │ [No NAT]                         │
+└──────────────────────────┴──────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│ Availability Zone us-east-2c                                │
+├──────────────────────────┬──────────────────────────────────┤
+│ loadbalancer subnet      │ web subnet                       │
+│ [NAT Gateway 2] 🟢       │ [No NAT]                         │
+└──────────────────────────┴──────────────────────────────────┘
+
+Total: 3 NATs × $32.40 = $97.20/month
+```
+
+#### Strategy 2: Redundant (Multiple NATs per AZ)
+```hcl
+availability_zones              = ["us-east-2a", "us-east-2b", "us-east-2c"]
+public_subnets_per_az_names     = ["loadbalancer", "web"]
+nat_gateway_public_subnet_names = ["loadbalancer", "web"]  # ← 2 names
+max_nats                        = 3                         # All AZs
+```
+
+**Result:** **6 NAT Gateways** (2 per AZ, one in each subnet type)
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ Availability Zone us-east-2a                                │
+├──────────────────────────┬──────────────────────────────────┤
+│ loadbalancer subnet      │ web subnet                       │
+│ [NAT Gateway 0] 🟢       │ [NAT Gateway 1] 🟢               │
+└──────────────────────────┴──────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│ Availability Zone us-east-2b                                │
+├──────────────────────────┬──────────────────────────────────┤
+│ loadbalancer subnet      │ web subnet                       │
+│ [NAT Gateway 2] 🟢       │ [NAT Gateway 3] 🟢               │
+└──────────────────────────┴──────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│ Availability Zone us-east-2c                                │
+├──────────────────────────┬──────────────────────────────────┤
+│ loadbalancer subnet      │ web subnet                       │
+│ [NAT Gateway 4] 🟢       │ [NAT Gateway 5] 🟢               │
+└──────────────────────────┴──────────────────────────────────┘
+
+Total: 6 NATs × $32.40 = $194.40/month 💸
+```
+
+**Use Case:** Maximum availability - if one NAT fails, subnets can fail over to the other NAT in the same AZ.
+
+#### Strategy 3: Limited (Cost-Optimized with max_nats)
+```hcl
+availability_zones              = ["us-east-2a", "us-east-2b", "us-east-2c"]
+public_subnets_per_az_names     = ["loadbalancer", "web"]
+nat_gateway_public_subnet_names = ["loadbalancer"]
+max_nats                        = 1  # ← Limit to 1 AZ only
+```
+
+**Result:** **1 NAT Gateway** (only in first AZ's "loadbalancer" subnet)
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ Availability Zone us-east-2a                                │
+├──────────────────────────┬──────────────────────────────────┤
+│ loadbalancer subnet      │ web subnet                       │
+│ [NAT Gateway 0] 🟢       │ [No NAT]                         │
+└──────────────────────────┴──────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│ Availability Zone us-east-2b                                │
+├──────────────────────────┬──────────────────────────────────┤
+│ loadbalancer subnet      │ web subnet                       │
+│ [No NAT] Routes to NAT 0 │ [No NAT]                         │
+│         ↗                │                                  │
+└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│ Availability Zone us-east-2c                                │
+├──────────────────────────┬──────────────────────────────────┤
+│ loadbalancer subnet      │ web subnet                       │
+│ [No NAT] Routes to NAT 0 │ [No NAT]                         │
+│         ↗                │                                  │
+└─────────────────────────────────────────────────────────────┘
+
+Total: 1 NAT × $32.40 = $32.40/month 💰
+```
+
+**Trade-off:** Private subnets in AZ-b and AZ-c route to NAT in AZ-a (cross-AZ traffic).
+
+#### Strategy 4: Hybrid (2 NATs per AZ, Limited to 1 AZ)
+```hcl
+availability_zones              = ["us-east-2a", "us-east-2b", "us-east-2c"]
+public_subnets_per_az_names     = ["loadbalancer", "web"]
+nat_gateway_public_subnet_names = ["loadbalancer", "web"]  # ← 2 names
+max_nats                        = 1                         # ← But only in 1 AZ
+```
+
+**Result:** **2 NAT Gateways** (both in first AZ only)
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ Availability Zone us-east-2a                                │
+├──────────────────────────┬──────────────────────────────────┤
+│ loadbalancer subnet      │ web subnet                       │
+│ [NAT Gateway 0] 🟢       │ [NAT Gateway 1] 🟢               │
+└──────────────────────────┴──────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│ Availability Zone us-east-2b                                │
+├──────────────────────────┬──────────────────────────────────┤
+│ Routes to NAT 0 or 1     │ Routes to NAT 0 or 1             │
+│         ↗                │         ↗                        │
+└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│ Availability Zone us-east-2c                                │
+├──────────────────────────┬──────────────────────────────────┤
+│ Routes to NAT 0 or 1     │ Routes to NAT 0 or 1             │
+│         ↗                │         ↗                        │
+└─────────────────────────────────────────────────────────────┘
+
+Total: 2 NATs × $32.40 = $64.80/month
+```
+
+**Use Case:** Redundancy within a single AZ for cost-sensitive deployments.
+
+### Configuration Calculation Table
+
+| AZs | Subnet Names | max_nats | Total NATs | Monthly Cost | Use Case |
+|-----|--------------|----------|------------|--------------|----------|
+| 3 | `["lb"]` (1) | 3 (default) | 3 | $97.20 | **Standard** - Production |
+| 3 | `["lb", "web"]` (2) | 3 | 6 | $194.40 | **High Availability** - Critical prod |
+| 3 | `["lb"]` (1) | 1 | 1 | $32.40 | **Cost-Optimized** - Dev/test |
+| 3 | `["lb"]` (1) | 2 | 2 | $64.80 | **Balanced** - Staging |
+| 3 | `["lb", "web"]` (2) | 1 | 2 | $64.80 | **Redundant in 1 AZ** - Hybrid |
+| 2 | `["lb"]` (1) | 2 | 2 | $64.80 | **Standard** - 2 AZ deployment |
+
+### Decision Tree for NAT Configuration
+
+```
+START: Choose NAT Gateway Configuration
+│
+├─❓ Is this a production environment?
+│  │
+│  ├─ YES → ❓ Do you require maximum availability?
+│  │        │
+│  │        ├─ YES → Use Redundant NATs
+│  │        │        ✅ nat_gateway_public_subnet_names = ["lb", "web"]
+│  │        │        ✅ max_nats = <num_azs>
+│  │        │        💰 Cost: High ($194.40 for 3 AZs)
+│  │        │        🔒 Availability: Maximum
+│  │        │
+│  │        └─ NO  → Use Standard NATs
+│  │                 ✅ nat_gateway_public_subnet_names = ["lb"]
+│  │                 ✅ max_nats = <num_azs>
+│  │                 💰 Cost: Medium ($97.20 for 3 AZs)
+│  │                 🔒 Availability: High
+│  │
+│  └─ NO  → ❓ Is this dev/test or staging?
+│           │
+│           ├─ DEV/TEST → Use Limited NATs
+│           │            ✅ nat_gateway_public_subnet_names = ["lb"]
+│           │            ✅ max_nats = 1
+│           │            💰 Cost: Low ($32.40)
+│           │            ⚠️  Availability: Single point of failure
+│           │            ⚠️  Cross-AZ data transfer charges
+│           │
+│           └─ STAGING  → Use Balanced NATs
+│                        ✅ nat_gateway_public_subnet_names = ["lb"]
+│                        ✅ max_nats = 2
+│                        💰 Cost: Medium-Low ($64.80)
+│                        🔒 Availability: Medium
+│
+└─❓ Special Requirements?
+   │
+   ├─ Need NAT failover within same AZ?
+   │  → Hybrid: nat_names = ["lb", "web"], max_nats = 1
+   │
+   ├─ Single AZ deployment only?
+   │  → Standard: nat_names = ["lb"], max_nats = 1
+   │
+   └─ No NAT needed (public subnets only)?
+       → nat_gateway_enabled = false
+```
+
+### Routing Behavior Explained
+
+When `max_nats < num_azs`, the routing formula ensures all subnets can reach the internet:
+
+**Example: 3 AZs, 1 NAT, 1 private subnet per AZ**
+
+```
+Private Route Tables → NAT Mapping:
+├─ Route Table 0 (AZ-a, private subnet) → NAT[0] ✅
+├─ Route Table 1 (AZ-b, private subnet) → NAT[0] ✅ (wraps around)
+└─ Route Table 2 (AZ-c, private subnet) → NAT[0] ✅ (wraps around)
+
+Formula: (az_idx * nats_per_az + subnet_offset) % total_nats
+         (0 * 1 + 0) % 1 = 0
+         (1 * 1 + 0) % 1 = 0  ← Modulo ensures valid index
+         (2 * 1 + 0) % 1 = 0  ← Modulo ensures valid index
+```
+
+**This is the bug that was fixed** - without the `% total_nats`, route tables 1 and 2 would try to access NAT[1] and NAT[2], which don't exist.
+
+### Best Practices
+
+1. **Production Environments:**
+   - Use at least 1 NAT per AZ (`max_nats = num_azs`)
+   - Consider redundant NATs for critical workloads
+   - Monitor NAT Gateway metrics (connections, bytes)
+
+2. **Development Environments:**
+   - Use `max_nats = 1` for significant cost savings
+   - Accept cross-AZ data transfer costs
+   - Document the availability trade-off
+
+3. **Staging Environments:**
+   - Balance cost and availability with `max_nats = 2`
+   - Mirror production topology when testing failover
+   - Use redundant NATs only if testing HA scenarios
+
+4. **Cost Optimization:**
+   - Avoid multiple NATs per AZ unless required for HA
+   - Use `max_nats` to limit NATs in non-production
+   - Consider NAT Instance for very low-cost dev environments
+
+---
+
 ## Testing Strategy
 
 ### Test Coverage Added
