@@ -240,7 +240,7 @@ locals {
   nats_per_az = local.nat_count > 0 ? length(local.nat_gateway_resolved_indices) : 0
 
   # For each private route table, calculate which NAT device it should route to
-  # This ensures each private subnet routes to a NAT in its own AZ
+  # This ensures each private subnet routes to a NAT in its own AZ when possible
   # Used by both NAT Gateways and NAT Instances
   #
   # Example 1: 3 AZs, 3 private subnets per AZ, 1 NAT per AZ
@@ -255,22 +255,30 @@ locals {
   #   Route table 4 (AZ1, app1) → NAT 3
   #   Route tables 6,8 (AZ2, database & app2) → NAT 4
   #   Route table 7 (AZ2, app1) → NAT 5
+  #
+  # Example 3: 2 AZs, 1 private subnet per AZ, max_nats=1 (only 1 NAT total in AZ0)
+  #   Route table 0 (AZ0) → NAT 0
+  #   Route table 1 (AZ1) → NAT 0 (wraps to AZ0's NAT because AZ1 has no NAT)
   private_route_table_to_nat_map = local.nat_enabled && local.private4_enabled ? [
     for i in range(local.private_route_table_count) :
     # Calculate AZ index for this route table
-    floor(i / local.private_subnets_per_az_count) * local.nats_per_az +
-    # Distribute private subnets within the AZ across available NATs
-    (i % local.private_subnets_per_az_count) % local.nats_per_az
+    (floor(i / local.private_subnets_per_az_count) * local.nats_per_az +
+      # Distribute private subnets within the AZ across available NATs
+      (i % local.private_subnets_per_az_count) % local.nats_per_az
+      # Clamp to available NAT indices in case max_nats limits NATs to fewer AZs
+    ) % local.nat_count
   ] : []
 
   # For each public route table, calculate which NAT gateway it should route to (for NAT64)
-  # This ensures each public subnet routes to a NAT in its own AZ
+  # This ensures each public subnet routes to a NAT in its own AZ when possible
   public_route_table_to_nat_map = local.nat_gateway_enabled && local.public_dns64_enabled ? [
     for i in range(local.public_route_table_count) :
     # Calculate AZ index for this route table
-    floor(i / local.public_subnets_per_az_count) * local.nats_per_az +
-    # Distribute public subnets within the AZ across available NATs
-    (i % local.public_subnets_per_az_count) % local.nats_per_az
+    (floor(i / local.public_subnets_per_az_count) * local.nats_per_az +
+      # Distribute public subnets within the AZ across available NATs
+      (i % local.public_subnets_per_az_count) % local.nats_per_az
+      # Clamp to available NAT indices in case max_nats limits NATs to fewer AZs
+    ) % local.nat_count
   ] : []
 
   # It does not make sense to create both a NAT Gateway and a NAT instance, since they perform the same function
