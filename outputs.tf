@@ -78,6 +78,11 @@ output "nat_gateway_ids" {
   value       = aws_nat_gateway.default[*].id
 }
 
+output "nat_gateway_private_ips" {
+  description = "Private IP addresses of the NAT Gateways"
+  value       = aws_nat_gateway.default[*].private_ip
+}
+
 output "nat_instance_ids" {
   description = "IDs of the NAT Instances created"
   value       = aws_instance.nat_instance[*].id
