@@ -186,8 +186,12 @@ locals {
   public_route_table_ids     = local.create_public_route_tables ? aws_route_table.public[*].id : var.public_route_table_ids
 
   private_route_table_enabled = local.private_enabled && var.private_route_table_enabled
-  private_route_table_count   = local.private_route_table_enabled ? local.private_subnet_az_count : 0
-  private_route_table_ids     = local.private_route_table_enabled ? aws_route_table.private[*].id : []
+  # For regional NAT gateway, use a single shared route table since all subnets route to the same NAT
+  # For zonal NAT gateway or NAT instance, use one route table per subnet (each routes to different NAT)
+  private_route_table_count = local.private_route_table_enabled ? (
+    var.nat_gateway_availability_mode == "regional" && local.nat_gateway_enabled ? 1 : local.private_subnet_az_count
+  ) : 0
+  private_route_table_ids = local.private_route_table_enabled ? aws_route_table.private[*].id : []
 
   # public and private network ACLs
   # Support deprecated var.public_network_acl_id
@@ -225,7 +229,8 @@ locals {
   # Calculate which public subnet indices to use for NAT placement
   # For each AZ (up to max_nats), and for each requested subnet index within that AZ,
   # calculate the global subnet index in the flattened aws_subnet.public list
-  nat_gateway_public_subnet_indices = local.nat_gateway_useful ? flatten([
+  # Only used for zonal NAT gateways; regional NAT gateways don't need subnet placement
+  nat_gateway_public_subnet_indices = local.nat_gateway_useful && var.nat_gateway_availability_mode == "zonal" ? flatten([
     for az_idx in range(min(local.vpc_az_count, var.max_nats)) : [
       for subnet_idx in local.nat_gateway_resolved_indices :
       az_idx * local.public_subnets_per_az_count + subnet_idx
@@ -234,7 +239,8 @@ locals {
   ]) : []
 
   # NAT count is the number of NAT devices to create (based on AZs and indices requested)
-  nat_count = length(local.nat_gateway_public_subnet_indices)
+  # For regional mode, we create 1 NAT gateway; for zonal mode, we create based on subnet placement
+  nat_count = var.nat_gateway_availability_mode == "regional" ? (local.nat_gateway_useful ? 1 : 0) : length(local.nat_gateway_public_subnet_indices)
 
   # How many NATs are created per AZ
   nats_per_az = local.nat_count > 0 ? length(local.nat_gateway_resolved_indices) : 0
@@ -297,9 +303,13 @@ locals {
   nat_gateway_enabled  = local.nat_gateway_useful && local.nat_gateway_setting
   nat_instance_enabled = local.nat_instance_useful && local.nat_instance_setting
   nat_enabled          = local.nat_gateway_enabled || local.nat_instance_enabled
-  need_nat_eips        = local.nat_enabled && length(var.nat_elastic_ips) == 0
-  need_nat_eip_data    = local.nat_enabled && length(var.nat_elastic_ips) > 0
-  nat_eip_allocations  = local.nat_enabled ? (local.need_nat_eips ? aws_eip.default[*].id : data.aws_eip.nat[*].id) : []
+  # Regional NAT gateways in auto mode don't need EIPs (AWS manages them automatically)
+  # Only zonal NAT gateways and NAT instances need EIPs
+  need_nat_eips     = local.nat_enabled && var.nat_gateway_availability_mode == "zonal" && length(var.nat_elastic_ips) == 0
+  need_nat_eip_data = local.nat_enabled && var.nat_gateway_availability_mode == "zonal" && length(var.nat_elastic_ips) > 0
+  nat_eip_allocations = (local.nat_enabled && var.nat_gateway_availability_mode == "zonal") ? (
+    local.need_nat_eips ? aws_eip.default[*].id : data.aws_eip.nat[*].id
+  ) : []
 
   need_nat_ami_id     = local.nat_instance_enabled && length(var.nat_instance_ami_id) == 0
   nat_instance_ami_id = local.need_nat_ami_id ? data.aws_ami.nat_instance[0].id : try(var.nat_instance_ami_id[0], "")
@@ -338,13 +348,45 @@ locals {
   }
 
   # Create a map from public subnet ID to NAT Gateway ID (for public subnets that have NAT Gateways)
-  public_subnet_to_nat_gateway_map = { for nat in aws_nat_gateway.default : nat.subnet_id => nat.id }
+  # Only applicable for zonal NAT gateways
+  public_subnet_to_nat_gateway_map = var.nat_gateway_availability_mode == "zonal" ? {
+    for nat in aws_nat_gateway.default : nat.subnet_id => nat.id
+  } : {}
 
   # Create a map from private subnet ID to NAT Gateway ID (the NAT that the private subnet routes to)
-  private_subnet_to_nat_gateway_map = local.nat_gateway_enabled && local.private4_enabled ? {
-    for idx, subnet in aws_subnet.private :
-    subnet.id => aws_nat_gateway.default[local.private_route_table_to_nat_map[idx]].id
-  } : {}
+  # For regional mode, all private subnets route to the same regional NAT gateway
+  # For zonal mode, each private subnet routes to a NAT in its own AZ
+  private_subnet_to_nat_gateway_map = local.nat_gateway_enabled && local.private4_enabled ? (
+    var.nat_gateway_availability_mode == "regional" ? {
+      for subnet in aws_subnet.private :
+      subnet.id => aws_nat_gateway.regional[0].id
+      } : {
+      for idx, subnet in aws_subnet.private :
+      subnet.id => aws_nat_gateway.default[local.private_route_table_to_nat_map[idx]].id
+    }
+  ) : {}
+
+  # Compute NAT Gateway IDs for private route tables
+  # For regional mode: single route table points to the regional NAT
+  # For zonal mode: each route table points to the NAT in the same AZ
+  nat_gateway_id_for_route = local.nat_gateway_enabled && local.private4_enabled ? (
+    var.nat_gateway_availability_mode == "regional" ? [
+      aws_nat_gateway.regional[0].id
+      ] : [
+      for i in range(local.private_route_table_count) : aws_nat_gateway.default[local.private_route_table_to_nat_map[i]].id
+    ]
+  ) : []
+
+  # Compute NAT Gateway IDs for public route tables (NAT64)
+  # For regional mode: all routes point to the single regional NAT
+  # For zonal mode: routes point to the NAT in the same AZ
+  nat_gateway_id_for_public_route = local.nat_gateway_enabled && local.public_dns64_enabled ? (
+    var.nat_gateway_availability_mode == "regional" ? [
+      for i in range(local.public_route_table_count) : aws_nat_gateway.regional[0].id
+      ] : [
+      for i in range(local.public_route_table_count) : aws_nat_gateway.default[local.public_route_table_to_nat_map[i]].id
+    ]
+  ) : []
 
   named_private_subnets_stats_map = { for i, s in local.private_subnets_per_az_names : s => (
     [

@@ -48,7 +48,8 @@ resource "aws_subnet" "private" {
 }
 
 resource "aws_route_table" "private" {
-  # One route table per private subnet
+  # For regional NAT: one shared route table for all subnets
+  # For zonal NAT/NAT instance: one route table per private subnet
   count = local.private_route_table_count
 
   vpc_id = local.vpc_id
@@ -56,7 +57,11 @@ resource "aws_route_table" "private" {
   tags = merge(
     module.private_label.tags,
     {
-      "Name" = format("%s%s%s", module.private_label.id, local.delimiter, local.private_subnet_az_abbreviations[count.index])
+      "Name" = var.nat_gateway_availability_mode == "regional" ? (
+        module.private_label.id
+        ) : (
+        format("%s%s%s", module.private_label.id, local.delimiter, local.private_subnet_az_abbreviations[count.index])
+      )
     }
   )
 }
