@@ -67,4 +67,10 @@ func TestExamplesRegionalNatGateway(t *testing.T) {
 
 	// Should have created private subnets (3 AZs specified in fixtures)
 	assert.Equal(t, 3, len(privateSubnetIds), "Should create 3 private subnets (one per AZ)")
+
+	// Run `terraform output` to get private route table IDs
+	privateRouteTableIds := terraform.OutputList(t, terraformOptions, "private_route_table_ids")
+
+	// Should have created only one private route table
+	assert.Equal(t, 1, len(privateRouteTableIds), "Should create 1 private route table")
 }
