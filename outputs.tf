@@ -75,12 +75,22 @@ output "private_network_acl_id" {
 
 output "nat_gateway_ids" {
   description = "IDs of the NAT Gateways created"
-  value       = aws_nat_gateway.default[*].id
+  value       = local.regional_nat_gateway_useful ? aws_nat_gateway.regional[*].id : aws_nat_gateway.default[*].id
 }
 
 output "nat_gateway_private_ips" {
-  description = "Private IP addresses of the NAT Gateways"
-  value       = aws_nat_gateway.default[*].private_ip
+  description = "Private IP addresses of the NAT Gateways (zonal mode only)"
+  value       = local.zonal_nat_gateway_useful ? aws_nat_gateway.default[*].private_ip : []
+}
+
+output "nat_gateway_route_table_id" {
+  description = "ID of the automatically created route table for Regional NAT Gateway (regional mode only)"
+  value       = local.regional_nat_gateway_useful ? try(aws_nat_gateway.regional[0].route_table_id, null) : null
+}
+
+output "nat_gateway_regional_addresses" {
+  description = "Information about IP addresses and network interfaces for Regional NAT Gateway (regional mode only)"
+  value       = local.regional_nat_gateway_useful ? try(aws_nat_gateway.regional[0].regional_nat_gateway_address, []) : []
 }
 
 output "nat_instance_ids" {
@@ -94,13 +104,13 @@ output "nat_instance_ami_id" {
 }
 
 output "nat_ips" {
-  description = "Elastic IP Addresses in use by NAT"
-  value       = local.need_nat_eip_data ? var.nat_elastic_ips : aws_eip.default[*].public_ip
+  description = "Elastic IP Addresses in use by NAT (zonal mode only; regional mode manages IPs automatically)"
+  value       = local.zonal_nat_gateway_useful && local.need_nat_eip_data ? var.nat_elastic_ips : (var.nat_gateway_availability_mode == "zonal" ? aws_eip.default[*].public_ip : [])
 }
 
 output "nat_eip_allocation_ids" {
-  description = "Elastic IP allocations in use by NAT"
-  value       = local.nat_eip_allocations
+  description = "Elastic IP allocations in use by NAT (zonal mode only; regional mode manages IPs automatically)"
+  value       = local.zonal_nat_gateway_useful ? local.nat_eip_allocations : []
 }
 
 output "az_private_subnets_map" {
