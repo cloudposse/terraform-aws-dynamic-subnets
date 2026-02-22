@@ -57,7 +57,7 @@ resource "aws_route_table" "private" {
   tags = merge(
     module.private_label.tags,
     {
-      "Name" = var.nat_gateway_availability_mode == "regional" ? (
+      "Name" = local.regional_nat_gateway_useful ? (
         module.private_label.id
         ) : (
         format("%s%s%s", module.private_label.id, local.delimiter, local.private_subnet_az_abbreviations[count.index])

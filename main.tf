@@ -189,7 +189,7 @@ locals {
   # For regional NAT gateway, use a single shared route table since all subnets route to the same NAT
   # For zonal NAT gateway or NAT instance, use one route table per subnet (each routes to different NAT)
   private_route_table_count = local.private_route_table_enabled ? (
-    var.nat_gateway_availability_mode == "regional" && local.nat_gateway_enabled ? 1 : local.private_subnet_az_count
+    local.regional_nat_gateway_useful ? 1 : local.private_subnet_az_count
   ) : 0
   private_route_table_ids = local.private_route_table_enabled ? aws_route_table.private[*].id : []
 
@@ -203,6 +203,10 @@ locals {
   # An AWS NAT instance does not perform NAT64, and we choose not to try to support NAT64 via NAT instances at this time.
   nat_instance_useful = local.private4_enabled
   nat_gateway_useful  = local.nat_instance_useful || local.public_dns64_enabled || local.private_dns64_enabled
+
+  # Zonal versus Regional NAT gateways
+  zonal_nat_gateway_useful    = local.nat_gateway_useful && var.nat_gateway_availability_mode == "zonal"
+  regional_nat_gateway_useful = local.nat_gateway_useful && var.nat_gateway_availability_mode == "regional"
 
   # Convert subnet names to indices if names were specified
   # Creates a map of subnet name -> index for easy lookup
@@ -230,7 +234,7 @@ locals {
   # For each AZ (up to max_nats), and for each requested subnet index within that AZ,
   # calculate the global subnet index in the flattened aws_subnet.public list
   # Only used for zonal NAT gateways; regional NAT gateways don't need subnet placement
-  nat_gateway_public_subnet_indices = local.nat_gateway_useful && var.nat_gateway_availability_mode == "zonal" ? flatten([
+  nat_gateway_public_subnet_indices = local.zonal_nat_gateway_useful ? flatten([
     for az_idx in range(min(local.vpc_az_count, var.max_nats)) : [
       for subnet_idx in local.nat_gateway_resolved_indices :
       az_idx * local.public_subnets_per_az_count + subnet_idx
@@ -305,9 +309,9 @@ locals {
   nat_enabled          = local.nat_gateway_enabled || local.nat_instance_enabled
   # Regional NAT gateways in auto mode don't need EIPs (AWS manages them automatically)
   # Only zonal NAT gateways and NAT instances need EIPs
-  need_nat_eips     = local.nat_enabled && var.nat_gateway_availability_mode == "zonal" && length(var.nat_elastic_ips) == 0
-  need_nat_eip_data = local.nat_enabled && var.nat_gateway_availability_mode == "zonal" && length(var.nat_elastic_ips) > 0
-  nat_eip_allocations = (local.nat_enabled && var.nat_gateway_availability_mode == "zonal") ? (
+  need_nat_eips     = local.zonal_nat_gateway_useful && length(var.nat_elastic_ips) == 0
+  need_nat_eip_data = local.zonal_nat_gateway_useful && length(var.nat_elastic_ips) > 0
+  nat_eip_allocations = local.zonal_nat_gateway_useful ? (
     local.need_nat_eips ? aws_eip.default[*].id : data.aws_eip.nat[*].id
   ) : []
 
@@ -349,7 +353,7 @@ locals {
 
   # Create a map from public subnet ID to NAT Gateway ID (for public subnets that have NAT Gateways)
   # Only applicable for zonal NAT gateways
-  public_subnet_to_nat_gateway_map = var.nat_gateway_availability_mode == "zonal" ? {
+  public_subnet_to_nat_gateway_map = local.zonal_nat_gateway_useful ? {
     for nat in aws_nat_gateway.default : nat.subnet_id => nat.id
   } : {}
 

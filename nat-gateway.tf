@@ -9,7 +9,7 @@ module "nat_label" {
 
 # Zonal NAT Gateways (traditional mode - one per AZ in public subnets)
 resource "aws_nat_gateway" "default" {
-  count = local.nat_gateway_enabled && var.nat_gateway_availability_mode == "zonal" ? local.nat_count : 0
+  count = local.zonal_nat_gateway_useful ? local.nat_count : 0
 
   allocation_id = local.nat_eip_allocations[count.index]
   subnet_id     = aws_subnet.public[local.nat_gateway_public_subnet_indices[count.index]].id
@@ -33,7 +33,7 @@ resource "aws_nat_gateway" "default" {
 
 # Regional NAT Gateway (automatic multi-AZ expansion)
 resource "aws_nat_gateway" "regional" {
-  count = local.nat_gateway_enabled && var.nat_gateway_availability_mode == "regional" ? 1 : 0
+  count = local.regional_nat_gateway_useful ? 1 : 0
 
   vpc_id            = local.vpc_id
   availability_mode = "regional"
@@ -47,13 +47,6 @@ resource "aws_nat_gateway" "regional" {
   )
 
   depends_on = [aws_eip_association.nat_instance]
-
-  lifecycle {
-    precondition {
-      condition     = var.nat_gateway_availability_mode != "regional" || local.igw_configured
-      error_message = "Regional NAT Gateways require an Internet Gateway. Please provide `igw_id`."
-    }
-  }
 }
 
 # If private IPv4 subnets and NAT Gateway are both enabled, create a
