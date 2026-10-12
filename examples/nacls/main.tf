@@ -33,7 +33,8 @@ module "subnets" {
   route_create_timeout    = "5m"
   route_delete_timeout    = "10m"
 
-  subnet_type_tag_key = "cpco.io/subnet/type"
+  public_subnets_additional_tags  = { format("%s/subnet/type", module.this.id) = "public" }
+  private_subnets_additional_tags = { format("%s/subnet/type", module.this.id) = "private" }
 
   subnets_per_az_count = var.subnets_per_az_count
   subnets_per_az_names = var.subnets_per_az_names
