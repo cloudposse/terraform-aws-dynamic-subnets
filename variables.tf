@@ -207,6 +207,23 @@ variable "nat_gateway_enabled" {
   default     = null
 }
 
+variable "nat_gateway_availability_mode" {
+  type        = string
+  description = <<-EOT
+    Availability mode for NAT Gateway. Valid values are `zonal` (default) and `regional`.
+    - `zonal`: Creates NAT Gateways in specific subnets (traditional behavior, supports both public and private connectivity)
+    - `regional`: Creates a single Regional NAT Gateway that automatically expands across AZs (only supports public connectivity, no public subnets required)
+    Regional NAT Gateways simplify architecture, enhance security (no public subnets needed), and provide automatic high availability.
+    Note: Regional NAT Gateways do not support private connectivity type. Use `zonal` mode for private NAT use cases.
+    EOT
+  default     = "zonal"
+  nullable    = false
+  validation {
+    condition     = contains(["zonal", "regional"], var.nat_gateway_availability_mode)
+    error_message = "The `nat_gateway_availability_mode` value must be either \"zonal\" or \"regional\"."
+  }
+}
+
 variable "nat_instance_enabled" {
   type        = bool
   description = <<-EOT
